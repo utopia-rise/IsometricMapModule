@@ -1,7 +1,7 @@
-#ifndef GODOT_JVM_REGISTER_TYPES_H
-#define GODOT_JVM_REGISTER_TYPES_H
+#ifndef ISOMETRIC_MAPS_REGISTER_TYPES_H
+#define ISOMETRIC_MAPS_REGISTER_TYPES_H
 
 void register_isometric_maps_types();
 void unregister_isometric_maps_types();
 
-#endif //GODOT_JVM_REGISTER_TYPES_H
+#endif //ISOMETRIC_MAPS_REGISTER_TYPES_H
