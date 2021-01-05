@@ -4,14 +4,15 @@
 #include <scene/2d/node_2d.h>
 #include <modules/isometric_maps/src/editor/outline_drawer.h>
 
+class IsometricWorld;
+
 namespace positionable {
-
-    enum class SlopeType {NONE = 0, LEFT = 1, RIGHT = 2, FORWARD = 3, BACKWARD = 4};
-
-    class IsometricWorld;
 
     class IsometricPositionable : public Node2D {
         GDCLASS(IsometricPositionable, Node2D)
+
+    public:
+        enum class SlopeType {NONE = 0, LEFT = 1, RIGHT = 2, FORWARD = 3, BACKWARD = 4};
 
     private:
         AABB aabb;
@@ -25,12 +26,12 @@ namespace positionable {
     protected:
         editor::OutlineDrawer* outline_drawer;
 
-        PoolVector2Array left_points;
-        PoolVector2Array right_points;
-        PoolVector2Array up_points;
-        PoolVector2Array down_points;
+        Vector<Vector2> left_points;
+        Vector<Vector2> right_points;
+        Vector<Vector2> up_points;
+        Vector<Vector2> down_points;
 
-        PoolVector2Array debug_points;
+        Vector<Vector2> debug_points;
 
         IsometricWorld* world;
         bool world_owner;
@@ -42,9 +43,9 @@ namespace positionable {
                                real_t ratio) const;
 
     public:
-        Vector2 isoPosition;
-        Array behindStatics;
-        Array behindDynamics;
+        Vector2 iso_position;
+        Array behind_statics;
+        Array behind_dynamics;
 
         IsometricPositionable();
         ~IsometricPositionable() override = default;
@@ -65,11 +66,11 @@ namespace positionable {
         int get_z_order_size() const;
         void set_z_order_size(int size);
         bool is_rendered() const;
-        void set_rendered(bool isRendered);
+        void set_rendered(bool is_rendered);
         bool is_temporary() const;
         void set_temporary(bool temp);
         int get_debug_z() const;
-        void set_debug_z(int dZ);
+        void set_debug_z(int d_z);
 
         virtual void on_resize();
         virtual void on_grid_updated(int stair);
@@ -82,7 +83,7 @@ namespace positionable {
     };
 }
 
-VARIANT_ENUM_CAST(positionable::SlopeType)
+//VARIANT_ENUM_CAST(positionable::IsometricPositionable::SlopeType)
 
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H

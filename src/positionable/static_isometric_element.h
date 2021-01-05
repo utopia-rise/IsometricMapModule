@@ -14,7 +14,7 @@ namespace positionable {
 
     protected:
         SlopeType
-        calculate_slope_offset(Vector2* slopeOffset, real_t tileWidthFloat, real_t tileHeightFloat, real_t width,
+        calculate_slope_offset(Vector2* slope_offset, real_t tile_width_float, real_t tile_height_float, real_t width,
                              real_t depth,
                              real_t ratio) const override;
 
@@ -25,7 +25,7 @@ namespace positionable {
         void _enter_tree() override;
 
         SlopeType get_slope_type() const override;
-        void set_slope_type(int type);
+        void set_slope_type(SlopeType type);
 
         /**
          * Sets if StaticIsometricElement should have default body.

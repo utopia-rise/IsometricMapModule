@@ -15,7 +15,7 @@ namespace positionable {
 
     public:
         String get_type_name() const;
-        void set_type_name(String name);
+        void set_type_name(const String& name);
         Color get_color() const;
         void set_color(Color col);
 

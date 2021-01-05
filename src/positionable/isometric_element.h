@@ -8,14 +8,14 @@ namespace positionable {
     template <class T>
     class IsometricElement : public IsometricPositionable {
     protected:
-        bool hasMoved;
-        bool hasDefaultBody;
-        T *defaultBody;
+        bool has_moved;
+        bool has_default_body;
+        T* default_body;
 
         /**
          * Sets or remove defaultBody in function of hasDefaultBody
          */
-        void updateDefaultBody();
+        void update_default_body();
 
     public:
         IsometricElement();
@@ -34,7 +34,7 @@ namespace positionable {
          */
         virtual void set_has_default_body(bool b);
 
-        virtual void update_position_from_body(PhysicsBody* physicsBody);
+        virtual void update_position_from_body(PhysicsBody* physics_body);
 
         virtual SlopeType get_slope_type() const;
 
@@ -48,97 +48,96 @@ namespace positionable {
 
     template<class T>
     IsometricElement<T>::IsometricElement()
-            : IsometricPositionable(), hasMoved(false), hasDefaultBody(true), defaultBody(nullptr) {
+            : IsometricPositionable(), has_moved(false), has_default_body(true), default_body(nullptr) {
 
     }
 
     template<class T>
     void IsometricElement<T>::_enter_tree() {
         IsometricPositionable::_enter_tree();
-        const Array &children = get_children();
-        if (hasDefaultBody) {
-            for (int i = 0; i < children.size(); i++) {
-                auto *body = cast_to<T>(children[i]);
+        if (has_default_body) {
+            for (int i = 0; i < get_child_count(); i++) {
+                auto *body = cast_to<T>(get_child(i));
                 if (body) {
-                    defaultBody = body;
-                    defaultBody->setParent(this);
-                    defaultBody->set_owner(this);
+                    default_body = body;
+                    default_body->set_parent(this);
+                    default_body->set_owner(this);
                     break;
                 }
             }
         }
-        updateDefaultBody();
+        update_default_body();
     }
 
     template<class T>
     bool IsometricElement<T>::get_has_default_body() const {
-        return hasDefaultBody;
+        return has_default_body;
     }
 
     template<class T>
     void IsometricElement<T>::set_has_default_body(bool b) {
-        hasDefaultBody = b;
+        has_default_body = b;
         if (is_inside_tree()) {
-            updateDefaultBody();
+            update_default_body();
         }
     }
 
     template<class T>
-    void IsometricElement<T>::update_position_from_body(PhysicsBody* physicsBody) {
-        const Vector3 &origin = physicsBody->get_global_transform().origin;
-        IsometricPositionable::setGlobalPosition3D({origin.x, origin.z, origin.y});
+    void IsometricElement<T>::update_position_from_body(PhysicsBody* physics_body) {
+        const Vector3 &origin = physics_body->get_global_transform().origin;
+        IsometricPositionable::set_global_position_3d({origin.x, origin.z, origin.y});
     }
 
     template<class T>
-    SlopeType IsometricElement<T>::get_slope_type() const {
+    IsometricPositionable::SlopeType IsometricElement<T>::get_slope_type() const {
         return SlopeType::NONE;
     }
 
     template<class T>
     void IsometricElement<T>::set_aabb(AABB ab) {
-        IsometricPositionable::setAABB(ab);
-        hasMoved = true;
+        IsometricPositionable::set_aabb(ab);
+        has_moved = true;
     }
 
     template<class T>
     void IsometricElement<T>::set_global_position_3d(Vector3 pos) {
-        IsometricPositionable::setGlobalPosition3D(pos);
-        hasMoved = true;
+        IsometricPositionable::set_global_position_3d(pos);
+        has_moved = true;
     }
 
     template<class T>
-    void IsometricElement<T>::updateDefaultBody() {
-        if (hasDefaultBody) {
-            if (!defaultBody) {
-                defaultBody = T::_new();
-                defaultBody->setParent(this);
-                add_child(defaultBody);
-                defaultBody->set_owner(this);
-                hasMoved = true;
+    void IsometricElement<T>::update_default_body() {
+        if (has_default_body) {
+            if (!default_body) {
+                default_body = memnew(T());
+                default_body->set_parent(this);
+                add_child(default_body);
+                default_body->set_owner(this);
+                has_moved = true;
             }
         } else {
-            if (defaultBody) {
-                remove_child(defaultBody);
-                defaultBody->queue_free();
-                defaultBody = nullptr;
+            if (default_body) {
+                remove_child(default_body);
+                default_body->queue_delete();
+                default_body = nullptr;
             }
         }
     }
 
     template<class T>
     void IsometricElement<T>::on_resize() {
-        IsometricPositionable::onResize();
-        hasMoved = true;
+        IsometricPositionable::on_resize();
+        has_moved = true;
     }
 
     template<class T>
     bool IsometricElement<T>::get_has_moved() const {
-        return hasMoved;
+        return has_moved;
     }
 
     template<class T>
     void IsometricElement<T>::set_has_moved(bool hm) {
-        hasMoved = hm;
+        has_moved = hm;
     }
 }
 

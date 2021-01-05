@@ -19,7 +19,6 @@ void register_isometric_maps_types() {
 
     ClassDB::register_class<editor::OutlineDrawer>();
 
-    ClassDB::register_class<IsometricConfig>();
     ClassDB::register_class<IsometricApi>();
     Engine::get_singleton()->add_singleton(Engine::Singleton("HilbertHotel", IsometricApi::get_instance()));
 }

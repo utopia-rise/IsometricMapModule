@@ -9,22 +9,21 @@ namespace editor {
         GDCLASS(OutlineDrawer, Node2D)
 
     private:
-        PoolVector2Array* upPoints;
-        PoolVector2Array* downPoints;
+        Vector<Vector2>* up_points;
+        Vector<Vector2>* down_points;
         Color color;
-        real_t lineSize;
+        real_t line_size;
 
     public:
         OutlineDrawer();
-        ~OutlineDrawer() = default;
+        ~OutlineDrawer() override = default;
 
-        void _init();
         void _draw();
-        void setPoints(PoolVector2Array* up, PoolVector2Array* down);
+        void setPoints(Vector<Vector2>* up, Vector<Vector2>* down);
         void setColor(const Color& c);
-        const Color& getColor() const;
+        const Color& get_color() const;
         void setLineSize(real_t size);
-        real_t getLineSize() const;
+        real_t get_line_size() const;
 
     protected:
         static void _bind_methods();

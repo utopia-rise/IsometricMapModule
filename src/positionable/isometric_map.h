@@ -3,7 +3,6 @@
 
 
 #include <modules/isometric_maps/src/containers/grid_3d.h>
-#include <modules/isometric_maps/src/isometric_config.h>
 #include "isometric_positionable.h"
 
 namespace positionable {
@@ -18,28 +17,30 @@ namespace positionable {
 
         Array get_flatten_positionables(const Vector3& offset = Vector3());
         void insert_map_as_flatten(IsometricMap* map, const Vector3& offset);
-        IsometricMap* initialize_from();
 
     public:
-        Ref<IsometricConfig> isometric_config;
-
         IsometricMap();
         ~IsometricMap() override = default;
+
+        int tile_width;
+        int tile_height;
+        int angle;
+        float e_z;
+        float z_ratio;
+        float topological_margin;
 
         void _ready();
         void _enter_tree() override;
         void _process(float delta);
 
-        void add_iso_positionable(IsometricPositionable* isometricPositionable);
-        void remove_iso_positionable(IsometricPositionable* isometricPositionable);
-        IsometricPositionable* get_positionable_at(Vector3 pos, bool onlyLeftUpperCorner = true);
+        void add_iso_positionable(IsometricPositionable* isometric_positionable);
+        void remove_iso_positionable(IsometricPositionable* isometric_positionable);
+        IsometricPositionable* get_positionable_at(Vector3 pos, bool only_left_upper_corner = true);
         bool is_overlapping(IsometricPositionable* positionable);
         bool is_overlapping_aabb(AABB aabb);
         bool are_map_elements_overlapping(Vector3 position, IsometricMap* map);
         bool has(IsometricPositionable* isometricPositionable);
         Array getPositionableChildren() const;
-
-        IsometricMap* flatten();
 
         void on_resize() override;
         void on_grid_updated(int stair) override;

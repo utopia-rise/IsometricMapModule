@@ -11,18 +11,18 @@ namespace positionable {
         GDCLASS(IsometricPlaceholder, StaticIsometricElement)
 
     private:
-        Ref<PlaceholderType> placeholderType;
+        Ref<PlaceholderType> placeholder_type;
 
         float tempAlpha = 0.15;
 
-        PoolColorArray left_color;
-        PoolColorArray right_color;
-        PoolColorArray up_color;
-        PoolColorArray down_color;
-        PoolColorArray side_slope_color;
-        PoolColorArray forward_slope_color;
-        PoolColorArray backward_slope_color;
-        PoolColorArray stair_color;
+        Vector<Color> left_color;
+        Vector<Color> right_color;
+        Vector<Color> up_color;
+        Vector<Color> down_color;
+        Vector<Color> side_slope_color;
+        Vector<Color> forward_slope_color;
+        Vector<Color> backward_slope_color;
+        Vector<Color> stair_color;
 
         Vector3 map_size;
 
@@ -31,17 +31,16 @@ namespace positionable {
 
         void set_map_size(const Vector3 &size);
     public:
-        IsometricPlaceholder() = default;
+        IsometricPlaceholder();
         ~IsometricPlaceholder() override = default;
 
-        void _init();
         void _draw();
 
         void on_grid_updated(int stair) override;
         void on_resize() override;
 
         Ref<PlaceholderType> get_placeholder_type() const;
-        void set_placeholder_type(Ref<PlaceholderType> pType);
+        void set_placeholder_type(Ref<PlaceholderType> p_type);
 
     protected:
         static void _bind_methods();

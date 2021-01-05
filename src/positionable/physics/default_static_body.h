@@ -18,9 +18,8 @@ namespace positionable {
 
         public:
             DefaultStaticBody();
-            ~DefaultStaticBody() override = default;
+            ~DefaultStaticBody() override;
 
-            void _init();
             void _enter_tree();
             void _physics_process(float delta);
 

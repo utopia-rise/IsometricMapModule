@@ -24,9 +24,8 @@ namespace positionable {
 
         public:
             DefaultKinematicBody();
-            ~DefaultKinematicBody() override = default;
+            ~DefaultKinematicBody() override;
 
-            void _init();
             void _enter_tree();
             void _physics_process(float delta);
 

@@ -14,7 +14,7 @@ namespace containers {
         int depth = 1;
         int height = 1;
 
-        Array internal_array;
+        Vector<Object*> internal_array;
 
         bool is_in_range(int x, int y, int z) const;
 
@@ -48,9 +48,8 @@ namespace containers {
         int get_height() const;
         void set_height(int h);
 
-        const Array& get_internal_array() const;
-        void set_internal_array(const Array& array);
-    };
+        const Vector<Object*>& get_internal_array() const;
+        void set_internal_array(const Vector<Object*>& array);
     };
 }
 
