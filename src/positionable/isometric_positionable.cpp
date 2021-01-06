@@ -5,7 +5,7 @@
 using namespace positionable;
 
 IsometricPositionable::IsometricPositionable() : debug_points(), aabb({0, 0, 0}, {1, 1, 1}),
-                                                 z_order_size(0), rendered(false), temporary(true), debug_z(0),
+                                                 z_order_size(0), rendered(false), is_temporary(true), debug_z(0),
                                                  outline_drawer(nullptr), world(nullptr), world_owner(false) {
     connect("enter_tree", this, "_enter_tree");
     connect("exit_tree", this, "_exit_tree");
@@ -24,7 +24,7 @@ void IsometricPositionable::_enter_tree() {
     const Node *parent{get_parent()};
     if (parent) {
         if (auto positionable{cast_to<IsometricPositionable>(parent)}) {
-            if (positionable->world && !this->is_temporary()) {
+            if (positionable->world && !is_temporary) {
                 world = positionable->world;
                 world_owner = false;
                 aabb.position = local_position + positionable->aabb.position;
@@ -81,16 +81,15 @@ void IsometricPositionable::set_outline_drawer(Color color, real_t lineSize) {
     outline_drawer->update();
 }
 
-Vector3 IsometricPositionable::get_local_3d_position() const {
+Vector3 IsometricPositionable::get_local_position_3d() const {
     return local_position;
 }
 
-void IsometricPositionable::set_local_3d_position(Vector3 p_local) {
+void IsometricPositionable::set_local_position_3d(Vector3 p_local) {
     Vector3 offset = p_local - local_position;
     local_position = p_local;
     aabb.position += offset;
     set_position(IsometricApi::get_instance()->get_screen_coord_from_3d(p_local));
-    iso_position = get_position();
 }
 
 Vector3 IsometricPositionable::get_global_position_3d() const {
@@ -101,8 +100,7 @@ void IsometricPositionable::set_global_position_3d(Vector3 pos) {
     Vector3 offset = pos - aabb.position;
     aabb.position = pos;
     local_position += offset;
-    set_position(IsometricApi::get_instance()->get_screen_coord_from_3d(get_local_3d_position()));
-    iso_position = get_position();
+    set_position(IsometricApi::get_instance()->get_screen_coord_from_3d(get_local_position_3d()));
 }
 
 AABB IsometricPositionable::get_aabb() {
@@ -114,7 +112,6 @@ void IsometricPositionable::set_aabb(AABB ab) {
     aabb = ab;
     local_position += offset;
     set_position(IsometricApi::get_instance()->get_screen_coord_from_3d(ab.position));
-    iso_position = get_position();
     on_resize();
 }
 
@@ -143,12 +140,12 @@ void IsometricPositionable::set_rendered(bool is_rendered) {
     rendered = is_rendered;
 }
 
-bool IsometricPositionable::is_temporary() const {
-    return temporary;
+bool IsometricPositionable::get_is_temporary() const {
+    return is_temporary;
 }
 
-void IsometricPositionable::set_temporary(bool temp) {
-    temporary = temp;
+void IsometricPositionable::set_is_temporary(bool temp) {
+    is_temporary = temp;
     update();
 }
 
@@ -294,4 +291,51 @@ IsometricPositionable::calculate_slope_offset(Vector2* slopeOffset, real_t tileW
 void IsometricPositionable::_bind_methods() {
     ClassDB::bind_method(D_METHOD("_enter_tree"), &IsometricPositionable::_enter_tree);
     ClassDB::bind_method(D_METHOD("_exit_tree"), &IsometricPositionable::_exit_tree);
+
+    ClassDB::bind_method(D_METHOD("get_hexagone_coordinates"), &IsometricPositionable::get_hexagone_coordinates);
+    ClassDB::bind_method(D_METHOD("set_outline_drawer"), &IsometricPositionable::set_outline_drawer);
+    ClassDB::bind_method(D_METHOD("get_aabb"), &IsometricPositionable::get_aabb);
+    ClassDB::bind_method(D_METHOD("set_aabb"), &IsometricPositionable::set_aabb);
+    ClassDB::bind_method(D_METHOD("on_resize"), &IsometricPositionable::on_resize);
+    ClassDB::bind_method(D_METHOD("on_grid_updated"), &IsometricPositionable::on_grid_updated);
+    ClassDB::bind_method(D_METHOD("on_select"), &IsometricPositionable::on_select);
+    ClassDB::bind_method(D_METHOD("set_has_moved"), &IsometricPositionable::set_has_moved);
+
+    ClassDB::bind_method(D_METHOD("set_global_position_3d"), &IsometricPositionable::set_global_position_3d);
+    ClassDB::bind_method(D_METHOD("get_global_position_3d"), &IsometricPositionable::get_global_position_3d);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "global_position_3d"), "set_global_position_3d", "get_global_position_3d");
+
+    ClassDB::bind_method(D_METHOD("set_local_position_3d"), &IsometricPositionable::set_local_position_3d);
+    ClassDB::bind_method(D_METHOD("get_local_position_3d"), &IsometricPositionable::get_local_position_3d);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "local_position_3d"), "set_local_position_3d", "get_local_position_3d");
+
+    ClassDB::bind_method(D_METHOD("set_has_moved"), &IsometricPositionable::set_has_moved);
+    ClassDB::bind_method(D_METHOD("get_has_moved"), &IsometricPositionable::get_has_moved);
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "has_moved"), "set_has_moved", "get_has_moved");
+
+    ClassDB::bind_method(D_METHOD("set_size_3d"), &IsometricPositionable::set_size_3d);
+    ClassDB::bind_method(D_METHOD("get_size_3d"), &IsometricPositionable::get_size_3d);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "size_3d"), "set_size_3d", "get_size_3d");
+    ADD_PROPERTY_DEFAULT("size_3d", Vector3(1, 1, 1));
+
+    ClassDB::bind_method(D_METHOD("set_z_order_size"), &IsometricPositionable::set_z_order_size);
+    ClassDB::bind_method(D_METHOD("get_z_order_size"), &IsometricPositionable::get_z_order_size);
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "z_order_size"), "set_z_order_size", "get_z_order_size");
+    ADD_PROPERTY_DEFAULT("z_order_size", 1);
+
+    ClassDB::bind_method(D_METHOD("set_is_temporary"), &IsometricPositionable::set_is_temporary);
+    ClassDB::bind_method(D_METHOD("get_is_temporary"), &IsometricPositionable::get_is_temporary);
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_temporary"), "set_is_temporary", "get_is_temporary");
+    ADD_PROPERTY_DEFAULT("is_temporary", true);
+
+    ClassDB::bind_method(D_METHOD("set_debug_z"), &IsometricPositionable::set_debug_z);
+    ClassDB::bind_method(D_METHOD("get_debug_z"), &IsometricPositionable::get_debug_z);
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "debug_z"), "set_debug_z", "get_debug_z");
+    ADD_PROPERTY_DEFAULT("debug_z", 0);
+
+//    BIND_ENUM_CONSTANT(NONE);
+//    BIND_ENUM_CONSTANT(LEFT);
+//    BIND_ENUM_CONSTANT(RIGHT);
+//    BIND_ENUM_CONSTANT(FORWARD);
+//    BIND_ENUM_CONSTANT(BACKWARD);
 }

@@ -12,7 +12,14 @@ namespace positionable {
         GDCLASS(IsometricPositionable, Node2D)
 
     public:
-        enum class SlopeType {NONE = 0, LEFT = 1, RIGHT = 2, FORWARD = 3, BACKWARD = 4};
+        enum class SlopeType {
+            NONE = 0,
+            LEFT = 1,
+            RIGHT = 2,
+            FORWARD = 3,
+            BACKWARD = 4,
+            SLOPE_TYPE_MAX = 5
+        };
 
     private:
         AABB aabb;
@@ -20,7 +27,7 @@ namespace positionable {
         int z_order_size;
         bool rendered;
 
-        bool temporary;
+        bool is_temporary;
         int debug_z;
 
     protected:
@@ -43,7 +50,6 @@ namespace positionable {
                                real_t ratio) const;
 
     public:
-        Vector2 iso_position;
         Array behind_statics;
         Array behind_dynamics;
 
@@ -54,8 +60,8 @@ namespace positionable {
         void _exit_tree();
         Transform2D get_hexagone_coordinates() const;
         void set_outline_drawer(Color color, real_t lineSize);
-        Vector3 get_local_3d_position() const;
-        void set_local_3d_position(Vector3 p_local);
+        Vector3 get_local_position_3d() const;
+        void set_local_position_3d(Vector3 p_local);
         Vector3 get_global_position_3d() const;
         virtual void set_global_position_3d(Vector3 pos);
 
@@ -67,8 +73,8 @@ namespace positionable {
         void set_z_order_size(int size);
         bool is_rendered() const;
         void set_rendered(bool is_rendered);
-        bool is_temporary() const;
-        void set_temporary(bool temp);
+        bool get_is_temporary() const;
+        void set_is_temporary(bool temp);
         int get_debug_z() const;
         void set_debug_z(int d_z);
 

@@ -15,7 +15,7 @@ void IsometricMap::_ready() {
     for (int i = 0; i < get_child_count(); i++) {
         auto *positionable = cast_to<IsometricPositionable>(get_child(i));
         if (positionable) {
-            grid_3d.set_data(positionable->get_local_3d_position(), positionable);
+            grid_3d.set_data(positionable->get_local_position_3d(), positionable);
             edition_grid_3d.insert_box(positionable->get_aabb(), positionable);
         }
     }
@@ -43,7 +43,7 @@ void IsometricMap::add_iso_positionable(IsometricPositionable* isometric_positio
         is_overlapping = edition_grid_3d.is_overlapping(aabb);
     }
     if (pos.x >= map_size.x || pos.y >= map_size.y || pos.z >= map_size.z || is_overlapping) return;
-    isometric_positionable->set_temporary(false);
+    isometric_positionable->set_is_temporary(false);
     isometric_positionable->set_debug_z(0);
 
     grid_3d.set_data(aabb.position, isometric_positionable);
@@ -99,11 +99,11 @@ bool IsometricMap::are_map_elements_overlapping(Vector3 position, IsometricMap* 
     for (int i = 0; i < map->get_child_count(); i++) {
         if (auto *positionable {cast_to<IsometricPositionable>(map->get_child(i))}) {
             if (auto *child_map {cast_to<IsometricMap>(positionable)}) {
-                if (are_map_elements_overlapping(position + child_map->get_local_3d_position(), child_map)) {
+                if (are_map_elements_overlapping(position + child_map->get_local_position_3d(), child_map)) {
                     return true;
                 }
             } else {
-                if (is_overlapping_aabb({position + positionable->get_local_3d_position(), positionable->get_size_3d()})) {
+                if (is_overlapping_aabb({position + positionable->get_local_position_3d(), positionable->get_size_3d()})) {
                     return true;
                 }
             }
@@ -138,7 +138,7 @@ void IsometricMap::on_grid_updated(int stair) {
     for (int i = 0; i < get_child_count(); i++) {
         auto *isometric_positionable = cast_to<IsometricPositionable>(get_child(i));
         if (isometric_positionable) {
-            isometric_positionable->on_grid_updated(stair - static_cast<int>(get_local_3d_position().z));
+            isometric_positionable->on_grid_updated(stair - static_cast<int>(get_local_position_3d().z));
         }
     }
 }
@@ -163,7 +163,7 @@ Array IsometricMap::get_flatten_positionables(const Vector3& offset) {
         auto *positionable = cast_to<IsometricPositionable>(get_child(i));
         if (positionable) {
             if (auto *map = cast_to<IsometricMap>(positionable)) {
-                const Array &inner_positionables{map->get_flatten_positionables(offset + map->get_local_3d_position())};
+                const Array &inner_positionables{map->get_flatten_positionables(offset + map->get_local_position_3d())};
                 for (int j = 0; j < inner_positionables.size(); j++) {
                     if (auto *inner_positionable{cast_to<IsometricPositionable>(inner_positionables[j])}) {
                         positionables.append(inner_positionable);
@@ -171,7 +171,7 @@ Array IsometricMap::get_flatten_positionables(const Vector3& offset) {
                 }
             } else {
                 auto *duplicate_positionable = cast_to<IsometricPositionable>(positionable->duplicate());
-                duplicate_positionable->set_local_3d_position(duplicate_positionable->get_local_3d_position() + offset);
+                duplicate_positionable->set_local_position_3d(duplicate_positionable->get_local_position_3d() + offset);
                 positionables.append(duplicate_positionable);
             }
         }
@@ -183,9 +183,9 @@ void IsometricMap::insert_map_as_flatten(IsometricMap* map, const Vector3& offse
     for (int i = 0; i < get_child_count(); i++) {
         if (auto *positionable{cast_to<IsometricPositionable>(get_child(i))}) {
             if (auto *m{cast_to<IsometricMap>(positionable)}) {
-                insert_map_as_flatten(m, offset + m->get_local_3d_position());
+                insert_map_as_flatten(m, offset + m->get_local_position_3d());
             } else {
-                const AABB &aabb{positionable->get_local_3d_position() + offset, positionable->get_size_3d()};
+                const AABB &aabb{positionable->get_local_position_3d() + offset, positionable->get_size_3d()};
                 edition_grid_3d.insert_box(aabb, map);
             }
         }

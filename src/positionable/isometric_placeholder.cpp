@@ -49,7 +49,7 @@ void IsometricPlaceholder::_draw() {
 }
 
 void IsometricPlaceholder::on_grid_updated(int stair) {
-    set_debug_z(stair - static_cast<int>(get_local_3d_position().z));
+    set_debug_z(stair - static_cast<int>(get_local_position_3d().z));
     update();
 }
 
@@ -73,12 +73,12 @@ void IsometricPlaceholder::set_placeholder_type(Ref<PlaceholderType> p_type) {
 }
 
 void IsometricPlaceholder::draw_points() {
-    const Vector3 &position3D {get_local_3d_position() };
+    const Vector3 &position3D {get_local_position_3d() };
     const Vector3 &size { get_size_3d() };
 
     int debugZ { get_debug_z() };
 
-    if (is_temporary()) {
+    if (get_is_temporary()) {
         Color upC = up_color[0];
         Color leC = left_color[0];
         Color riC = right_color[0];
