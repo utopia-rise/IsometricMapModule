@@ -69,7 +69,7 @@ Transform2D IsometricPositionable::get_hexagone_coordinates() const {
     return {minX, maxX, minY, maxY, hMin, hMax};
 }
 
-void IsometricPositionable::set_outline_drawer(Color color, real_t lineSize) {
+void IsometricPositionable::set_outline_drawer(Color color, real_t line_size) {
     prepare_points();
     if (!outline_drawer) {
         outline_drawer = memnew(editor::OutlineDrawer());
@@ -77,7 +77,7 @@ void IsometricPositionable::set_outline_drawer(Color color, real_t lineSize) {
     }
     outline_drawer->setPoints(&up_points, &down_points);
     outline_drawer->setColor(color);
-    outline_drawer->setLineSize(lineSize);
+    outline_drawer->setLineSize(line_size);
     outline_drawer->update();
 }
 
@@ -293,42 +293,41 @@ void IsometricPositionable::_bind_methods() {
     ClassDB::bind_method(D_METHOD("_exit_tree"), &IsometricPositionable::_exit_tree);
 
     ClassDB::bind_method(D_METHOD("get_hexagone_coordinates"), &IsometricPositionable::get_hexagone_coordinates);
-    ClassDB::bind_method(D_METHOD("set_outline_drawer"), &IsometricPositionable::set_outline_drawer);
+    ClassDB::bind_method(D_METHOD("set_outline_drawer", "color", "line_size"), &IsometricPositionable::set_outline_drawer);
     ClassDB::bind_method(D_METHOD("get_aabb"), &IsometricPositionable::get_aabb);
-    ClassDB::bind_method(D_METHOD("set_aabb"), &IsometricPositionable::set_aabb);
+    ClassDB::bind_method(D_METHOD("set_aabb", "ab"), &IsometricPositionable::set_aabb);
     ClassDB::bind_method(D_METHOD("on_resize"), &IsometricPositionable::on_resize);
-    ClassDB::bind_method(D_METHOD("on_grid_updated"), &IsometricPositionable::on_grid_updated);
-    ClassDB::bind_method(D_METHOD("on_select"), &IsometricPositionable::on_select);
-    ClassDB::bind_method(D_METHOD("set_has_moved"), &IsometricPositionable::set_has_moved);
+    ClassDB::bind_method(D_METHOD("on_grid_updated", "stair"), &IsometricPositionable::on_grid_updated);
+    ClassDB::bind_method(D_METHOD("on_select", "selected"), &IsometricPositionable::on_select);
 
-    ClassDB::bind_method(D_METHOD("set_global_position_3d"), &IsometricPositionable::set_global_position_3d);
+    ClassDB::bind_method(D_METHOD("set_global_position_3d", "pos"), &IsometricPositionable::set_global_position_3d);
     ClassDB::bind_method(D_METHOD("get_global_position_3d"), &IsometricPositionable::get_global_position_3d);
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "global_position_3d"), "set_global_position_3d", "get_global_position_3d");
 
-    ClassDB::bind_method(D_METHOD("set_local_position_3d"), &IsometricPositionable::set_local_position_3d);
+    ClassDB::bind_method(D_METHOD("set_local_position_3d", "p_local"), &IsometricPositionable::set_local_position_3d);
     ClassDB::bind_method(D_METHOD("get_local_position_3d"), &IsometricPositionable::get_local_position_3d);
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "local_position_3d"), "set_local_position_3d", "get_local_position_3d");
 
-    ClassDB::bind_method(D_METHOD("set_has_moved"), &IsometricPositionable::set_has_moved);
+    ClassDB::bind_method(D_METHOD("set_has_moved", "hm"), &IsometricPositionable::set_has_moved);
     ClassDB::bind_method(D_METHOD("get_has_moved"), &IsometricPositionable::get_has_moved);
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "has_moved"), "set_has_moved", "get_has_moved");
 
-    ClassDB::bind_method(D_METHOD("set_size_3d"), &IsometricPositionable::set_size_3d);
+    ClassDB::bind_method(D_METHOD("set_size_3d", "s"), &IsometricPositionable::set_size_3d);
     ClassDB::bind_method(D_METHOD("get_size_3d"), &IsometricPositionable::get_size_3d);
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "size_3d"), "set_size_3d", "get_size_3d");
     ADD_PROPERTY_DEFAULT("size_3d", Vector3(1, 1, 1));
 
-    ClassDB::bind_method(D_METHOD("set_z_order_size"), &IsometricPositionable::set_z_order_size);
+    ClassDB::bind_method(D_METHOD("set_z_order_size", "size"), &IsometricPositionable::set_z_order_size);
     ClassDB::bind_method(D_METHOD("get_z_order_size"), &IsometricPositionable::get_z_order_size);
     ADD_PROPERTY(PropertyInfo(Variant::INT, "z_order_size"), "set_z_order_size", "get_z_order_size");
     ADD_PROPERTY_DEFAULT("z_order_size", 1);
 
-    ClassDB::bind_method(D_METHOD("set_is_temporary"), &IsometricPositionable::set_is_temporary);
+    ClassDB::bind_method(D_METHOD("set_is_temporary", "temp"), &IsometricPositionable::set_is_temporary);
     ClassDB::bind_method(D_METHOD("get_is_temporary"), &IsometricPositionable::get_is_temporary);
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_temporary"), "set_is_temporary", "get_is_temporary");
     ADD_PROPERTY_DEFAULT("is_temporary", true);
 
-    ClassDB::bind_method(D_METHOD("set_debug_z"), &IsometricPositionable::set_debug_z);
+    ClassDB::bind_method(D_METHOD("set_debug_z", "d_z"), &IsometricPositionable::set_debug_z);
     ClassDB::bind_method(D_METHOD("get_debug_z"), &IsometricPositionable::get_debug_z);
     ADD_PROPERTY(PropertyInfo(Variant::INT, "debug_z"), "set_debug_z", "get_debug_z");
     ADD_PROPERTY_DEFAULT("debug_z", 0);
