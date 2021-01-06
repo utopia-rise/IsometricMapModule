@@ -40,7 +40,7 @@ namespace positionable {
         bool is_overlapping_aabb(AABB aabb);
         bool are_map_elements_overlapping(Vector3 position, IsometricMap* map);
         bool has(IsometricPositionable* isometricPositionable);
-        Array getPositionableChildren() const;
+        Array get_positionable_children() const;
 
         void on_resize() override;
         void on_grid_updated(int stair) override;

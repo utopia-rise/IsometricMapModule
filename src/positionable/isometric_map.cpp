@@ -116,7 +116,7 @@ bool IsometricMap::has(IsometricPositionable* isometricPositionable) {
     return grid_3d.has(isometricPositionable);
 }
 
-Array IsometricMap::getPositionableChildren() const {
+Array IsometricMap::get_positionable_children() const {
     Array positionable_children;
     const Vector<Object*>&grid_array = grid_3d.get_internal_array();
     for (int i = 0; i < grid_array.size(); i++) {
@@ -193,5 +193,14 @@ void IsometricMap::insert_map_as_flatten(IsometricMap* map, const Vector3& offse
 }
 
 void IsometricMap::_bind_methods() {
-
+    ClassDB::bind_method(D_METHOD("add_iso_positionable"), &IsometricMap::add_iso_positionable);
+    ClassDB::bind_method(D_METHOD("remove_iso_positionable"), &IsometricMap::remove_iso_positionable);
+    ClassDB::bind_method(D_METHOD("get_positionable_at"), &IsometricMap::get_positionable_at);
+    ClassDB::bind_method(D_METHOD("is_overlapping"), &IsometricMap::is_overlapping);
+    ClassDB::bind_method(D_METHOD("is_overlapping_aabb"), &IsometricMap::is_overlapping_aabb);
+    ClassDB::bind_method(D_METHOD("are_map_elements_overlapping"), &IsometricMap::are_map_elements_overlapping);
+    ClassDB::bind_method(D_METHOD("has"), &IsometricMap::has);
+    ClassDB::bind_method(D_METHOD("get_positionable_children"), &IsometricMap::get_positionable_children);
+    ClassDB::bind_method(D_METHOD("on_resize"), &IsometricMap::on_resize);
+    ClassDB::bind_method(D_METHOD("on_grid_updated"), &IsometricMap::on_grid_updated);
 }
