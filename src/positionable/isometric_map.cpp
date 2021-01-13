@@ -7,8 +7,6 @@ using namespace positionable;
 IsometricMap::IsometricMap()
         : IsometricPositionable(), draw_tiles(true), tile_width(0), tile_height(0), angle(0), e_z(0), z_ratio(0),
           topological_margin(0) {
-    connect("ready", this, "_ready");
-    connect("process", this, "_process");
 }
 
 void IsometricMap::_ready() {
@@ -19,10 +17,6 @@ void IsometricMap::_ready() {
             edition_grid_3d.insert_box(positionable->get_aabb(), positionable);
         }
     }
-}
-
-void IsometricMap::_enter_tree() {
-    IsometricPositionable::_enter_tree();
 }
 
 void IsometricMap::_process(float delta) {
@@ -112,8 +106,8 @@ bool IsometricMap::are_map_elements_overlapping(Vector3 position, IsometricMap* 
     return false;
 }
 
-bool IsometricMap::has(IsometricPositionable* isometricPositionable) {
-    return grid_3d.has(isometricPositionable);
+bool IsometricMap::has(IsometricPositionable* isometric_positionable) {
+    return grid_3d.has(isometric_positionable);
 }
 
 Array IsometricMap::get_positionable_children() const {
@@ -199,8 +193,19 @@ void IsometricMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_overlapping"), &IsometricMap::is_overlapping);
     ClassDB::bind_method(D_METHOD("is_overlapping_aabb"), &IsometricMap::is_overlapping_aabb);
     ClassDB::bind_method(D_METHOD("are_map_elements_overlapping"), &IsometricMap::are_map_elements_overlapping);
-    ClassDB::bind_method(D_METHOD("has"), &IsometricMap::has);
+    ClassDB::bind_method(D_METHOD("has", "isometric_positionable"), &IsometricMap::has);
     ClassDB::bind_method(D_METHOD("get_positionable_children"), &IsometricMap::get_positionable_children);
-    ClassDB::bind_method(D_METHOD("on_resize"), &IsometricMap::on_resize);
-    ClassDB::bind_method(D_METHOD("on_grid_updated"), &IsometricMap::on_grid_updated);
+}
+
+void IsometricMap::_notification(int notif) {
+    switch (notif) {
+        case NOTIFICATION_READY:
+            _ready();
+            break;
+        case NOTIFICATION_PROCESS:
+            _process(get_process_delta_time());
+            break;
+        default:
+            break;
+    }
 }

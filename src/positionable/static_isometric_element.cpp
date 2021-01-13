@@ -59,14 +59,11 @@ StaticIsometricElement::calculate_slope_offset(Vector2* slope_offset, real_t til
 }
 
 void StaticIsometricElement::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("has_moved"), &StaticIsometricElement::get_has_moved);
-    ClassDB::bind_method(D_METHOD("set_has_moved"), &StaticIsometricElement::set_has_moved);
-
-    ClassDB::bind_method(D_METHOD("set_slope_type"), &StaticIsometricElement::set_slope_type);
-    ClassDB::bind_method(D_METHOD("get_slope_type"), &StaticIsometricElement::get_slope_type);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "slope_type", PROPERTY_HINT_ENUM, "NONE,LEFT,RIGHT,FORWARD,BACKWARD"),
-            "set_slope_type", "get_slope_type");
-    ADD_PROPERTY_DEFAULT("slope_type", static_cast<int>(SlopeType::NONE));
+//    ClassDB::bind_method(D_METHOD("set_slope_type"), &StaticIsometricElement::set_slope_type);
+//    ClassDB::bind_method(D_METHOD("get_slope_type"), &StaticIsometricElement::get_slope_type);
+//    ADD_PROPERTY(PropertyInfo(Variant::INT, "slope_type", PROPERTY_HINT_ENUM, "NONE,LEFT,RIGHT,FORWARD,BACKWARD"),
+//            "set_slope_type", "get_slope_type");
+//    ADD_PROPERTY_DEFAULT("slope_type", static_cast<int>(SlopeType::NONE));
 
     ClassDB::bind_method(D_METHOD("set_has_default_body"), &StaticIsometricElement::set_has_default_body);
     ClassDB::bind_method(D_METHOD("get_has_default_body"), &StaticIsometricElement::get_has_default_body);

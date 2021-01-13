@@ -12,16 +12,19 @@ namespace positionable {
         class DefaultStaticBody : public StaticBody, public DefaultBody<DefaultStaticBody, ConvexPolygonShape> {
             GDCLASS(DefaultStaticBody, StaticBody)
 
+        private:
+            void _enter_tree();
+            void _physics_process(float delta);
+
         protected:
             void calculate_collision_shape() override;
             void update_collision_shapes() override;
 
+            void _notification(int notif);
+
         public:
             DefaultStaticBody();
             ~DefaultStaticBody() override;
-
-            void _enter_tree();
-            void _physics_process(float delta);
 
         protected:
             static void _bind_methods();

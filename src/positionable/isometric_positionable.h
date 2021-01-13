@@ -3,6 +3,7 @@
 
 #include <scene/2d/node_2d.h>
 #include <modules/isometric_maps/src/editor/outline_drawer.h>
+#include <modules/isometric_maps/src/variant_casters.h>
 
 class IsometricWorld;
 
@@ -30,6 +31,8 @@ namespace positionable {
         bool is_temporary;
         int debug_z;
 
+        void _exit_tree();
+
     protected:
         editor::OutlineDrawer* outline_drawer;
 
@@ -49,6 +52,9 @@ namespace positionable {
                                real_t depth,
                                real_t ratio) const;
 
+        void _notification(int notif);
+        virtual void _enter_tree();
+
     public:
         Array behind_statics;
         Array behind_dynamics;
@@ -56,8 +62,6 @@ namespace positionable {
         IsometricPositionable();
         ~IsometricPositionable() override = default;
 
-        virtual void _enter_tree();
-        void _exit_tree();
         Transform2D get_hexagone_coordinates() const;
         void set_outline_drawer(Color color, real_t line_size);
         Vector3 get_local_position_3d() const;
@@ -89,7 +93,15 @@ namespace positionable {
     };
 }
 
-//VARIANT_ENUM_CAST(positionable::IsometricPositionable::SlopeType)
+MAKE_ENUM_TYPE_INFO(positionable::IsometricPositionable::SlopeType)
+template<>
+struct VariantCaster<positionable::IsometricPositionable::SlopeType> {
 
+    static _FORCE_INLINE_ positionable::IsometricPositionable::SlopeType cast(const Variant& p_variant) {
+        return (positionable::IsometricPositionable::SlopeType) p_variant.operator int();
+    }
+};
+
+DECLARE_VARIANT_CASTER(positionable::IsometricPositionable)
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H

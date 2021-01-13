@@ -18,16 +18,18 @@ namespace positionable {
 
             Vector3 linear_velocity;
 
+            void _enter_tree();
+            void _physics_process(float delta);
+
         protected:
             void calculate_collision_shape() override;
             void update_collision_shapes() override;
 
+            void _notification(int notif);
+
         public:
             DefaultKinematicBody();
             ~DefaultKinematicBody() override;
-
-            void _enter_tree();
-            void _physics_process(float delta);
 
             float get_speed() const;
             void set_speed(float s);

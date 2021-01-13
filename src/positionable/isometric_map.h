@@ -4,6 +4,7 @@
 
 #include <modules/isometric_maps/src/containers/grid_3d.h>
 #include "isometric_positionable.h"
+#include <modules/isometric_maps/src/variant_casters.h>
 
 namespace positionable {
 
@@ -18,6 +19,13 @@ namespace positionable {
         Array get_flatten_positionables(const Vector3& offset = Vector3());
         void insert_map_as_flatten(IsometricMap* map, const Vector3& offset);
 
+        void _ready();
+        void _process(float delta);
+
+    protected:
+        void _notification(int notif);
+
+
     public:
         IsometricMap();
         ~IsometricMap() override = default;
@@ -29,17 +37,13 @@ namespace positionable {
         float z_ratio;
         float topological_margin;
 
-        void _ready();
-        void _enter_tree() override;
-        void _process(float delta);
-
         void add_iso_positionable(IsometricPositionable* isometric_positionable);
         void remove_iso_positionable(IsometricPositionable* isometric_positionable);
         IsometricPositionable* get_positionable_at(Vector3 pos, bool only_left_upper_corner = true);
         bool is_overlapping(IsometricPositionable* positionable);
         bool is_overlapping_aabb(AABB aabb);
         bool are_map_elements_overlapping(Vector3 position, IsometricMap* map);
-        bool has(IsometricPositionable* isometricPositionable);
+        bool has(IsometricPositionable* isometric_positionable);
         Array get_positionable_children() const;
 
         void on_resize() override;
@@ -52,5 +56,6 @@ namespace positionable {
     };
 }
 
+DECLARE_VARIANT_CASTER(positionable::IsometricMap)
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_MAP_H

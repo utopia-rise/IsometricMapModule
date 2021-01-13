@@ -3,6 +3,8 @@
 
 using namespace positionable;
 
+static PlaceholderType* default_placeholder_type{nullptr};
+
 IsometricPlaceholder::IsometricPlaceholder()
         : StaticIsometricElement(),
           left_color(),
@@ -66,7 +68,12 @@ void IsometricPlaceholder::set_placeholder_type(Ref<PlaceholderType> p_type) {
     if (p_type.is_valid()) {
         placeholder_type = p_type;
     } else {
-        placeholder_type = Ref<PlaceholderType>(ResourceLoader::load("res://addons/IsometricMap/prefab/types/default.tres").ptr());
+        if (unlikely(!default_placeholder_type)) {
+            default_placeholder_type = memnew(PlaceholderType());
+            default_placeholder_type->set_color(Color(1, 1, 1, 1));
+            default_placeholder_type->set_type_name("default");
+        }
+        placeholder_type = Ref<PlaceholderType>(default_placeholder_type);
     }
     update_colors();
     update();
@@ -178,5 +185,8 @@ void IsometricPlaceholder::set_map_size(const Vector3& size) {
 }
 
 void IsometricPlaceholder::_bind_methods() {
-
+    ClassDB::bind_method(D_METHOD("set_placeholder_type"), &IsometricPlaceholder::set_placeholder_type);
+    ClassDB::bind_method(D_METHOD("get_placeholder_type"), &IsometricPlaceholder::get_placeholder_type);
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "placeholder_type"), "set_placeholder_type", "get_placeholder_type");
+    ADD_PROPERTY_DEFAULT("placeholder_type", Ref<positionable::PlaceholderType>(nullptr));
 }

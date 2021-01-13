@@ -17,11 +17,11 @@ namespace positionable {
          */
         void update_default_body();
 
+        void _enter_tree() override;
+
     public:
         IsometricElement();
         ~IsometricElement() override = default;
-
-        void _enter_tree() override;
 
         /**
          * @return true if should have default body.

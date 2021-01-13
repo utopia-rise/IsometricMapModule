@@ -14,12 +14,12 @@ void DynamicIsometricElement::set_has_default_body(bool b) {
     IsometricElement<physics::DefaultKinematicBody>::set_has_default_body(b);
 }
 
-void DynamicIsometricElement::update_position_from_body(PhysicsBody* physicsBody) {
-    IsometricElement<physics::DefaultKinematicBody>::update_position_from_body(physicsBody);
+void DynamicIsometricElement::update_position_from_body(PhysicsBody* physics_body) {
+    IsometricElement<physics::DefaultKinematicBody>::update_position_from_body(physics_body);
 }
 
 void DynamicIsometricElement::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("update_position_from_body"), &DynamicIsometricElement::update_position_from_body);
+    ClassDB::bind_method(D_METHOD("update_position_from_body", "physics_body"), &DynamicIsometricElement::update_position_from_body);
 
     ClassDB::bind_method(D_METHOD("set_has_default_body"), &DynamicIsometricElement::set_has_default_body);
     ClassDB::bind_method(D_METHOD("get_has_default_body"), &DynamicIsometricElement::get_has_default_body);

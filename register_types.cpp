@@ -5,6 +5,7 @@
 #include <modules/isometric_maps/src/positionable/isometric_tile.h>
 #include <modules/isometric_maps/src/positionable/isometric_placeholder.h>
 #include <modules/isometric_maps/src/positionable/dynamic_isometric_element.h>
+#include <modules/isometric_maps/src/variant_casters.h>
 
 void register_isometric_maps_types() {
     ClassDB::register_class<positionable::IsometricPositionable>();
@@ -20,7 +21,7 @@ void register_isometric_maps_types() {
     ClassDB::register_class<editor::OutlineDrawer>();
 
     ClassDB::register_class<IsometricApi>();
-    Engine::get_singleton()->add_singleton(Engine::Singleton("HilbertHotel", IsometricApi::get_instance()));
+    Engine::get_singleton()->add_singleton(Engine::Singleton("IsometricApi", IsometricApi::get_instance()));
 }
 
 void unregister_isometric_maps_types() {

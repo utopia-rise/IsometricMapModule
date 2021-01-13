@@ -5,9 +5,6 @@
 using namespace positionable::physics;
 
 DefaultKinematicBody::DefaultKinematicBody() : KinematicBody(), speed(1), gravity(9.8), linear_velocity({0, 0, 0}) {
-    connect("enter_tree", this, "_enter_tree");
-    connect("physics_process", this, "_physics_process");
-
     initialize_shapes();
 }
 
@@ -119,6 +116,19 @@ void DefaultKinematicBody::update_collision_shapes() {
         add_child(collision_shape);
     }
     collision_shape->set_owner(this);
+}
+
+void DefaultKinematicBody::_notification(int notif) {
+    switch (notif) {
+        case NOTIFICATION_ENTER_TREE:
+            _enter_tree();
+            break;
+        case NOTIFICATION_PHYSICS_PROCESS:
+            _physics_process(get_physics_process_delta_time());
+            break;
+        default:
+            break;
+    }
 }
 
 void DefaultKinematicBody::_bind_methods() {

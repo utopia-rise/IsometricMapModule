@@ -8,6 +8,7 @@
 #define ISO_GROUP "positionables"
 
 class IsometricApi : public Object {
+    GDCLASS(IsometricApi, Object)
 private:
     int tile_width;
     int tile_height;
@@ -21,7 +22,6 @@ private:
 public:
     IsometricApi();
     IsometricApi(const IsometricApi&) = delete;
-    IsometricApi& operator=(const IsometricApi&) = delete;
 
     static IsometricApi* get_instance();
 

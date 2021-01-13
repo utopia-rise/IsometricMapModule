@@ -4,11 +4,9 @@
 
 using namespace positionable;
 
-IsometricPositionable::IsometricPositionable() : debug_points(), aabb({0, 0, 0}, {1, 1, 1}),
+IsometricPositionable::IsometricPositionable() : Node2D(), debug_points(), aabb({0, 0, 0}, {1, 1, 1}),
                                                  z_order_size(0), rendered(false), is_temporary(true), debug_z(0),
                                                  outline_drawer(nullptr), world(nullptr), world_owner(false) {
-    connect("enter_tree", this, "_enter_tree");
-    connect("exit_tree", this, "_exit_tree");
     on_resize();
 }
 
@@ -288,10 +286,20 @@ IsometricPositionable::calculate_slope_offset(Vector2* slopeOffset, real_t tileW
     return SlopeType::NONE;
 }
 
-void IsometricPositionable::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_enter_tree"), &IsometricPositionable::_enter_tree);
-    ClassDB::bind_method(D_METHOD("_exit_tree"), &IsometricPositionable::_exit_tree);
+void IsometricPositionable::_notification(int notif) {
+    switch (notif) {
+        case NOTIFICATION_ENTER_TREE:
+            _enter_tree();
+            break;
+        case NOTIFICATION_EXIT_TREE:
+            _exit_tree();
+            break;
+        default:
+            break;
+    }
+}
 
+void IsometricPositionable::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_hexagone_coordinates"), &IsometricPositionable::get_hexagone_coordinates);
     ClassDB::bind_method(D_METHOD("set_outline_drawer", "color", "line_size"), &IsometricPositionable::set_outline_drawer);
     ClassDB::bind_method(D_METHOD("get_aabb"), &IsometricPositionable::get_aabb);

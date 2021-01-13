@@ -3,9 +3,6 @@
 using namespace positionable::physics;
 
 DefaultStaticBody::DefaultStaticBody() : StaticBody() {
-    connect("enter_tree", this, "_enter_tree");
-    connect("physics_process", this, "_physics_process");
-
     initialize_shapes();
 }
 
@@ -76,6 +73,19 @@ void DefaultStaticBody::update_collision_shapes() {
         add_child(collision_shape);
     }
     collision_shape->set_owner(this);
+}
+
+void DefaultStaticBody::_notification(int notif) {
+    switch (notif) {
+        case NOTIFICATION_ENTER_TREE:
+            _enter_tree();
+            break;
+        case NOTIFICATION_PHYSICS_PROCESS:
+            _physics_process(get_physics_process_delta_time());
+            break;
+        default:
+            break;
+    }
 }
 
 void DefaultStaticBody::_bind_methods() {
