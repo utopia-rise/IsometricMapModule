@@ -1,46 +1,33 @@
 #include "isometric_world.h"
 #include "isometric_api.h"
+#include "isometric_server.h"
 
-void IsometricWorld::register_isometric_element(positionable::IsometricPositionable* positionable) {
-    if(auto* static_element = dynamic_cast<positionable::StaticIsometricElement*>(positionable)){
-        for (int i = 0; i < static_elements.size(); i++) {
-            auto* element{Object::cast_to<positionable::IsometricPositionable>(static_elements[i])};
-            if(element){
-                if(IsometricApi::get_instance()->do_hexagone_overlap(element->get_hexagone_coordinates(),
-                                                                    static_element->get_hexagone_coordinates())){
-                    if(IsometricApi::get_instance()->is_box_in_front(static_element->get_aabb(), element->get_aabb())){
-                        static_element->behind_statics.append(element);
-                    }
-                    else{
-                        element->behind_statics.append(static_element);
-                    }
-                }
-            }
-        }
-        static_elements.push_back(static_element);
+IsometricWorld::IsometricWorld(): static_elements(), dynamic_elements() {
+    
+}
+
+void IsometricWorld::register_isometric_element(IsometricPositionableData* p_positionable_data, bool p_is_dynamic) {
+    if(!p_is_dynamic){
+        static_elements.push_back(p_positionable_data);
     }
-    else if(auto* dynamic_element{dynamic_cast<positionable::DynamicIsometricElement*>(positionable)}){
-        dynamic_elements.push_back(dynamic_element);
-    }
-    else{
-        WARN_PRINT(positionable->get_name().operator String() + String(" is a invalid element for the IsometricWorld."))
+    else {
+        dynamic_elements.push_back(p_positionable_data);
     }
 }
 
-void IsometricWorld::unregister_isometric_element(positionable::IsometricPositionable* positionable) {
-    if(auto* static_element = dynamic_cast<positionable::StaticIsometricElement*>(positionable)){
-        static_elements.erase(static_element);
+void IsometricWorld::unregister_isometric_element(IsometricPositionableData* p_positionable_data, bool p_is_dynamic) {
+    if(!p_is_dynamic){
+        static_elements.erase(p_positionable_data);
         for (int i = 0; i < static_elements.size(); i++) {
-            auto *element = Object::cast_to<positionable::IsometricPositionable>(static_elements[i]);
-            element->behind_statics.erase(static_element);
+            static_elements[i]->behind_statics.erase(p_positionable_data);
 
         }
     }
-    else if(auto* dynamic_element = dynamic_cast<positionable::DynamicIsometricElement*>(positionable)){
-        dynamic_elements.erase(dynamic_element);
+    else {
+        dynamic_elements.erase(p_positionable_data);
     }
-    positionable->behind_statics.clear();
-    positionable->behind_dynamics.clear();
+    p_positionable_data->behind_statics.clear();
+    p_positionable_data->behind_dynamics.clear();
 }
 
 void IsometricWorld::generateTopologicalRenderGraph() {
@@ -101,17 +88,33 @@ void IsometricWorld::generateTopologicalRenderGraph() {
     for (int i = 0; i < static_elements.size(); ++i) {
         auto *positionable = Object::cast_to<positionable::IsometricPositionable>(static_elements[i]);
         if (positionable && !positionable->is_rendered()) {
-            register_isometric_element(positionable);
+            register_isometric_element(positionable, false);
         }
     }
     for (int i = 0; i < dynamic_elements.size(); ++i) {
         auto *positionable = Object::cast_to<positionable::IsometricPositionable>(dynamic_elements[i]);
         if (positionable && !positionable->is_rendered()) {
-            register_isometric_element(positionable);
+            register_isometric_element(positionable, false);
         }
     }
 }
 
 void IsometricWorld::render_isometric_element(positionable::IsometricPositionable* positionable) {
 
+}
+
+//TODO
+void IsometricWorld::order_statics() {
+    for (int i = 0; i < static_elements.size(); i++) {
+        IsometricPositionableData* element{static_elements[i]};
+        if(IsometricApi::get_instance()->do_hexagone_overlap(element->get_hexagone_coordinates(),
+                                                             positionable_data->get_hexagone_coordinates())){
+            if(IsometricApi::get_instance()->is_box_in_front(static_element->get_aabb(), element->get_aabb())){
+                static_element->behind_statics.append(element);
+            }
+            else{
+                element->behind_statics.append(static_element);
+            }
+        }
+    }
 }

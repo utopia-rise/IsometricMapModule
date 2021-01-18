@@ -56,13 +56,9 @@ namespace positionable {
         virtual void _enter_tree();
 
     public:
-        Array behind_statics;
-        Array behind_dynamics;
-
         IsometricPositionable();
         ~IsometricPositionable() override = default;
 
-        Transform2D get_hexagone_coordinates() const;
         void set_outline_drawer(Color color, real_t line_size);
         Vector3 get_local_position_3d() const;
         void set_local_position_3d(Vector3 p_local);

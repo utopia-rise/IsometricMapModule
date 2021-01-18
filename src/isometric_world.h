@@ -5,21 +5,23 @@
 #include <core/vector.h>
 #include <modules/isometric_maps/src/positionable/static_isometric_element.h>
 #include <modules/isometric_maps/src/positionable/dynamic_isometric_element.h>
+#include <modules/isometric_maps/src/isometric_positionable_data.h>
 
 class IsometricWorld {
 
 private:
-    Vector<positionable::StaticIsometricElement*> static_elements;
-    Vector<positionable::DynamicIsometricElement*> dynamic_elements;
+    Vector<IsometricPositionableData*> static_elements;
+    Vector<IsometricPositionableData*> dynamic_elements;
 
     void render_isometric_element(positionable::IsometricPositionable* positionable);
+    void order_statics();
 
 public:
-    IsometricWorld() = default;
+    IsometricWorld();
     ~IsometricWorld() = default;
 
-    void register_isometric_element(positionable::IsometricPositionable* positionable);
-    void unregister_isometric_element(positionable::IsometricPositionable* positionable);
+    void register_isometric_element(IsometricPositionableData* p_positionable_data, bool p_is_dynamic);
+    void unregister_isometric_element(IsometricPositionableData* p_positionable_data, bool p_is_dynamic);
 
     void generateTopologicalRenderGraph();
 };
