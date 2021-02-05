@@ -1,32 +1,42 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
 #define ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
 
+#include "data/isometric_world_data.h"
+#include "data/isometric_positionable_data.h"
+#include <scene/2d/canvas_item.h>
 
-#include "isometric_world_data.h"
+class IsometricServer : public Object {
 
-class IsometricServer {
 private:
-    ~IsometricServer() = default;
-public:
-    IsometricServer() = default;
-    IsometricServer(const IsometricServer&) = delete;
-
-    static IsometricServer* get_instance();
-private:
-    RID_Owner<IsometricWorldData> worlds_owner;
-    RID_Owner<IsometricPositionableData> positionables_owner;
-    Vector<IsometricWorldData*> worlds;
+	static void iteration(void *p_udata);
 
 public:
-    RID create_world();
-    void delete_world(const RID& rid);
+	IsometricServer();
+	~IsometricServer() = default;
+	IsometricServer(const IsometricServer &) = delete;
 
-    RID register_isometric_element(CanvasItem* p_canvas_item, const RID& world_rid, bool p_is_dynamic);
-    void unregister_isometric_element(const RID& rid, const RID& world_rid, bool p_is_dynamic);
+	static IsometricServer *get_instance();
+	static void _bind_methods();
 
-    RID_Owner<IsometricPositionableData>& get_positionables_owner();
+private:
+	bool thread_exited;
+	mutable bool exit_thread;
+	Thread *thread;
+	Mutex *mutex;
+
+	RID_Owner<data::IsometricWorldData> worlds_owner;
+	RID_Owner<data::IsometricPositionableData> positionables_owner;
+	Vector<data::IsometricWorldData *> worlds;
+
+public:
+	RID create_world();
+	void delete_world(const RID &rid);
+
+	RID register_isometric_element(CanvasItem *p_canvas_item, const RID world_rid, bool p_is_dynamic);
+	void unregister_isometric_element(const RID rid, const RID world_rid);
+
+	RID_Owner<data::IsometricPositionableData> &get_isometric_element_world();
 
 };
-
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_SERVER_H

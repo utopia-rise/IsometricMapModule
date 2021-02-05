@@ -3,5 +3,4 @@
 using namespace positionable;
 
 void IsometricTile::_bind_methods() {
-
 }
