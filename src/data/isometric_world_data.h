@@ -7,11 +7,11 @@
 namespace data {
     struct IsometricWorldData : public RID_Data {
         RID self;
-        IsometricSpace* world;
+        IsometricSpace world;
 
         IsometricWorldData();
 
-        ~IsometricWorldData() = default;
+        ~IsometricWorldData() override = default;
     };
 } // namespace data
 

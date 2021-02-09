@@ -4,8 +4,8 @@
 
 using namespace data;
 
-IsometricSpace::IsometricSpace() :
-        configuration(), static_elements(), dynamic_elements() {
+IsometricSpace::IsometricSpace() : configuration(), static_elements(), dynamic_elements() {
+    
 }
 
 void IsometricSpace::register_isometric_element(IsometricPositionableData* p_positionable_data, bool p_is_dynamic) {

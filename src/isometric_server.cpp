@@ -34,7 +34,7 @@ void IsometricServer::iteration(void* p_udata) {
         }
 
         for (int i = 0; i < server->worlds.size(); ++i) {
-            server->worlds[i]->world->generateTopologicalRenderGraph();
+            server->worlds[i]->world.generateTopologicalRenderGraph();
         }
 
         for (int i = 0; i < list.size(); ++i) {
@@ -78,7 +78,7 @@ RID IsometricServer::register_isometric_element(const RID world_rid, RID p_canva
     positionable_data->visual_rid = p_canvas_item;
     positionable_data->is_dynamic = p_is_dynamic;
 
-    world_data->world->register_isometric_element(positionable_data, p_is_dynamic);
+    world_data->world.register_isometric_element(positionable_data, p_is_dynamic);
     return positionables_owner.make_rid(positionable_data);
 }
 
@@ -90,7 +90,7 @@ void IsometricServer::unregister_isometric_element(const RID world_rid, const RI
     }
 
     IsometricPositionableData* positionable_data{positionables_owner.getornull(rid)};
-    world_data->world->unregister_isometric_element(positionable_data);
+    world_data->world.unregister_isometric_element(positionable_data);
     positionables_owner.free(rid);
 }
 

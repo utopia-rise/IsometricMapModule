@@ -2,6 +2,6 @@
 
 using namespace data;
 
-IsometricWorldData::IsometricWorldData() :
-        world() {
+IsometricWorldData::IsometricWorldData() : world() {
+
 }
