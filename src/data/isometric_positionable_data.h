@@ -6,22 +6,23 @@
 #include <core/rid.h>
 
 namespace data {
-class IsometricPositionableData : public RID_Data {
-public:
-	RID visual_rid;
-	AABB aabb;
+    struct IsometricPositionableData : public RID_Data {
+        RID self;
+        RID visual_rid;
+        AABB aabb;
 
-	bool is_dynamic;
+        bool is_dynamic;
 
-	int z_order;
-	bool dirty;
-	int z_size;
+        int z_order;
+        bool dirty;
+        int z_size;
 
-	Vector<IsometricPositionableData *> behind_statics;
-	Vector<IsometricPositionableData *> behind_dynamics;
+        Vector<IsometricPositionableData*> behind_statics;
+        Vector<IsometricPositionableData*> behind_dynamics;
 
-	IsometricPositionableData();
-	~IsometricPositionableData() = default;
-};
+        IsometricPositionableData();
+
+        ~IsometricPositionableData() = default;
+    };
 } // namespace data
 #endif //ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_DATA_H

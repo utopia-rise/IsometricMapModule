@@ -6,40 +6,45 @@
 #include <scene/resources/capsule_shape.h>
 
 namespace positionable {
-namespace physics {
+    namespace physics {
 
-class DefaultKinematicBody : public KinematicBody, public DefaultBody<DefaultKinematicBody, CapsuleShape> {
-	GDCLASS(DefaultKinematicBody, KinematicBody)
+        class DefaultKinematicBody : public KinematicBody, public DefaultBody<DefaultKinematicBody, CapsuleShape> {
+        GDCLASS(DefaultKinematicBody, KinematicBody)
 
-private:
-	float speed;
-	float gravity;
+        private:
+            float speed;
+            float gravity;
 
-	Vector3 linear_velocity;
+            Vector3 linear_velocity;
 
-	void _enter_tree();
-	void _physics_process(float delta);
+            void _enter_tree();
 
-protected:
-	void calculate_collision_shape() override;
-	void update_collision_shapes() override;
+            void _physics_process(float delta);
 
-	void _notification(int notif);
+        protected:
+            void calculate_collision_shape() override;
 
-public:
-	DefaultKinematicBody();
-	~DefaultKinematicBody() override;
+            void update_collision_shapes() override;
 
-	float get_speed() const;
-	void set_speed(float s);
+            void _notification(int notif);
 
-	float get_gravity() const;
-	void set_gravity(float g);
+        public:
+            DefaultKinematicBody();
 
-protected:
-	static void _bind_methods();
-};
-} // namespace physics
+            ~DefaultKinematicBody() override;
+
+            float get_speed() const;
+
+            void set_speed(float s);
+
+            float get_gravity() const;
+
+            void set_gravity(float g);
+
+        protected:
+            static void _bind_methods();
+        };
+    } // namespace physics
 } // namespace positionable
 
 #endif //ISOMETRIC_MAPS_DEFAULT_KINEMATIC_BODY_H

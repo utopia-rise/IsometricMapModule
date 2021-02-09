@@ -3,5 +3,5 @@
 using namespace data;
 
 IsometricWorldData::IsometricWorldData() :
-		world() {
+        world() {
 }

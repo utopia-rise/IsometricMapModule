@@ -5,13 +5,14 @@
 #include <modules/isometric_maps/src/isometric_world.h>
 
 namespace data {
-class IsometricWorldData : public RID_Data {
-public:
-	IsometricWorld *world;
+    struct IsometricWorldData : public RID_Data {
+        RID self;
+        IsometricSpace* world;
 
-	IsometricWorldData();
-	~IsometricWorldData() = default;
-};
+        IsometricWorldData();
+
+        ~IsometricWorldData() = default;
+    };
 } // namespace data
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_WORLD_DATA_H

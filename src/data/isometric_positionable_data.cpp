@@ -2,5 +2,5 @@
 
 using namespace data;
 
-IsometricPositionableData::IsometricPositionableData(){
+IsometricPositionableData::IsometricPositionableData() {
 }

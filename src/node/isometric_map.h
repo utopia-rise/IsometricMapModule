@@ -3,57 +3,64 @@
 
 #include "modules/isometric_maps/src/node/isometric_positionable.h"
 #include <modules/isometric_maps/src/containers/grid_3d.h>
-#include <modules/isometric_maps/src/variant_casters.h>
 
 namespace node {
 
-class IsometricMap : public IsometricPositionable {
-	GDCLASS(IsometricMap, IsometricPositionable)
+    class IsometricMap : public IsometricPositionable {
+    GDCLASS(IsometricMap, IsometricPositionable)
 
-private:
-	bool draw_tiles;
-	containers::Grid3D grid_3d;
-	containers::Grid3D edition_grid_3d;
+    private:
+        bool draw_tiles;
+        containers::Grid3D grid_3d;
+        containers::Grid3D edition_grid_3d;
 
-	Array get_flatten_positionables(const Vector3 &offset = Vector3());
-	void insert_map_as_flatten(IsometricMap *map, const Vector3 &offset);
+        Array get_flatten_positionables(const Vector3 &offset = Vector3());
 
-	void _ready();
-	void _process(float delta);
+        void insert_map_as_flatten(Node* map, const Vector3 &offset);
 
-protected:
-	void _notification(int notif);
+        void _ready();
 
-public:
-	IsometricMap();
-	~IsometricMap() override = default;
+    protected:
+        void _notification(int notif);
 
-	int tile_width;
-	int tile_height;
-	int angle;
-	float e_z;
-	float z_ratio;
-	float topological_margin;
+    public:
+        IsometricMap();
 
-	void add_iso_positionable(IsometricPositionable *isometric_positionable);
-	void remove_iso_positionable(IsometricPositionable *isometric_positionable);
-	IsometricPositionable *get_positionable_at(Vector3 pos, bool only_left_upper_corner = true);
-	bool is_overlapping(IsometricPositionable *positionable);
-	bool is_overlapping_aabb(AABB aabb);
-	bool are_map_elements_overlapping(Vector3 position, IsometricMap *map);
-	bool has(IsometricPositionable *isometric_positionable);
-	Array get_positionable_children() const;
+        ~IsometricMap() override = default;
 
-	void on_resize() override;
-	void on_grid_updated(int stair) override;
-	void set_aabb(AABB ab) override;
-	void set_has_moved(bool hm) override;
+        int tile_width;
+        int tile_height;
+        int angle;
+        float e_z;
+        float z_ratio;
+        float topological_margin;
 
-protected:
-	static void _bind_methods();
-};
+        void add_iso_positionable(Node* isometric_node);
+
+        void remove_iso_positionable(Node* isometric_node);
+
+        Node* get_positionable_at(Vector3 pos, bool only_left_upper_corner = true);
+
+        bool is_overlapping(Node* node);
+
+        bool is_overlapping_aabb(AABB aabb);
+
+        bool are_map_elements_overlapping(Vector3 position, Node* map);
+
+        bool has(Node* isometric_node);
+
+        Array get_positionable_children() const;
+
+        void on_resize() override;
+
+        void on_grid_updated(int stair) override;
+
+        void set_aabb(AABB ab) override;
+
+        void set_has_moved(bool hm) override;
+
+    protected:
+        static void _bind_methods();
+    };
 } // namespace positionable
-
-DECLARE_VARIANT_CASTER(node::IsometricMap)
-
 #endif //ISOMETRIC_MAPS_ISOMETRIC_MAP_H

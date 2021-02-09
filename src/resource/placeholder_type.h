@@ -5,22 +5,25 @@
 
 namespace resource {
 
-class PlaceholderType : public Resource {
-	GDCLASS(PlaceholderType, Resource)
+    class PlaceholderType : public Resource {
+    GDCLASS(PlaceholderType, Resource)
 
-private:
-	String type_name;
-	Color color;
+    private:
+        String type_name;
+        Color color;
 
-public:
-	String get_type_name() const;
-	void set_type_name(const String &name);
-	Color get_color() const;
-	void set_color(Color col);
+    public:
+        String get_type_name() const;
 
-protected:
-	static void _bind_methods();
-};
+        void set_type_name(const String &name);
+
+        Color get_color() const;
+
+        void set_color(Color col);
+
+    protected:
+        static void _bind_methods();
+    };
 
 } // namespace resource
 

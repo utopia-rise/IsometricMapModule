@@ -3,19 +3,19 @@
 using namespace resource;
 
 String PlaceholderType::get_type_name() const {
-	return type_name;
+    return type_name;
 }
 
 void PlaceholderType::set_type_name(const String &name) {
-	type_name = name;
+    type_name = name;
 }
 
 Color PlaceholderType::get_color() const {
-	return color;
+    return color;
 }
 
 void PlaceholderType::set_color(Color col) {
-	color = col;
+    color = col;
 }
 
 void PlaceholderType::_bind_methods() {

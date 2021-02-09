@@ -7,26 +7,29 @@
 
 namespace physics {
 
-class DefaultStaticBody : public StaticBody, public DefaultBody<DefaultStaticBody, ConvexPolygonShape> {
-	GDCLASS(DefaultStaticBody, StaticBody)
+    class DefaultStaticBody : public StaticBody, public DefaultBody<DefaultStaticBody, ConvexPolygonShape> {
+    GDCLASS(DefaultStaticBody, StaticBody)
 
-private:
-	void _enter_tree();
-	void _physics_process(float delta);
+    private:
+        void _enter_tree();
 
-protected:
-	void calculate_collision_shape() override;
-	void update_collision_shapes() override;
+        void _physics_process(float delta);
 
-	void _notification(int notif);
+    protected:
+        void calculate_collision_shape() override;
 
-public:
-	DefaultStaticBody();
-	~DefaultStaticBody() override;
+        void update_collision_shapes() override;
 
-protected:
-	static void _bind_methods();
-};
+        void _notification(int notif);
+
+    public:
+        DefaultStaticBody();
+
+        ~DefaultStaticBody() override;
+
+    protected:
+        static void _bind_methods();
+    };
 } // namespace physics
 
 #endif //ISOMETRIC_MAPS_DEFAULT_STATIC_BODY_H
