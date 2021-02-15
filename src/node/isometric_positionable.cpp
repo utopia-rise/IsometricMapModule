@@ -1,7 +1,5 @@
 #include "isometric_positionable.h"
 #include <modules/isometric_maps/src/isometric_server.h>
-#include <modules/isometric_maps/src/isometric_world.h>
-#include <modules/isometric_maps/src/resource/isometric_configuration.h>
 
 using namespace node;
 
@@ -73,7 +71,7 @@ void IsometricPositionable::set_local_position_3d(Vector3 p_local) {
     Vector3 offset = p_local - local_position;
     local_position = p_local;
     aabb.position += offset;
-    set_position(resource::IsometricConfiguration::getDefaultConfiguration()->get_screen_coord_from_3d(p_local));
+    //set_position(resource::IsometricConfiguration::getDefaultConfiguration()->from_3D_to_screen(p_local));
 }
 
 Vector3 IsometricPositionable::get_global_position_3d() const {
@@ -84,8 +82,7 @@ void IsometricPositionable::set_global_position_3d(Vector3 pos) {
     Vector3 offset = pos - aabb.position;
     aabb.position = pos;
     local_position += offset;
-    set_position(resource::IsometricConfiguration::getDefaultConfiguration()->get_screen_coord_from_3d(
-            get_local_position_3d()));
+    //set_position(resource::IsometricConfiguration::getDefaultConfiguration()->from_3D_to_screen(get_local_position_3d()));
 }
 
 AABB IsometricPositionable::get_aabb() {
@@ -96,7 +93,7 @@ void IsometricPositionable::set_aabb(AABB ab) {
     Vector3 offset{ab.position - aabb.position};
     aabb = ab;
     local_position += offset;
-    set_position(resource::IsometricConfiguration::getDefaultConfiguration()->get_screen_coord_from_3d(ab.position));
+    //set_position(resource::IsometricConfiguration::getDefaultConfiguration()->from_3D_to_screen(ab.position));
     on_resize();
 }
 
@@ -153,32 +150,14 @@ void IsometricPositionable::set_has_moved(bool hm) {
 }
 
 void IsometricPositionable::prepare_points() {
-    const Vector3 &size{get_size_3d()};
-    real_t w{size.x};
-    real_t d{size.y};
-    real_t h{size.z};
+
+    Vector2 grid_slope_offset;
 
     int left_slope{0};
     int right_slope{0};
     int forward_slope{0};
     int backward_slope{0};
 
-    int tile_width{resource::IsometricConfiguration::getDefaultConfiguration()->get_tile_width()};
-    int tile_height{resource::IsometricConfiguration::getDefaultConfiguration()->get_tile_height()};
-
-    Vector2 offset(0, static_cast<real_t>(-tile_height) * 0.5f);
-
-    float ratio{0};
-
-    int deb_z{get_debug_z()};
-
-    if (h > 0) {
-        ratio = static_cast<real_t>(deb_z) / h;
-    }
-
-    auto tile_width_float = static_cast<real_t>(tile_width);
-    auto tile_height_float = static_cast<real_t>(tile_height);
-    Vector2 grid_slope_offset;
 
     const SlopeType &slope_type{
             calculate_slope_offset(&grid_slope_offset, tile_width_float, tile_height_float, w, d, ratio)};
@@ -201,60 +180,46 @@ void IsometricPositionable::prepare_points() {
 
     PoolVector2Array points;
 
-    //Lower points
-    points.push_back(Vector2(0, 0));
-    points.push_back(Vector2(tile_width_float * 0.5f * w, tile_height_float * 0.5f * w));
-    points.push_back(Vector2(tile_width_float * 0.5f * (w - d), tile_height_float * 0.5f * (d + w)));
-    points.push_back(Vector2(-tile_width_float * 0.5f * d, tile_height_float * 0.5f * d));
-
-    Vector2 heightOffset(0, -resource::IsometricConfiguration::getDefaultConfiguration()->get_e_z() * h);
-
-    //Upper points
-    points.push_back(points[0] + (1 - (right_slope + backward_slope)) * heightOffset);
-    points.push_back(points[1] + (1 - (left_slope + backward_slope)) * heightOffset);
-    points.push_back(points[2] + (1 - (left_slope + forward_slope)) * heightOffset);
-    points.push_back(points[3] + (1 - (right_slope + forward_slope)) * heightOffset);
 
     up_points.resize(0);
-    up_points.push_back(offset + points[4]);
-    up_points.push_back(offset + points[5]);
-    up_points.push_back(offset + points[6]);
-    up_points.push_back(offset + points[7]);
+    up_points.push_back(points[4]);
+    up_points.push_back(points[5]);
+    up_points.push_back(points[6]);
+    up_points.push_back(points[7]);
 
     left_points.resize(0);
-    left_points.push_back(offset + points[2]);
-    left_points.push_back(offset + points[3]);
-    left_points.push_back(offset + points[7]);
-    left_points.push_back(offset + points[6]);
+    left_points.push_back(points[2]);
+    left_points.push_back(points[3]);
+    left_points.push_back(points[7]);
+    left_points.push_back(points[6]);
 
     right_points.resize(0);
-    right_points.push_back(offset + points[1]);
-    right_points.push_back(offset + points[2]);
-    right_points.push_back(offset + points[6]);
-    right_points.push_back(offset + points[5]);
+    right_points.push_back(points[1]);
+    right_points.push_back(points[2]);
+    right_points.push_back(points[6]);
+    right_points.push_back(points[5]);
 
     down_points.resize(0);
-    down_points.push_back(offset + points[0]);
-    down_points.push_back(offset + points[1]);
-    down_points.push_back(offset + points[2]);
-    down_points.push_back(offset + points[3]);
+    down_points.push_back(points[0]);
+    down_points.push_back(points[1]);
+    down_points.push_back(points[2]);
+    down_points.push_back(points[3]);
+
+    int deb_z{get_debug_z()};
+
+    if (h > 0) {
+        ratio = static_cast<real_t>(deb_z) / h;
+    }
 
     if (deb_z > -1) {
         Vector2 gridOffset(0, -resource::IsometricConfiguration::getDefaultConfiguration()->get_e_z() *
                               static_cast<real_t>(deb_z));
         debug_points.resize(0);
-        debug_points.push_back(offset + points[0] + gridOffset + (right_slope + backward_slope) * grid_slope_offset);
-        debug_points.push_back(offset + points[1] + gridOffset + (left_slope + backward_slope) * grid_slope_offset);
-        debug_points.push_back(offset + points[2] + gridOffset + (left_slope + forward_slope) * grid_slope_offset);
-        debug_points.push_back(offset + points[3] + gridOffset + (right_slope + forward_slope) * grid_slope_offset);
+        debug_points.push_back(points[0] + gridOffset + (right_slope + backward_slope) * grid_slope_offset);
+        debug_points.push_back(points[1] + gridOffset + (left_slope + backward_slope) * grid_slope_offset);
+        debug_points.push_back(points[2] + gridOffset + (left_slope + forward_slope) * grid_slope_offset);
+        debug_points.push_back(points[3] + gridOffset + (right_slope + forward_slope) * grid_slope_offset);
     }
-}
-
-IsometricPositionable::SlopeType
-IsometricPositionable::calculate_slope_offset(Vector2* slopeOffset, real_t tileWidthFloat,
-                                              real_t tileHeightFloat, real_t width, real_t depth,
-                                              real_t ratio) const {
-    return SlopeType::NONE;
 }
 
 void IsometricPositionable::_notification(int notif) {

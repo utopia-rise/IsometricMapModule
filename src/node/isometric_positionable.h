@@ -32,8 +32,6 @@ namespace node {
         RID self;
         bool is_dynamic;
 
-        void _exit_tree();
-
     protected:
         editor::OutlineDrawer* outline_drawer;
 
@@ -49,14 +47,10 @@ namespace node {
 
         void prepare_points();
 
-        virtual SlopeType
-        calculate_slope_offset(Vector2* slopeOffset, real_t tileWidthFloat, real_t tileHeightFloat, real_t width,
-                               real_t depth,
-                               real_t ratio) const;
-
         void _notification(int notif);
 
         virtual void _enter_tree();
+        void _exit_tree();
 
     public:
         IsometricPositionable();
