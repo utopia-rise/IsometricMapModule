@@ -7,17 +7,17 @@
 
 namespace data {
     struct IsometricElement : public RID_Data {
-        RID self;
-        RID world;
+        RID self = RID();
+        RID world = RID();
 
-        RID visual_rid;
-        AABB aabb;
+        RID visual_rid = RID();
+        AABB aabb  = AABB(Vector3(0., 0., 0.),Vector3( 1., 1., 1.));
 
-        bool is_dynamic;
+        bool is_dynamic = false;
 
-        int z_order;
-        bool dirty;
-        int z_size;
+        int z_order = 0;
+        bool dirty = true;
+        int z_size = 1;
 
         Vector<IsometricElement*> behind_statics;
         Vector<IsometricElement*> behind_dynamics;

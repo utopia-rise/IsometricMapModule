@@ -40,13 +40,21 @@ public:
 
     void delete_space(const RID &rid);
 
+    void update_space_configuration(const RID space_rid, RID conf_RID);
+
+    const data::IsometricParameters* get_space_configuration(const RID world_rid);
+
+    const data::IsometricParameters* get_space_configuration_from_element(const RID element_rid);
+
     RID register_isometric_element(const RID space_rid, RID p_canvas_item, bool p_is_dynamic);
 
     void unregister_isometric_element(const RID space_rid, const RID rid);
 
-    data::IsometricParameters* get_space_configuration_from_element(const RID element_rid);
+    void set_isometric_element_position(const RID element_rid, const Vector3 global_position);
 
-    void update_space_configuration(const RID space_rid, RID conf_RID);
+    void set_isometric_element_size(const RID element_rid, const Vector3 size);
+
+    uint64_t get_isometric_z_index(const RID element_rid);
 
     void generateTopologicalRenderGraph(data::IsometricSpace* p_isometric_space);
 };

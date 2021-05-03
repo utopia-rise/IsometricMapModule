@@ -12,15 +12,16 @@ void IsometricMap::_ready() {
         auto* positionable = cast_to<IsometricPositionable>(get_child(i));
         if (positionable) {
             grid_3d.set_data(positionable->get_local_position_3d(), positionable);
-            edition_grid_3d.insert_box(positionable->get_aabb(), positionable);
+            edition_grid_3d.insert_box(AABB(positionable->get_local_position_3d(), positionable->get_size()),
+                                       positionable);
         }
     }
 }
 
 void IsometricMap::add_iso_positionable(Node* node) {
     auto isometric_positionable{cast_to<IsometricPositionable>(node)};
-    const Vector3 &map_size{get_aabb().size};
-    const AABB &aabb{isometric_positionable->get_aabb()};
+    const Vector3 &map_size{get_size()};
+    const AABB &aabb{AABB(isometric_positionable->get_local_position_3d(), isometric_positionable->get_size())};
     const Vector3 &pos{aabb.position};
     bool is_overlapping;
     auto* child_map{cast_to<IsometricMap>(isometric_positionable)};
@@ -30,7 +31,6 @@ void IsometricMap::add_iso_positionable(Node* node) {
         is_overlapping = edition_grid_3d.is_overlapping(aabb);
     }
     if (pos.x >= map_size.x || pos.y >= map_size.y || pos.z >= map_size.z || is_overlapping) return;
-    isometric_positionable->set_debug_z(0);
 
     grid_3d.set_data(aabb.position, isometric_positionable);
 
@@ -46,8 +46,8 @@ void IsometricMap::add_iso_positionable(Node* node) {
 
 void IsometricMap::remove_iso_positionable(Node* node) {
     auto isometric_positionable{cast_to<IsometricPositionable>(node)};
-    const Vector3 &map_size{get_aabb().size};
-    const AABB &aabb{isometric_positionable->get_aabb()};
+    const Vector3 &map_size{get_size()};
+    const AABB &aabb{AABB(isometric_positionable->get_local_position_3d(), isometric_positionable->get_size())};
     const Vector3 &pos{aabb.position};
     if (pos.x >= map_size.x || pos.y >= map_size.y || pos.z >= map_size.z) return;
     remove_child(isometric_positionable);
@@ -58,7 +58,7 @@ void IsometricMap::remove_iso_positionable(Node* node) {
         const Array &child_map_children{child_map->get_flatten_positionables(pos)};
         for (int i = 0; i < child_map_children.size(); i++) {
             if (auto* posi{cast_to<IsometricPositionable>(child_map_children[i])}) {
-                edition_grid_3d.insert_box(posi->get_aabb(), child_map, true);
+                edition_grid_3d.insert_box(AABB(posi->get_local_position_3d(), posi->get_size()), child_map, true);
             }
         }
     } else {
@@ -77,7 +77,8 @@ Node* IsometricMap::get_positionable_at(Vector3 pos, bool only_left_upper_corner
 
 bool IsometricMap::is_overlapping(Node* node) {
     auto isometric_positionable{cast_to<IsometricPositionable>(node)};
-    return edition_grid_3d.is_overlapping(isometric_positionable->get_aabb());
+    return edition_grid_3d.is_overlapping(
+            AABB(isometric_positionable->get_local_position_3d(), isometric_positionable->get_size()));
 }
 
 bool IsometricMap::is_overlapping_aabb(AABB aabb) {
@@ -94,7 +95,7 @@ bool IsometricMap::are_map_elements_overlapping(Vector3 position, Node* obj) {
                 }
             } else {
                 if (is_overlapping_aabb(
-                        {position + positionable->get_local_position_3d(), positionable->get_size_3d()})) {
+                        {position + positionable->get_local_position_3d(), positionable->get_size()})) {
                     return true;
                 }
             }
@@ -119,34 +120,6 @@ Array IsometricMap::get_positionable_children() const {
     return positionable_children;
 }
 
-void IsometricMap::on_resize() {
-    IsometricPositionable::on_resize();
-    grid_3d.update_array_size(get_size_3d());
-    edition_grid_3d.update_array_size(get_size_3d());
-}
-
-void IsometricMap::on_grid_updated(int stair) {
-    for (int i = 0; i < get_child_count(); i++) {
-        auto* isometric_positionable = cast_to<IsometricPositionable>(get_child(i));
-        if (isometric_positionable) {
-            isometric_positionable->on_grid_updated(stair - static_cast<int>(get_local_position_3d().z));
-        }
-    }
-}
-
-void IsometricMap::set_aabb(AABB ab) {
-    IsometricPositionable::set_aabb(ab);
-    set_has_moved(true);
-}
-
-void IsometricMap::set_has_moved(bool hm) {
-    for (int i = 0; i < get_child_count(); i++) {
-        auto* positionable = cast_to<IsometricPositionable>(get_child(i));
-        if (positionable) {
-            positionable->set_has_moved(true);
-        }
-    }
-}
 
 Array IsometricMap::get_flatten_positionables(const Vector3 &offset) {
     Array positionables;
@@ -176,7 +149,7 @@ void IsometricMap::insert_map_as_flatten(Node* map, const Vector3 &offset) {
             if (auto* m{cast_to<IsometricMap>(positionable)}) {
                 insert_map_as_flatten(m, offset + m->get_local_position_3d());
             } else {
-                const AABB &aabb{positionable->get_local_position_3d() + offset, positionable->get_size_3d()};
+                const AABB &aabb{positionable->get_local_position_3d() + offset, positionable->get_size()};
                 edition_grid_3d.insert_box(aabb, map);
             }
         }

@@ -4,18 +4,17 @@
 #include <core/object.h>
 #include <core/resource.h>
 #include "../data/isometric_element.h"
+#include <core/rid.h>
 
 namespace resource {
 
-    class IsometricConfiguration : public Resource {
+    class IsometricConfiguration : public Resource, public RID_Data {
     GDCLASS(IsometricConfiguration, Resource)
 
     private:
         int tile_width;
         int angle;
         float topological_margin;
-
-        static RID_Owner<IsometricConfiguration> configurations_owner;
         RID self;
 
     public:

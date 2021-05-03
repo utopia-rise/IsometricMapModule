@@ -23,9 +23,11 @@ namespace node {
         };
 
     private:
-        AABB aabb;
+        Vector3 size;
         Vector3 local_position;
         int z_order_size;
+
+        SlopeType slope_type =  SlopeType::NONE;
 
         int debug_z;
 
@@ -35,21 +37,20 @@ namespace node {
     protected:
         editor::OutlineDrawer* outline_drawer;
 
-        Vector<Vector2> left_points;
-        Vector<Vector2> right_points;
         Vector<Vector2> up_points;
         Vector<Vector2> down_points;
-
-        Vector<Vector2> debug_points;
 
         RID world;
         bool world_owner;
 
         void prepare_points();
 
+        void update_position();
+
         void _notification(int notif);
 
         virtual void _enter_tree();
+        void _process();
         void _exit_tree();
 
     public:
@@ -65,33 +66,13 @@ namespace node {
 
         Vector3 get_global_position_3d() const;
 
-        virtual void set_global_position_3d(Vector3 pos);
+        virtual Vector3 get_size() const;
 
-        AABB get_aabb();
-
-        virtual void set_aabb(AABB ab);
-
-        Vector3 get_size_3d() const;
-
-        void set_size_3d(Vector3 s);
+        virtual void set_size(Vector3 p_size);
 
         int get_z_order_size() const;
 
         void set_z_order_size(int size);
-
-        int get_debug_z() const;
-
-        void set_debug_z(int d_z);
-
-        virtual void on_resize();
-
-        virtual void on_grid_updated(int stair);
-
-        virtual void on_select(bool selected);
-
-        virtual bool get_has_moved() const;
-
-        virtual void set_has_moved(bool hm);
 
     protected:
         static void _bind_methods();
@@ -99,13 +80,5 @@ namespace node {
 } // namespace positionable
 
 MAKE_ENUM_TYPE_INFO(node::IsometricPositionable::SlopeType)
-
-template<>
-struct VariantCaster<node::IsometricPositionable::SlopeType> {
-
-    static _FORCE_INLINE_ node::IsometricPositionable::SlopeType cast(const Variant &p_variant) {
-        return (node::IsometricPositionable::SlopeType) p_variant.operator int();
-    }
-};
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H

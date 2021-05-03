@@ -10,7 +10,7 @@
 #include "isometric_element.h"
 
 #define DEFAULT_ANGLE 30
-#define DEFAULT_WIDTH 265
+#define DEFAULT_WIDTH 256
 #define DEFAULT_MARGIN 0.1f
 
 namespace data {

@@ -32,6 +32,8 @@ namespace editor {
 
     protected:
         static void _bind_methods();
+
+        void _notification(int notif);
     };
 } // namespace editor
 

@@ -5,7 +5,7 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_MATHS_H
 #define ISOMETRIC_MAPS_ISOMETRIC_MATHS_H
 
-#include "../data/isometric_element.h"
+#include "../data/isometric_parameters.h"
 
 namespace utils {
     struct Hexagone {
@@ -18,14 +18,14 @@ namespace utils {
     };
 
 
-    _FORCE_INLINE_ Vector2 from_3D_to_screen(const data::IsometricParameters &params, const Vector3 &pos) {
+    static inline Vector2 from_3D_to_screen(const data::IsometricParameters &params, const Vector3 &pos) {
         return {
                 (pos.x - pos.y) * static_cast<real_t>(params.diamond_width) * 0.5f,
                 (pos.x + pos.y) * static_cast<real_t>(params.diamond_height) * 0.5f - params.z_length * pos.z
         };
     }
 
-    Vector3 from_screen_to_3D(const data::IsometricParameters &params, const Vector2 &pos, real_t orth_z) {
+    static Vector3 from_screen_to_3D(const data::IsometricParameters &params, const Vector2 &pos, real_t orth_z) {
         real_t iso_x{pos.x};
         real_t iso_y{pos.y};
         auto tile_width_float = static_cast<real_t>(params.diamond_width);
@@ -39,7 +39,7 @@ namespace utils {
         };
     }
 
-    Hexagone get_hexagone_points(const data::IsometricParameters &params, const data::IsometricElement* data) {
+    static Hexagone get_hexagone_points(const data::IsometricParameters &params, const data::IsometricElement* data) {
         const Vector3 &ortho_position{data->aabb.position};
         const Vector3 &size{data->aabb.size};
         const Vector3 &upper_point{
@@ -58,7 +58,8 @@ namespace utils {
         return {minX, maxX, minY, maxY, hMin, hMax};
     }
 
-    bool are_elements_overlapping(const data::IsometricParameters &params,
+
+    static bool are_elements_overlapping(const data::IsometricParameters &params,
                                   const data::IsometricElement* data1,
                                   const data::IsometricElement* data2) {
         Hexagone hex1 = get_hexagone_points(params, data1);
@@ -69,7 +70,7 @@ namespace utils {
                !(hex1.minH >= hex2.maxH || hex2.minH >= hex1.maxH);
     }
 
-    bool is_box_in_front(const data::IsometricParameters &params, const AABB &box, const AABB &other) {
+    static bool is_box_in_front(const data::IsometricParameters &params, const AABB &box, const AABB &other) {
         const Vector3 &boxEnd{box.position + box.size};
         const Vector3 &otherEnd{other.position + other.size};
 
@@ -96,7 +97,7 @@ namespace utils {
         return distance.dot(cameraVector) >= 0;
     }
 
-    PoolVector2Array get_bounding_box(const data::IsometricParameters &params, Vector3 size) {
+    static PoolVector2Array get_bounding_box(const data::IsometricParameters &params, Vector3 size) {
         real_t w{size.x};
         real_t d{size.y};
         real_t h{size.z};
@@ -114,13 +115,13 @@ namespace utils {
         points.push_back(Vector2(tile_width_float * 0.5f * (w - d), tile_height_float * 0.5f * (d + w)) + offset);
         points.push_back(Vector2(-tile_width_float * 0.5f * d, tile_height_float * 0.5f * d) + offset);
 
-        Vector2 heightOffset(0, -params.z_ratio * h);
+        Vector2 heightOffset(0, -params.z_length * h);
 
         //Upper points
-        points.push_back(points[0] + offset + (1 - (right_slope + backward_slope)) * heightOffset);
-        points.push_back(points[1] + offset + (1 - (left_slope + backward_slope)) * heightOffset);
-        points.push_back(points[2] + offset + (1 - (left_slope + forward_slope)) * heightOffset);
-        points.push_back(points[3] + offset + (1 - (right_slope + forward_slope)) * heightOffset);
+        points.push_back(points[0] + heightOffset);
+        points.push_back(points[1] + heightOffset);
+        points.push_back(points[2] + heightOffset);
+        points.push_back(points[3] + heightOffset);
 
         return points;
     }

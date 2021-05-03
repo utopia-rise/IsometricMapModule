@@ -51,14 +51,6 @@ namespace node {
 
         Array get_positionable_children() const;
 
-        void on_resize() override;
-
-        void on_grid_updated(int stair) override;
-
-        void set_aabb(AABB ab) override;
-
-        void set_has_moved(bool hm) override;
-
     protected:
         static void _bind_methods();
     };

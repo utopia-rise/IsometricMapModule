@@ -1,7 +1,6 @@
 #include "isometric_server.h"
 #include "core/os/os.h"
 #include <scene/2d/canvas_item.h>
-#include <modules/isometric_maps/src/data/isometric_parameters.h>
 #include <modules/isometric_maps/src/resource/isometric_configuration.h>
 #include <modules/isometric_maps/src/utils/isometric_maths.h>
 
@@ -24,7 +23,6 @@ void IsometricServer::iteration(void* p_udata) {
     IsometricServer* server = reinterpret_cast<IsometricServer*>(p_udata);
 
     while (!server->exit_thread) {
-        WARN_PRINT("Loop")
         List<RID> list;
         server->elements_owner.get_owned_list(&list);
 
@@ -61,7 +59,7 @@ RID IsometricServer::create_space() {
 void IsometricServer::delete_space(const RID &rid) {
     data::IsometricSpace* data{worlds_owner.getornull(rid)};
     if (!data) {
-        WARN_PRINT("THis is not a valid isometric space RID.")
+        WARN_PRINT(vformat("This is not a valid isometric space RID: %s", rid.get_id()))
         return;
     }
 
@@ -73,22 +71,24 @@ void IsometricServer::delete_space(const RID &rid) {
 RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canvas_item, bool p_is_dynamic) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT("THis is not a valid isometric space RID.")
+        WARN_PRINT(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()))
         return RID();
     }
 
     IsometricElement* isometric_element{memnew(IsometricElement())};
     isometric_element->visual_rid = p_canvas_item;
     isometric_element->is_dynamic = p_is_dynamic;
+    isometric_element->world = space_rid;
+    isometric_element->z_size = 1;
 
     if (!p_is_dynamic) {
         space->static_elements.push_back(isometric_element);
 
         for (int i = 0; i < space->static_elements.size(); i++) {
             IsometricElement* static_element{space->static_elements[i]};
-            if (space->configuration.do_iso_elements_overlap(static_element, isometric_element)) {
+            if (utils::are_elements_overlapping(space->configuration, static_element, isometric_element)) {
 
-                if (space->configuration.is_box_in_front(static_element->aabb, isometric_element->aabb)) {
+                if (utils::is_box_in_front(space->configuration, static_element->aabb, isometric_element->aabb)) {
                     static_element->behind_statics.push_back(isometric_element);
                 } else {
                     isometric_element->behind_statics.push_back(static_element);
@@ -100,19 +100,21 @@ RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canva
         space->dynamic_elements.push_back(isometric_element);
     }
 
-    return elements_owner.make_rid(isometric_element);
+    RID rid = elements_owner.make_rid(isometric_element);
+    isometric_element->self = rid;
+    return rid;
 }
 
 void IsometricServer::unregister_isometric_element(const RID space_rid, const RID rid) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT("THis is not a valid isometric space RID.")
+        WARN_PRINT(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()))
         return;
     }
 
     IsometricElement* isometric_element{elements_owner.getornull(rid)};
     if (!isometric_element) {
-        WARN_PRINT("THis is not a valid isometric element RID.")
+        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", rid.get_id()))
         return;
     }
 
@@ -139,10 +141,11 @@ void IsometricServer::generateTopologicalRenderGraph(data::IsometricSpace* p_iso
             for (int j = 0; j < p_isometric_space->dynamic_elements.size(); ++j) {
                 IsometricElement* positionable{p_isometric_space->dynamic_elements[i]};
                 if (j != i && positionable) {
-                    if (p_isometric_space->configuration.do_iso_elements_overlap(dynamicPositionable, positionable)) {
+                    if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamicPositionable,
+                                                        positionable)) {
 
-                        if (p_isometric_space->configuration.is_box_in_front(dynamicPositionable->aabb,
-                                                                             positionable->aabb)) {
+                        if (utils::is_box_in_front(p_isometric_space->configuration, dynamicPositionable->aabb,
+                                                   positionable->aabb)) {
                             dynamicPositionable->behind_dynamics.push_back(positionable);
                         } else {
                             positionable->behind_dynamics.push_back(dynamicPositionable);
@@ -153,10 +156,11 @@ void IsometricServer::generateTopologicalRenderGraph(data::IsometricSpace* p_iso
 
             for (int j = 0; j < p_isometric_space->static_elements.size(); ++j) {
                 if (IsometricElement* positionable = p_isometric_space->dynamic_elements[i]) {
-                    if (p_isometric_space->configuration.do_iso_elements_overlap(dynamicPositionable, positionable)) {
+                    if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamicPositionable,
+                                                        positionable)) {
 
-                        if (p_isometric_space->configuration.is_box_in_front(dynamicPositionable->aabb,
-                                                                             positionable->aabb)) {
+                        if (utils::is_box_in_front(p_isometric_space->configuration, dynamicPositionable->aabb,
+                                                   positionable->aabb)) {
                             dynamicPositionable->behind_dynamics.push_back(positionable);
                         } else {
                             positionable->behind_dynamics.push_back(dynamicPositionable);
@@ -199,7 +203,6 @@ void IsometricServer::render_isometric_element(IsometricElement* data) {
     for (int i = 0; i < data->behind_dynamics.size(); i++) {
         IsometricElement* behind{data->behind_dynamics[i]};
         if (behind) {
-            if (behind) {
                 if (behind->dirty) {
                     render_isometric_element(behind);
                 }
@@ -207,32 +210,41 @@ void IsometricServer::render_isometric_element(IsometricElement* data) {
                 int zOrder = behind->z_order;
                 int newZOrder = zOrderSize + zOrder;
                 maxZ = newZOrder >= maxZ ? newZOrder : maxZ;
-            }
         }
-        data->z_order = maxZ;
     }
+    WARN_PRINT(vformat("RID: %s, Zorder %s", data->get_id()))
+    data->z_order = maxZ;
+
 }
 
 void IsometricServer::update_space_configuration(const RID space_rid, const RID conf_rid) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT("THis is not a valid isometric space RID.")
+        WARN_PRINT(vformat("This is not a valid space RID: %s", space_rid.get_id()))
         return;
     }
     resource::IsometricConfiguration* conf = resource::IsometricConfiguration::get_instance(conf_rid);
-    space->configuration = IsometricParameters(conf->get_tile_width(), conf->get_angle(), conf->get_topological_margin());
+    space->configuration = IsometricParameters(conf->get_tile_width(), conf->get_angle(),
+                                               conf->get_topological_margin());
 }
 
-data::IsometricParameters* IsometricServer::get_space_configuration_from_element(const RID element_rid) {
+const data::IsometricParameters* IsometricServer::get_space_configuration(const RID world_rid) {
+    IsometricSpace* world{worlds_owner.getornull(world_rid)};
+    if (!world) {
+        WARN_PRINT(vformat("This is not a valid space RID: %s", world_rid.get_id()))
+        return nullptr;
+    }
+    return &world->configuration;
+}
+
+const data::IsometricParameters* IsometricServer::get_space_configuration_from_element(const RID element_rid) {
     IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
     if (!isometric_element) {
-        WARN_PRINT("THis is not a valid isometric element RID.")
+        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()))
         return nullptr;
     }
     return &(worlds_owner.get(isometric_element->world)->configuration);
-
 }
-
 
 
 void IsometricServer::_bind_methods() {
@@ -245,5 +257,33 @@ void IsometricServer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("update_space_configuration"), &IsometricServer::update_space_configuration);
 }
 
+void IsometricServer::set_isometric_element_position(const RID element_rid, const Vector3 global_position) {
+    IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
+    if (!isometric_element) {
+        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()))
+        return;
+    }
 
+    isometric_element->aabb.position = global_position;
+}
+
+void IsometricServer::set_isometric_element_size(const RID element_rid, const Vector3 size) {
+    IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
+    if (!isometric_element) {
+        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()))
+        return;
+    }
+
+    isometric_element->aabb.size = size;
+}
+
+uint64_t IsometricServer::get_isometric_z_index(const RID element_rid) {
+    IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
+    if (!isometric_element) {
+        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()))
+        return 0;
+    }
+
+    return isometric_element->z_order;
+}
 
