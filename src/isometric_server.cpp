@@ -6,10 +6,9 @@
 
 using namespace data;
 
-IsometricServer::IsometricServer() {
+IsometricServer::IsometricServer() : thread_exited(false), mutex(), thread() {
     thread_exited = false;
-    mutex = Mutex::create();
-    thread = Thread::create(IsometricServer::iteration, this);
+    thread->start(IsometricServer::iteration, this);
 }
 
 IsometricServer* IsometricServer::get_instance() {
