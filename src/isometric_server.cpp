@@ -7,7 +7,7 @@
 using namespace data;
 
 IsometricServer::IsometricServer() : thread_exited(false), exit_thread(false), thread(), mutex() {
-    thread->start(IsometricServer::iteration, this);
+    thread.start(&IsometricServer::iteration, this);
 }
 
 IsometricServer* IsometricServer::get_instance() {
@@ -210,7 +210,7 @@ void IsometricServer::render_isometric_element(IsometricElement* data) {
                 maxZ = newZOrder >= maxZ ? newZOrder : maxZ;
         }
     }
-    WARN_PRINT(vformat("RID: %s, Zorder %s", data->get_id()))
+    WARN_PRINT(vformat("RID: %s, Zorder %s", data->get_id(), data->z_order))
     data->z_order = maxZ;
 
 }
@@ -284,4 +284,3 @@ uint64_t IsometricServer::get_isometric_z_index(const RID element_rid) {
 
     return isometric_element->z_order;
 }
-

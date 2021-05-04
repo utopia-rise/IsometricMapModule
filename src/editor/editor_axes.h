@@ -5,6 +5,7 @@
 
 namespace editor {
     enum EditorAxes {
+        NONE,
         X,
         Y,
         Z

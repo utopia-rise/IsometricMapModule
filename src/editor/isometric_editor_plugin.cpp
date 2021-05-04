@@ -1,5 +1,6 @@
+#ifdef TOOLS_ENABLED
+
 #include "isometric_editor_plugin.h"
-#include "../node/isometric_map.h"
 
 using namespace editor;
 
@@ -39,10 +40,10 @@ void IsometricEditorPlugin::_notification(int p_notification) {
 
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
-    if (!handling_data_map.has(selected_map)) {
-        handling_data_map[selected_map] = {
-                {0, EditorAxes::Z}
-        };
+    auto index{reinterpret_cast<uint64_t>(selected_map)};
+    if (!handling_data_map.has(index)) {
+        const Vector3& map_size{selected_map->get_size()};
+        handling_data_map[index] = MapHandlingData({0, EditorAxes::Z, {map_size.x, map_size.y}});
     }
     selected_map->set_debug(show_debug);
 }
@@ -72,4 +73,12 @@ void IsometricEditorPlugin::make_visible(bool b) {
 }
 
 
+IsometricEditorPlugin::MapHandlingData::MapHandlingData() : edition_grid_plane{0, EditorAxes::NONE, Vector2()} {
 
+}
+
+IsometricEditorPlugin::MapHandlingData::MapHandlingData(EditorPlane p_editor_plane) : edition_grid_plane(p_editor_plane) {
+
+}
+
+#endif

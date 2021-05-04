@@ -10,15 +10,14 @@ GDCLASS(IsometricServer, Object)
 private:
     bool thread_exited;
     mutable bool exit_thread;
-    Thread* thread;
-    Mutex* mutex;
+    Thread thread;
+    Mutex mutex;
 
     RID_Owner<data::IsometricSpace> worlds_owner;
     RID_Owner<data::IsometricElement> elements_owner;
     Vector<data::IsometricSpace*> worlds;
 
     void render_isometric_element(data::IsometricElement* data);
-
     static void iteration(void* p_udata);
 
 public:
@@ -32,10 +31,6 @@ public:
 
     static void _bind_methods();
 
-private:
-
-
-public:
     RID create_space();
 
     void delete_space(const RID &rid);
