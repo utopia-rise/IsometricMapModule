@@ -4,10 +4,11 @@
 using namespace editor;
 
 IsometricEditorPlugin::IsometricEditorPlugin() :
-        selected_map{nullptr},
-        current_mode{Mode::NONE},
         undo_redo{EditorNode::get_undo_redo()},
-        show_debug{false} {
+        toolbar{nullptr},
+        debug_button{nullptr},
+        selected_map{nullptr},
+        show_debug(false) {
 }
 
 IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
@@ -38,8 +39,12 @@ void IsometricEditorPlugin::_notification(int p_notification) {
 
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
+    if (!handling_data_map.has(selected_map)) {
+        handling_data_map[selected_map] = {
+                {0, EditorAxes::Z}
+        };
+    }
     selected_map->set_debug(show_debug);
-
 }
 
 bool IsometricEditorPlugin::handles(Object* p_object) const {
@@ -54,7 +59,6 @@ void IsometricEditorPlugin::clear() {
 bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_event) {
     return false;
 }
-
 
 void IsometricEditorPlugin::_bind_methods() {
     ClassDB::bind_method("set_debug_mode", &IsometricEditorPlugin::set_debug_mode);

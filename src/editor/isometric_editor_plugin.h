@@ -4,6 +4,7 @@
 #include <modules/isometric_maps/src/node/isometric_map.h>
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
+#include "edition_grid.h"
 
 namespace editor {
 
@@ -16,16 +17,21 @@ namespace editor {
             PAIN
         };
 
+        struct MapHandlingData {
+            EditionGrid edition_grid;
+        };
+
         IsometricEditorPlugin();
 
         UndoRedo *undo_redo;
-        node::IsometricMap* selected_map;
-        Mode current_mode;
-
         HBoxContainer *toolbar;
+        Button *debug_button;
+
+        HashMap<node::IsometricMap*, MapHandlingData> handling_data_map;
+        node::IsometricMap* selected_map;
 
         bool show_debug;
-        Button *debug_button;
+        Mode current_mode;
 
     public:
         static IsometricEditorPlugin* get_instance();
