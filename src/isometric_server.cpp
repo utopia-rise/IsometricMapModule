@@ -6,8 +6,7 @@
 
 using namespace data;
 
-IsometricServer::IsometricServer() : thread_exited(false), mutex(), thread() {
-    thread_exited = false;
+IsometricServer::IsometricServer() : thread_exited(false), exit_thread(false), thread(), mutex() {
     thread->start(IsometricServer::iteration, this);
 }
 
@@ -19,7 +18,7 @@ IsometricServer* IsometricServer::get_instance() {
 void IsometricServer::iteration(void* p_udata) {
     uint64_t msdelay = 3000;
 
-    IsometricServer* server = reinterpret_cast<IsometricServer*>(p_udata);
+    auto* server{reinterpret_cast<IsometricServer*>(p_udata)};
 
     while (!server->exit_thread) {
         List<RID> list;
@@ -71,7 +70,7 @@ RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canva
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
         WARN_PRINT(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()))
-        return RID();
+        return {};
     }
 
     IsometricElement* isometric_element{memnew(IsometricElement())};
@@ -171,7 +170,7 @@ void IsometricServer::generateTopologicalRenderGraph(data::IsometricSpace* p_iso
     }
 
     for (int i = 0; i < p_isometric_space->static_elements.size(); ++i) {
-        IsometricElement* positionable = p_isometric_space->static_elements[i];;
+        IsometricElement* positionable = p_isometric_space->static_elements[i];
         if (positionable && positionable->dirty) {
             render_isometric_element(positionable);
         }
