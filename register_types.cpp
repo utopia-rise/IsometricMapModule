@@ -22,6 +22,7 @@ void register_isometric_maps_types() {
     ClassDB::register_class<editor::OutlineDrawer>();
 
     #ifdef TOOLS_ENABLED
+        ClassDB::register_class<editor::IsometricEditorPlugin>();
         EditorPlugins::add_create_func(isometric_editor_plugin_creator_func);
     #endif
 

@@ -29,8 +29,6 @@ namespace node {
 
         SlopeType slope_type =  SlopeType::NONE;
 
-        int debug_z;
-
         RID self;
         bool is_dynamic;
 
@@ -59,6 +57,8 @@ namespace node {
         ~IsometricPositionable() override = default;
 
         void set_outline_drawer(Color color, real_t line_size);
+
+        void set_debug(bool b);
 
         Vector3 get_local_position_3d() const;
 

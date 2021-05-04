@@ -8,6 +8,7 @@
 namespace editor {
 
     class IsometricEditorPlugin : public EditorPlugin {
+        GDCLASS(IsometricEditorPlugin, EditorPlugin)
 
         enum Mode {
             NONE,
@@ -17,19 +18,24 @@ namespace editor {
 
         IsometricEditorPlugin();
 
+        UndoRedo *undo_redo;
         node::IsometricMap* selected_map;
-
         Mode current_mode;
+
+        HBoxContainer *toolbar;
+
+        bool show_debug;
+        Button *debug_button;
 
     public:
         static IsometricEditorPlugin* get_instance();
 
         IsometricEditorPlugin(const IsometricEditorPlugin&) = delete;
 
-        IsometricEditorPlugin& operator=(const IsometricEditorPlugin&) = delete;
+        void set_debug_mode(bool b);
 
     protected:
-        void _notificationv(int p_notification, bool p_reversed) override;
+        void _notification(int p_notification);
 
         bool forward_canvas_gui_input(const Ref<InputEvent>& p_event) override;
 
@@ -38,6 +44,8 @@ namespace editor {
         bool handles(Object* p_object) const override;
 
         void clear() override;
+
+        void make_visible(bool b) override;
 
     public:
         static void _bind_methods();

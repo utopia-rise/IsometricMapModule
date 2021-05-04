@@ -83,6 +83,7 @@ void IsometricPositionable::set_outline_drawer(Color color, real_t line_size) {
     prepare_points();
     if (!outline_drawer) {
         outline_drawer = memnew(editor::OutlineDrawer());
+        outline_drawer->set_visible(false);
         add_child(outline_drawer);
     }
     update();
@@ -217,4 +218,11 @@ void IsometricPositionable::_bind_methods() {
     //    BIND_ENUM_CONSTANT(RIGHT);
     //    BIND_ENUM_CONSTANT(FORWARD);
     //    BIND_ENUM_CONSTANT(BACKWARD);
+}
+
+void IsometricPositionable::set_debug(bool b) {
+    if (outline_drawer) {
+        outline_drawer->set_visible(b);
+        outline_drawer->update();
+    }
 }
