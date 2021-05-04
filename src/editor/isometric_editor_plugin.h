@@ -7,6 +7,7 @@
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "editor_plane.h"
+#include "edition_grid_drawer.h"
 
 namespace editor {
 
@@ -35,6 +36,8 @@ namespace editor {
 
         bool show_debug;
         Mode current_mode;
+
+        EditionGridDrawer edition_grid_drawer;
 
     public:
         IsometricEditorPlugin();

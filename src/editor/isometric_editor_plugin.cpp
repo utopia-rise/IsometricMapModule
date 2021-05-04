@@ -9,7 +9,8 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         toolbar{nullptr},
         debug_button{nullptr},
         selected_map{nullptr},
-        show_debug(false) {
+        show_debug(false),
+        edition_grid_drawer() {
 }
 
 IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
@@ -46,6 +47,7 @@ void IsometricEditorPlugin::edit(Object* p_object) {
         handling_data_map[index] = MapHandlingData({0, EditorAxes::Z, {map_size.x, map_size.y}});
     }
     selected_map->set_debug(show_debug);
+    edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane);
 }
 
 bool IsometricEditorPlugin::handles(Object* p_object) const {
@@ -71,7 +73,6 @@ void IsometricEditorPlugin::make_visible(bool b) {
     }
     toolbar->set_visible(b);
 }
-
 
 IsometricEditorPlugin::MapHandlingData::MapHandlingData() : edition_grid_plane{0, EditorAxes::NONE, Vector2()} {
 
