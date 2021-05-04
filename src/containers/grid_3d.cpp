@@ -2,12 +2,12 @@
 
 using namespace containers;
 
-void Grid3D::update_array_size(const Vector3& size, bool reset) {
+void Grid3D::update_array_size(const Vector3 &size, bool reset) {
     //Save old values
-    int old_size { internal_array.size() };
-    Vector<Object*> old_array { internal_array };
-    int old_width { width };
-    int old_depth { depth };
+    int old_size{internal_array.size()};
+    Vector<Object*> old_array{internal_array};
+    int old_width{width};
+    int old_depth{depth};
 
     //Set new values
     width = static_cast<int>(size.x);
@@ -43,26 +43,25 @@ void Grid3D::reset() {
     update_array_size({static_cast<real_t>(width), static_cast<real_t>(depth), static_cast<real_t>(height)}, true);
 }
 
-Object* Grid3D::get_data(const Vector3& position) {
+Object* Grid3D::get_data(const Vector3 &position) {
     int pos_x = static_cast<int>(position.x);
     int pos_y = static_cast<int>(position.y);
     int pos_z = static_cast<int>(position.z);
     return pos_x >= 0 && pos_x < width && pos_y >= 0 && pos_y < depth && pos_z >= 0 && pos_z < height
-           ? (Object *) internal_array[pos_x + width * pos_y + width * depth * pos_z]
-           : nullptr;
+           ? (Object*) internal_array[pos_x + width * pos_y + width * depth * pos_z] : nullptr;
 }
 
-void Grid3D::set_data(const Vector3& position, Object* data) {
+void Grid3D::set_data(const Vector3 &position, Object* data) {
     internal_array.set(
-            static_cast<int>(position.x) + width * static_cast<int>(position.y) + width * depth * static_cast<int>(position.z),
-            data
-    );
+            static_cast<int>(position.x) + width * static_cast<int>(position.y) +
+            width * depth * static_cast<int>(position.z),
+            data);
 }
 
-bool Grid3D::insert_box(const AABB& aabb, Object* data, bool remove) {
-    const Vector3 &position { aabb.position };
-    const Vector3 &size { aabb.size };
-    int index { get_id(position) };
+bool Grid3D::insert_box(const AABB &aabb, Object* data, bool remove) {
+    const Vector3 &position{aabb.position};
+    const Vector3 &size{aabb.size};
+    int index{get_id(position)};
     int sizeX = static_cast<int>(size.x);
     int sizeY = static_cast<int>(size.y);
     int sizeZ = static_cast<int>(size.z);
@@ -82,12 +81,12 @@ bool Grid3D::insert_box(const AABB& aabb, Object* data, bool remove) {
     return true;
 }
 
-bool Grid3D::is_overlapping(const AABB& aabb) const {
-    int index { get_id(aabb.position) };
-    const Vector3 &size { aabb.size };
+bool Grid3D::is_overlapping(const AABB &aabb) const {
+    int index{get_id(aabb.position)};
+    const Vector3 &size{aabb.size};
 
     if (index >= 0 && index < internal_array.size()) {
-        Object *element = internal_array[index];
+        Object* element = internal_array[index];
         if (element) {
             return true;
         }
@@ -106,7 +105,7 @@ bool Grid3D::is_overlapping(const AABB& aabb) const {
 
 bool Grid3D::has(Object* object) const {
     for (int i = 0; i < internal_array.size(); i++) {
-        if ((Object *) internal_array[i] == object) {
+        if ((Object*) internal_array[i] == object) {
             return true;
         }
     }
@@ -115,7 +114,7 @@ bool Grid3D::has(Object* object) const {
 
 void Grid3D::for_each(void (* fptr)(Object*)) {
     for (int i = 0; i < internal_array.size(); i++) {
-        Object *element = internal_array[i];
+        Object* element = internal_array[i];
         if (element) {
             fptr(element);
         }
@@ -146,11 +145,11 @@ void Grid3D::set_height(int h) {
     height = h;
 }
 
-const Vector<Object*>& Grid3D::get_internal_array() const {
+const Vector<Object*> &Grid3D::get_internal_array() const {
     return internal_array;
 }
 
-void Grid3D::set_internal_array(const Vector<Object*>& array) {
+void Grid3D::set_internal_array(const Vector<Object*> &array) {
     internal_array = array;
 }
 
@@ -158,8 +157,9 @@ bool Grid3D::is_in_range(int x, int y, int z) const {
     return x < width && y < depth && z < height;
 }
 
-int Grid3D::get_id(const Vector3& position) const {
-    return static_cast<int>(position.x) + width * static_cast<int>(position.y) + width * depth * static_cast<int>(position.z);
+int Grid3D::get_id(const Vector3 &position) const {
+    return static_cast<int>(position.x) + width * static_cast<int>(position.y) +
+           width * depth * static_cast<int>(position.z);
 }
 
 Vector3 Grid3D::get_position_3d(int id) const {
@@ -170,7 +170,7 @@ Vector3 Grid3D::get_position_3d(int id) const {
     };
 }
 
-Vector3 Grid3D::plane_square_and_jumps_from(const Vector3& size) const {
+Vector3 Grid3D::plane_square_and_jumps_from(const Vector3 &size) const {
     return {
             size.x * size.y,
             static_cast<real_t>(width) - size.x,
@@ -178,10 +178,11 @@ Vector3 Grid3D::plane_square_and_jumps_from(const Vector3& size) const {
     };
 }
 
-int Grid3D::index_increment_from(const Vector3& planeSquareAndJumps, const Vector3& size, int iteration) {
-    int increment { 0 };
+int Grid3D::index_increment_from(const Vector3 &planeSquareAndJumps, const Vector3 &size, int iteration) {
+    int increment{0};
     increment += (iteration % static_cast<int>(size.x)) == 0 ? static_cast<int>(planeSquareAndJumps.y) : 0;
-    increment += (iteration % static_cast<int>(planeSquareAndJumps.x)) == 0 ? static_cast<int>(planeSquareAndJumps.z) : 0;
+    increment +=
+            (iteration % static_cast<int>(planeSquareAndJumps.x)) == 0 ? static_cast<int>(planeSquareAndJumps.z) : 0;
     increment += 1;
     return increment;
 }
