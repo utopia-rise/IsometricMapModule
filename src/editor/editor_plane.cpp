@@ -1,12 +1,15 @@
 #ifdef TOOLS_ENABLED
 
 #include "editor_plane.h"
+#include <servers/visual_server.h>
 
 using namespace editor;
 
 EditorPlane::EditorPlane(int p_position, EditorAxes p_axes, const Vector2& p_size)
-    : position(p_position), axes(p_axes), size(p_size) {
-
+    : position(p_position),
+    axes(p_axes),
+    size(p_size),
+    self(VisualServer::get_singleton()->canvas_item_create()){
 }
 
 int EditorPlane::get_position() const {
@@ -19,6 +22,10 @@ EditorAxes EditorPlane::get_axes() const {
 
 const Vector2& EditorPlane::get_size() const {
     return size;
+}
+
+RID EditorPlane::get_rid() const {
+    return self;
 }
 
 #endif

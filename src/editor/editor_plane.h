@@ -5,6 +5,7 @@
 
 #include "editor_axes.h"
 #include <core/math/vector2.h>
+#include <core/rid.h>
 
 namespace editor {
 
@@ -13,6 +14,7 @@ namespace editor {
     public:
         int get_position() const;
         EditorAxes get_axes() const;
+        RID get_rid() const;
         const Vector2& get_size() const;
 
         EditorPlane(int p_position, EditorAxes p_axes, const Vector2& p_size);
@@ -22,6 +24,7 @@ namespace editor {
         int position;
         EditorAxes axes;
         Vector2 size;
+        RID self;
     };
 }
 
