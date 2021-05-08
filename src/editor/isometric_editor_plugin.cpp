@@ -1,13 +1,16 @@
+#ifdef TOOLS_ENABLED
+
 #include "isometric_editor_plugin.h"
-#include "../node/isometric_map.h"
 
 using namespace editor;
 
 IsometricEditorPlugin::IsometricEditorPlugin() :
-        selected_map{nullptr},
-        current_mode{Mode::NONE},
         undo_redo{EditorNode::get_undo_redo()},
-        show_debug{false} {
+        toolbar{nullptr},
+        debug_button{nullptr},
+        selected_map{nullptr},
+        show_debug(false),
+        edition_grid_drawer() {
 }
 
 IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
@@ -21,11 +24,11 @@ void IsometricEditorPlugin::set_debug_mode(bool b) {
 }
 
 void IsometricEditorPlugin::_notification(int p_notification) {
-    if(p_notification == NOTIFICATION_READY){
+    if (p_notification == NOTIFICATION_READY) {
         // Add menu items.
         toolbar = memnew(HBoxContainer);
         toolbar->hide();
-        add_control_to_container(CustomControlContainer::CONTAINER_CANVAS_EDITOR_MENU ,toolbar);
+        add_control_to_container(CustomControlContainer::CONTAINER_CANVAS_EDITOR_MENU, toolbar);
 
         debug_button = memnew(Button);
         debug_button->set_flat(true);
@@ -38,9 +41,24 @@ void IsometricEditorPlugin::_notification(int p_notification) {
 
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
-    selected_map->set_debug(show_debug);
+    selected_map->connect("draw", this, "refresh");
 
+    auto index{reinterpret_cast<uint64_t>(selected_map)};
+    if (!handling_data_map.has(index)) {
+        const Vector3& map_size{selected_map->get_size()};
+        handling_data_map[index] = MapHandlingData({0, EditorAxes::Z, {map_size.x, map_size.y}});
+    }
+    selected_map->set_debug(show_debug);
+    edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
 }
+
+void IsometricEditorPlugin::drop() {
+    selected_map->set_debug(false);
+    selected_map->disconnect("draw", this, "refresh");
+    auto index{reinterpret_cast<uint64_t>(selected_map)};
+    edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
+}
+
 
 bool IsometricEditorPlugin::handles(Object* p_object) const {
     return cast_to<node::IsometricMap>(p_object);
@@ -55,17 +73,33 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
     return false;
 }
 
-
-void IsometricEditorPlugin::_bind_methods() {
-    ClassDB::bind_method("set_debug_mode", &IsometricEditorPlugin::set_debug_mode);
-}
-
 void IsometricEditorPlugin::make_visible(bool b) {
-    if(!b){
-        selected_map->set_debug(false);
+    if (!b) {
+        drop();
     }
     toolbar->set_visible(b);
 }
 
+void IsometricEditorPlugin::refresh() const {
+    auto index{reinterpret_cast<uint64_t>(selected_map)};
+    if (!handling_data_map.has(index)) {
+        return;
+    }
+    edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
+}
 
+IsometricEditorPlugin::MapHandlingData::MapHandlingData() : edition_grid_plane{0, EditorAxes::NONE, Vector2()} {
 
+}
+
+IsometricEditorPlugin::MapHandlingData::MapHandlingData(EditorPlane p_editor_plane) : edition_grid_plane(
+        p_editor_plane) {
+
+}
+
+void IsometricEditorPlugin::_bind_methods() {
+    ClassDB::bind_method("set_debug_mode", &IsometricEditorPlugin::set_debug_mode);
+    ClassDB::bind_method("refresh", &IsometricEditorPlugin::refresh);
+}
+
+#endif

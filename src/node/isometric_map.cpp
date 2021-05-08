@@ -3,8 +3,7 @@
 using namespace node;
 
 IsometricMap::IsometricMap() :
-        IsometricPositionable(), draw_tiles(true), tile_width(0), tile_height(0), angle(0), e_z(0), z_ratio(0),
-        topological_margin(0) {
+        IsometricPositionable(), draw_tiles(true) {
 }
 
 void IsometricMap::_ready() {

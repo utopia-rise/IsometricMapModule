@@ -7,7 +7,7 @@
 using namespace data;
 
 IsometricServer::IsometricServer() : thread_exited(false), exit_thread(false), thread(), mutex() {
-    thread->start(IsometricServer::iteration, this);
+    thread.start(&IsometricServer::iteration, this);
 }
 
 IsometricServer* IsometricServer::get_instance() {
@@ -33,7 +33,7 @@ void IsometricServer::iteration(void* p_udata) {
         }
 
         for (int i = 0; i < server->worlds.size(); ++i) {
-            server->generateTopologicalRenderGraph(server->worlds[i]);
+            server->generate_topological_render_graph(server->worlds[i]);
         }
 
         for (int i = 0; i < list.size(); ++i) {
@@ -131,7 +131,7 @@ void IsometricServer::unregister_isometric_element(const RID space_rid, const RI
 }
 
 
-void IsometricServer::generateTopologicalRenderGraph(data::IsometricSpace* p_isometric_space) {
+void IsometricServer::generate_topological_render_graph(data::IsometricSpace* p_isometric_space) {
 
     for (int i = 0; i < p_isometric_space->dynamic_elements.size(); ++i) {
         if (IsometricElement* dynamicPositionable{p_isometric_space->dynamic_elements[i]}) {
@@ -210,7 +210,7 @@ void IsometricServer::render_isometric_element(IsometricElement* data) {
                 maxZ = newZOrder >= maxZ ? newZOrder : maxZ;
         }
     }
-    WARN_PRINT(vformat("RID: %s, Zorder %s", data->get_id()))
+    WARN_PRINT(vformat("RID: %s, Zorder %s", data->get_id(), data->z_order))
     data->z_order = maxZ;
 
 }
@@ -285,3 +285,32 @@ uint64_t IsometricServer::get_isometric_z_index(const RID element_rid) {
     return isometric_element->z_order;
 }
 
+int IsometricServer::get_isometric_space_diamond_width(const RID space_rid) {
+    data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
+    if (!space) {
+        WARN_PRINT(vformat("This is not a valid space RID: %s", space_rid.get_id()))
+        return 0;
+    }
+
+    return space->configuration.diamond_width;
+}
+
+int IsometricServer::get_isometric_space_diamond_height(const RID space_rid) {
+    data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
+    if (!space) {
+        WARN_PRINT(vformat("This is not a valid space RID: %s", space_rid.get_id()))
+        return 0;
+    }
+
+    return space->configuration.diamond_height;
+}
+
+float IsometricServer::get_isometric_space_z_length(const RID space_rid) {
+    data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
+    if (!space) {
+        WARN_PRINT(vformat("This is not a valid space RID: %s", space_rid.get_id()))
+        return 0;
+    }
+
+    return space->configuration.z_length;
+}

@@ -74,6 +74,8 @@ namespace node {
 
         void set_z_order_size(int size);
 
+        RID get_space_RID() const;
+
     protected:
         static void _bind_methods();
     };

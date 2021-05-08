@@ -3,12 +3,17 @@
 #include <modules/isometric_maps/src/isometric_server.h>
 #include <modules/isometric_maps/src/node/isometric_map.h>
 #include <modules/isometric_maps/src/resource/isometric_configuration.h>
+
+#ifdef TOOLS_ENABLED
 #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 #include <editor/editor_node.h>
+#endif
 
+#ifdef TOOLS_ENABLED
 static EditorPlugin* isometric_editor_plugin_creator_func(EditorNode* editor_node) {
     return editor::IsometricEditorPlugin::get_instance();
 }
+#endif
 
 void register_isometric_maps_types() {
     ClassDB::register_class<IsometricServer>();

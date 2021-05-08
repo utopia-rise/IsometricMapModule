@@ -1,9 +1,13 @@
+#ifdef TOOLS_ENABLED
+
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_EDITOR_PLUGIN_H
 #define ISOMETRIC_MAPS_ISOMETRIC_EDITOR_PLUGIN_H
 
 #include <modules/isometric_maps/src/node/isometric_map.h>
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
+#include "editor_plane.h"
+#include "edition_grid_drawer.h"
 
 namespace editor {
 
@@ -16,18 +20,28 @@ namespace editor {
             PAIN
         };
 
-        IsometricEditorPlugin();
+        struct MapHandlingData {
+            EditorPlane edition_grid_plane;
+
+            MapHandlingData();
+            explicit MapHandlingData(EditorPlane p_editor_plane);
+        };
 
         UndoRedo *undo_redo;
-        node::IsometricMap* selected_map;
-        Mode current_mode;
-
         HBoxContainer *toolbar;
-
-        bool show_debug;
         Button *debug_button;
 
+        HashMap<uint64_t, MapHandlingData> handling_data_map;
+        node::IsometricMap* selected_map;
+
+        bool show_debug;
+        Mode current_mode;
+
+        EditionGridDrawer edition_grid_drawer;
+
     public:
+        IsometricEditorPlugin();
+
         static IsometricEditorPlugin* get_instance();
 
         IsometricEditorPlugin(const IsometricEditorPlugin&) = delete;
@@ -41,16 +55,22 @@ namespace editor {
 
         void edit(Object* p_object) override;
 
+        void drop();
+
         bool handles(Object* p_object) const override;
 
         void clear() override;
 
         void make_visible(bool b) override;
 
+        void refresh() const;
+
     public:
         static void _bind_methods();
     };
 
 }
+
+#endif
 
 #endif
