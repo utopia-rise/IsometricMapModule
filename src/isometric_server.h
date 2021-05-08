@@ -31,6 +31,7 @@ public:
 
     static void _bind_methods();
 
+    /////////////////////////PUBLIC API/////////////////////////////////////
     RID create_space();
 
     void delete_space(const RID &rid);
@@ -51,7 +52,15 @@ public:
 
     uint64_t get_isometric_z_index(const RID element_rid);
 
-    void generateTopologicalRenderGraph(data::IsometricSpace* p_isometric_space);
+
+    /////////////////////////ENGINE INTERNAL API/////////////////////////////////////
+    void generate_topological_render_graph(data::IsometricSpace* p_isometric_space);
+
+    int get_isometric_space_diamond_width(const RID space_rid);
+
+    int get_isometric_space_diamond_height(const RID space_rid);
+
+    float get_isometric_space_z_length(const RID space_rid);
 };
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_SERVER_H

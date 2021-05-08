@@ -55,11 +55,15 @@ namespace editor {
 
         void edit(Object* p_object) override;
 
+        void drop();
+
         bool handles(Object* p_object) const override;
 
         void clear() override;
 
         void make_visible(bool b) override;
+
+        void refresh() const;
 
     public:
         static void _bind_methods();

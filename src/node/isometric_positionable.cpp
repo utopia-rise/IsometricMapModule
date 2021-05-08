@@ -226,3 +226,7 @@ void IsometricPositionable::set_debug(bool b) {
         outline_drawer->update();
     }
 }
+
+RID IsometricPositionable::get_space_RID() const{
+    return world;
+}

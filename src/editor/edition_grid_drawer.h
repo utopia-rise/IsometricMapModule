@@ -10,10 +10,10 @@
 
 namespace editor {
     class EditionGridDrawer {
-        RID drawing_rid;
 
     public:
-        void draw_grid(const EditorPlane &editor_plane, const node::IsometricMap& map);
+        void draw_grid(const EditorPlane &editor_plane, const node::IsometricMap& map) const;
+        void clear_grid(const EditorPlane &editor_plane) const;
     };
 }
 

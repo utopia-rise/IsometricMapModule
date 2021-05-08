@@ -28,13 +28,6 @@ namespace node {
 
         ~IsometricMap() override = default;
 
-        int tile_width;
-        int tile_height;
-        int angle;
-        float e_z;
-        float z_ratio;
-        float topological_margin;
-
         void add_iso_positionable(Node* isometric_node);
 
         void remove_iso_positionable(Node* isometric_node);
