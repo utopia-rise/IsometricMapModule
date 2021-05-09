@@ -1,42 +1,102 @@
 #ifdef TOOLS_ENABLED
 
 #include "positionable_set.h"
+#include <modules/isometric_maps/src/node/isometric_positionable.h>
+#include <modules/isometric_maps/src/node/isometric_map.h>
+#include <core/os/file_access.h>
+#include <core/os/dir_access.h>
 
 using namespace editor;
 
 const PoolStringArray& PositionableSet::get_positionable_paths() const {
-    return positionable_path;
+    return positionable_paths;
 }
 
 void PositionableSet::set_positionable_paths(const PoolStringArray& paths) {
-    positionable_path = paths;
+    positionable_paths = paths;
+    refresh_set();
 }
 
 void PositionableSet::refresh_set() {
-    for (int i = 0; i < positionable_path.size(); ++i) {
-        String current_path{positionable_path.get(i)};
-        if (!current_path.begins_with("res://")) {
-            current_path = vformat("res://%s", current_path);
+    for (int i = 0; i < positionable_paths.size(); ++i) {
+        String path{positionable_paths.get(i)};
+        if (path.empty() || path == "res://") {
+            return;
         }
-        StringName current_path_hash{current_path};
-        if (scene_sets.has(current_path_hash)) {
-            continue;
+        if (!path.begins_with("res://")) {
+            path = vformat("res://%s", path);
         }
-        if (current_path.ends_with(".tscn")) {
-            insert_scene_if_positionable(current_path_hash);
+        insert_all_positionables_for_path(path);
+    }
+    List<StringName> keys;
+    scene_sets.get_key_list(&keys);
+    for (int i = 0; i < keys.size(); ++i) {
+        bool contained;
+        StringName& hash = keys[i];
+        for (int j = 0; j < positionable_paths.size(); ++j) {
+            if (hash == positionable_paths[j]) {
+                contained = true;
+            }
         }
-        //TODO: check if folder and loop over contained scenes.
+        if (!contained) {
+            scene_sets.erase(hash);
+        }
+    }
+}
+
+void PositionableSet::insert_all_positionables_for_path(const String& path) {
+    StringName hash{path};
+    if (scene_sets.has(hash)) {
+        return;
+    }
+
+    Error error;
+    DirAccess* dir_access{DirAccess::open(path, &error)};
+
+    if (error != OK) {
+        FileAccess* file_access{FileAccess::open(path, FileAccess::READ, &error)};
+        if (error != OK) {
+            //TODO : show popup saying wrong path
+            WARN_PRINT(vformat("%s cannot be opened", path))
+            return;
+        }
+        if (path.ends_with(".tscn")) {
+            insert_scene_if_positionable(hash);
+        }
+        file_access->close();
+        memdelete(file_access);
+    } else {
+        dir_access->list_dir_begin();
+        String item;
+        while (!(item = dir_access->get_next()).empty()) {
+            if (item == "." || item == "..") {
+                continue;
+            }
+            insert_all_positionables_for_path(path.plus_file(item));
+        }
+        memdelete(dir_access);
     }
 }
 
 void PositionableSet::insert_scene_if_positionable(const StringName& path) {
-    if (!scene_sets.has(path)) {
-        scene_sets[path] = Vector<PackedScene>();
+    RES resource{ResourceLoader::load(path)};
+    if (auto* packed_scene{Object::cast_to<PackedScene>(resource.ptr())}) {
+        if (auto* positionable{Object::cast_to<node::IsometricPositionable>(packed_scene->instance())}) {
+            if (!scene_sets.has(path)) {
+                scene_sets[path] = {Vector<Ref<PackedScene>>(), Vector<Ref<PackedScene>>()};
+            }
+            if (Object::cast_to<node::IsometricMap>(positionable)) {
+                scene_sets[path].maps.push_back(Ref<PackedScene>(packed_scene));
+            } else {
+                scene_sets[path].positionables.push_back(Ref<PackedScene>(packed_scene));
+            }
+            WARN_PRINT(vformat("Inserted %s", path))
+            memdelete(positionable);
+        }
     }
-    //TODO: load positionable scene and fill scene_sets
 }
 
-PositionableSet::PositionableSet() : positionable_path(), scene_sets() {
+PositionableSet::PositionableSet() : positionable_paths(), scene_sets() {
 
 }
 

@@ -14,14 +14,20 @@ namespace editor {
         const PoolStringArray& get_positionable_paths() const;
         void set_positionable_paths(const PoolStringArray& paths);
 
+        struct PositionableSceneStorage {
+            Vector<Ref<PackedScene>> maps;
+            Vector<Ref<PackedScene>> positionables;
+        };
+
         PositionableSet();
         ~PositionableSet() override = default;
 
     private:
-        PoolStringArray positionable_path;
-        HashMap<StringName, Vector<PackedScene>> scene_sets;
+        PoolStringArray positionable_paths;
+        HashMap<StringName, PositionableSceneStorage> scene_sets;
         void refresh_set();
-        void insert_scene_if_positionable(const StringName &path);
+        void insert_all_positionables_for_path(const String& path);
+        void insert_scene_if_positionable(const StringName& path);
 
     public:
         static void _bind_methods();
