@@ -1,12 +1,11 @@
-#ifdef TOOLS_ENABLED
-
 #include "positionable_set.h"
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
 #include <modules/isometric_maps/src/node/isometric_map.h>
 #include <core/os/file_access.h>
 #include <core/os/dir_access.h>
+#include <core/io/resource_saver.h>
 
-using namespace editor;
+using namespace resource;
 
 const PoolStringArray& PositionableSet::get_positionable_paths() const {
     return positionable_paths;
@@ -17,22 +16,24 @@ void PositionableSet::set_positionable_paths(const PoolStringArray& paths) {
     refresh_set();
 }
 
-void PositionableSet::refresh_set() {
+Error PositionableSet::refresh_set() {
     for (int i = 0; i < positionable_paths.size(); ++i) {
         String path{positionable_paths.get(i)};
         if (path.empty() || path == "res://") {
-            return;
+            return Error::ERR_CANT_RESOLVE;
         }
         if (!path.begins_with("res://")) {
             path = vformat("res://%s", path);
         }
-        insert_all_positionables_for_path(path);
+        if (insert_all_positionables_for_path(path) != Error::OK) {
+            return Error::ERR_CANT_RESOLVE;
+        }
     }
     List<StringName> keys;
     scene_sets.get_key_list(&keys);
     for (int i = 0; i < keys.size(); ++i) {
         bool contained;
-        StringName& hash = keys[i];
+        StringName& hash{keys[i]};
         for (int j = 0; j < positionable_paths.size(); ++j) {
             if (hash == positionable_paths[j]) {
                 contained = true;
@@ -42,12 +43,14 @@ void PositionableSet::refresh_set() {
             scene_sets.erase(hash);
         }
     }
+
+    return Error::OK;
 }
 
-void PositionableSet::insert_all_positionables_for_path(const String& path) {
+Error PositionableSet::insert_all_positionables_for_path(const String& path) {
     StringName hash{path};
     if (scene_sets.has(hash)) {
-        return;
+        return Error::OK;
     }
 
     Error error;
@@ -58,7 +61,7 @@ void PositionableSet::insert_all_positionables_for_path(const String& path) {
         if (error != OK) {
             //TODO : show popup saying wrong path
             WARN_PRINT(vformat("%s cannot be opened", path))
-            return;
+            return Error::ERR_CANT_RESOLVE;
         }
         if (path.ends_with(".tscn")) {
             insert_scene_if_positionable(hash);
@@ -76,6 +79,7 @@ void PositionableSet::insert_all_positionables_for_path(const String& path) {
         }
         memdelete(dir_access);
     }
+    return Error::OK;
 }
 
 void PositionableSet::insert_scene_if_positionable(const StringName& path) {
@@ -106,5 +110,3 @@ void PositionableSet::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "positionable_paths"), "set_positionable_paths", "get_positionable_paths");
     ADD_PROPERTY_DEFAULT("positionable_paths", PoolStringArray());
 }
-
-#endif

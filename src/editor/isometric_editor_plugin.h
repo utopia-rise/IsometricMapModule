@@ -8,6 +8,7 @@
 #include "editor/editor_plugin.h"
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
+#include "positionable_selection_pane.h"
 
 namespace editor {
 
@@ -27,6 +28,8 @@ namespace editor {
             explicit MapHandlingData(EditorPlane p_editor_plane);
         };
 
+        editor::PositionableSelectionPane* positionable_selection_pane;
+        ToolButton* positionable_pane_button;
         UndoRedo *undo_redo;
         HBoxContainer *toolbar;
         Button *debug_button;

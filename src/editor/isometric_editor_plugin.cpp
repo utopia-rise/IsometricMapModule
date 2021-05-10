@@ -4,9 +4,13 @@
 
 using namespace editor;
 
+const char* POSITIONABLE_PANE_BUTTON_TITLE{"Isometric positionables"};
+
 IsometricEditorPlugin::IsometricEditorPlugin() :
         undo_redo{EditorNode::get_undo_redo()},
         toolbar{nullptr},
+        positionable_selection_pane{nullptr},
+        positionable_pane_button{nullptr},
         debug_button{nullptr},
         selected_map{nullptr},
         show_debug(false),
@@ -36,6 +40,11 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         debug_button->set_toggle_mode(true);
         debug_button->set_text("Debug");
         toolbar->add_child(debug_button);
+
+        //Add to editor bottom
+        positionable_selection_pane = memnew(editor::PositionableSelectionPane);
+        positionable_pane_button = add_control_to_bottom_panel(positionable_selection_pane, POSITIONABLE_PANE_BUTTON_TITLE);
+        positionable_pane_button->set_visible(false);
     }
 }
 
@@ -78,6 +87,7 @@ void IsometricEditorPlugin::make_visible(bool b) {
         drop();
     }
     toolbar->set_visible(b);
+    positionable_pane_button->set_visible(b);
 }
 
 void IsometricEditorPlugin::refresh() const {

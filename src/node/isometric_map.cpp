@@ -3,7 +3,7 @@
 using namespace node;
 
 IsometricMap::IsometricMap() :
-        IsometricPositionable(), draw_tiles(true) {
+        IsometricPositionable(), draw_tiles(true), positionable_set() {
 }
 
 void IsometricMap::_ready() {
@@ -155,6 +155,14 @@ void IsometricMap::insert_map_as_flatten(Node* map, const Vector3 &offset) {
     }
 }
 
+Ref<resource::PositionableSet> IsometricMap::get_positionable_set() const {
+    return positionable_set;
+}
+
+void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& set) {
+    positionable_set = set;
+}
+
 void IsometricMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("add_iso_positionable"), &IsometricMap::add_iso_positionable);
     ClassDB::bind_method(D_METHOD("remove_iso_positionable"), &IsometricMap::remove_iso_positionable);
@@ -164,6 +172,10 @@ void IsometricMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("are_map_elements_overlapping"), &IsometricMap::are_map_elements_overlapping);
     ClassDB::bind_method(D_METHOD("has", "isometric_positionable"), &IsometricMap::has);
     ClassDB::bind_method(D_METHOD("get_positionable_children"), &IsometricMap::get_positionable_children);
+
+    ClassDB::bind_method(D_METHOD("get_positionable_set"), &IsometricMap::get_positionable_set);
+    ClassDB::bind_method(D_METHOD("set_positionable_set"), &IsometricMap::set_positionable_set);
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "positionable_set"), "set_positionable_set", "get_positionable_set");
 }
 
 void IsometricMap::_notification(int notif) {

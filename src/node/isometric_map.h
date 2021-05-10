@@ -3,6 +3,7 @@
 
 #include "modules/isometric_maps/src/node/isometric_positionable.h"
 #include <modules/isometric_maps/src/containers/grid_3d.h>
+#include <modules/isometric_maps/src/resource/positionable_set.h>
 
 namespace node {
 
@@ -13,6 +14,7 @@ namespace node {
         bool draw_tiles;
         containers::Grid3D grid_3d;
         containers::Grid3D edition_grid_3d;
+        Ref<resource::PositionableSet> positionable_set;
 
         Array get_flatten_positionables(const Vector3 &offset = Vector3());
 
@@ -43,6 +45,9 @@ namespace node {
         bool has(Node* isometric_node);
 
         Array get_positionable_children() const;
+
+        Ref<resource::PositionableSet> get_positionable_set() const;
+        void set_positionable_set(const Ref<resource::PositionableSet>& set);
 
     protected:
         static void _bind_methods();
