@@ -210,7 +210,7 @@ void IsometricServer::render_isometric_element(IsometricElement* data) {
                 maxZ = newZOrder >= maxZ ? newZOrder : maxZ;
         }
     }
-    WARN_PRINT(vformat("RID: %s, Zorder %s", data->get_id(), data->z_order))
+//    WARN_PRINT(vformat("RID: %s, Zorder %s", data->get_id(), data->z_order))
     data->z_order = maxZ;
 
 }

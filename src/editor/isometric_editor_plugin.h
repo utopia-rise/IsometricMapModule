@@ -4,11 +4,11 @@
 #define ISOMETRIC_MAPS_ISOMETRIC_EDITOR_PLUGIN_H
 
 #include <modules/isometric_maps/src/node/isometric_map.h>
-#include "editor/editor_node.h"
-#include "editor/editor_plugin.h"
+#include <editor/editor_node.h>
+#include <editor/editor_plugin.h>
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
-#include "positionable_selection_pane.h"
+#include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
 
 namespace editor {
 
@@ -28,7 +28,7 @@ namespace editor {
             explicit MapHandlingData(EditorPlane p_editor_plane);
         };
 
-        editor::PositionableSelectionPane* positionable_selection_pane;
+        editor::inspector::PositionableSelectionPane* positionable_selection_pane;
         ToolButton* positionable_pane_button;
         UndoRedo *undo_redo;
         HBoxContainer *toolbar;
@@ -42,6 +42,8 @@ namespace editor {
 
         EditionGridDrawer edition_grid_drawer;
 
+        Vector<Viewport*> icon_viewports;
+
     public:
         IsometricEditorPlugin();
 
@@ -50,6 +52,8 @@ namespace editor {
         IsometricEditorPlugin(const IsometricEditorPlugin&) = delete;
 
         void set_debug_mode(bool b);
+
+        void add_icon_viewport(Viewport* viewport);
 
     protected:
         void _notification(int p_notification);

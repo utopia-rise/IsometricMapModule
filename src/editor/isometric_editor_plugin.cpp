@@ -42,15 +42,27 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         toolbar->add_child(debug_button);
 
         //Add to editor bottom
-        positionable_selection_pane = memnew(editor::PositionableSelectionPane);
+        positionable_selection_pane = memnew(editor::inspector::PositionableSelectionPane);
         positionable_pane_button = add_control_to_bottom_panel(positionable_selection_pane, POSITIONABLE_PANE_BUTTON_TITLE);
         positionable_pane_button->set_visible(false);
+    } else if (p_notification == NOTIFICATION_PROCESS) {
+        for (int i = 0; i < icon_viewports.size(); ++i) {
+            Viewport* viewport{icon_viewports[i]};
+            if (viewport->get_update_mode() == Viewport::UPDATE_DISABLED) {
+                EditorNode::get_singleton()->remove_child(viewport);
+                icon_viewports.remove(i);
+                --i;
+            }
+        }
     }
 }
 
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
     selected_map->connect("draw", this, "refresh");
+    positionable_selection_pane->set_positionable_set(selected_map->get_positionable_set());
+    selected_map->connect("positional_set_changed", positionable_selection_pane, "set_positionable_set");
+
 
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     if (!handling_data_map.has(index)) {
@@ -110,6 +122,10 @@ IsometricEditorPlugin::MapHandlingData::MapHandlingData(EditorPlane p_editor_pla
 void IsometricEditorPlugin::_bind_methods() {
     ClassDB::bind_method("set_debug_mode", &IsometricEditorPlugin::set_debug_mode);
     ClassDB::bind_method("refresh", &IsometricEditorPlugin::refresh);
+}
+
+void IsometricEditorPlugin::add_icon_viewport(Viewport* viewport) {
+    icon_viewports.push_back(viewport);
 }
 
 #endif

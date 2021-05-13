@@ -9,23 +9,24 @@ namespace resource {
         GDCLASS(PositionableSet, Resource)
 
     public:
-        const PoolStringArray& get_positionable_paths() const;
-        void set_positionable_paths(const PoolStringArray& paths);
-        Error refresh_set();
-
         struct PositionableSceneStorage {
             Vector<Ref<PackedScene>> maps;
             Vector<Ref<PackedScene>> positionables;
         };
+
+        const PoolStringArray& get_positionable_paths() const;
+        void set_positionable_paths(const PoolStringArray& paths);
+        const PositionableSet::PositionableSceneStorage& get_storage_for_path(const StringName &path);
+        Error refresh_set();
 
         PositionableSet();
         ~PositionableSet() override = default;
 
     private:
         PoolStringArray positionable_paths;
-        HashMap<StringName, PositionableSceneStorage> scene_sets;
-        Error insert_all_positionables_for_path(const String& path);
-        void insert_scene_if_positionable(const StringName& path);
+        HashMap<StringName, PositionableSceneStorage> scenes_storage_map;
+        Error insert_all_positionables_for_path(const String &path, const char *current_hash);
+        void insert_scene_if_positionable(const StringName &hash, const String &path);
 
     public:
         static void _bind_methods();

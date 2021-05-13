@@ -16,6 +16,10 @@ void PositionableSet::set_positionable_paths(const PoolStringArray& paths) {
     refresh_set();
 }
 
+const PositionableSet::PositionableSceneStorage& PositionableSet::get_storage_for_path(const StringName &path) {
+    return scenes_storage_map[path];
+}
+
 Error PositionableSet::refresh_set() {
     for (int i = 0; i < positionable_paths.size(); ++i) {
         String path{positionable_paths.get(i)};
@@ -25,12 +29,12 @@ Error PositionableSet::refresh_set() {
         if (!path.begins_with("res://")) {
             path = vformat("res://%s", path);
         }
-        if (insert_all_positionables_for_path(path) != Error::OK) {
+        if (insert_all_positionables_for_path(path, nullptr) != Error::OK) {
             return Error::ERR_CANT_RESOLVE;
         }
     }
     List<StringName> keys;
-    scene_sets.get_key_list(&keys);
+    scenes_storage_map.get_key_list(&keys);
     for (int i = 0; i < keys.size(); ++i) {
         bool contained;
         StringName& hash{keys[i]};
@@ -40,17 +44,20 @@ Error PositionableSet::refresh_set() {
             }
         }
         if (!contained) {
-            scene_sets.erase(hash);
+            scenes_storage_map.erase(hash);
         }
     }
 
+    emit_changed();
     return Error::OK;
 }
 
-Error PositionableSet::insert_all_positionables_for_path(const String& path) {
-    StringName hash{path};
-    if (scene_sets.has(hash)) {
-        return Error::OK;
+Error PositionableSet::insert_all_positionables_for_path(const String &path, const char* current_hash) {
+    StringName hash;
+    if (!current_hash) {
+        hash = path;
+    } else {
+        hash = current_hash;
     }
 
     Error error;
@@ -64,7 +71,7 @@ Error PositionableSet::insert_all_positionables_for_path(const String& path) {
             return Error::ERR_CANT_RESOLVE;
         }
         if (path.ends_with(".tscn")) {
-            insert_scene_if_positionable(hash);
+            insert_scene_if_positionable(hash, path);
         }
         file_access->close();
         memdelete(file_access);
@@ -75,32 +82,32 @@ Error PositionableSet::insert_all_positionables_for_path(const String& path) {
             if (item == "." || item == "..") {
                 continue;
             }
-            insert_all_positionables_for_path(path.plus_file(item));
+            insert_all_positionables_for_path(path.plus_file(item), hash.operator String().utf8());
         }
         memdelete(dir_access);
     }
     return Error::OK;
 }
 
-void PositionableSet::insert_scene_if_positionable(const StringName& path) {
+void PositionableSet::insert_scene_if_positionable(const StringName &hash, const String &path) {
     RES resource{ResourceLoader::load(path)};
     if (auto* packed_scene{Object::cast_to<PackedScene>(resource.ptr())}) {
         if (auto* positionable{Object::cast_to<node::IsometricPositionable>(packed_scene->instance())}) {
-            if (!scene_sets.has(path)) {
-                scene_sets[path] = {Vector<Ref<PackedScene>>(), Vector<Ref<PackedScene>>()};
+            if (!scenes_storage_map.has(hash)) {
+                scenes_storage_map[hash] = {Vector<Ref<PackedScene>>(), Vector<Ref<PackedScene>>()};
             }
             if (Object::cast_to<node::IsometricMap>(positionable)) {
-                scene_sets[path].maps.push_back(Ref<PackedScene>(packed_scene));
+                scenes_storage_map[hash].maps.push_back(Ref<PackedScene>(packed_scene));
             } else {
-                scene_sets[path].positionables.push_back(Ref<PackedScene>(packed_scene));
+                scenes_storage_map[hash].positionables.push_back(Ref<PackedScene>(packed_scene));
             }
-            WARN_PRINT(vformat("Inserted %s", path))
+            print_line(vformat("Inserted %s", hash));
             memdelete(positionable);
         }
     }
 }
 
-PositionableSet::PositionableSet() : positionable_paths(), scene_sets() {
+PositionableSet::PositionableSet() : positionable_paths(), scenes_storage_map() {
 
 }
 

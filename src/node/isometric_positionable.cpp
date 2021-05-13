@@ -13,7 +13,7 @@ void IsometricPositionable::_enter_tree() {
     set_z_order_size(1);
 
     if (world != RID()) {
-        WARN_PRINT(vformat("Unregister RID %s", self.get_id()))
+//        WARN_PRINT(vformat("Unregister RID %s", self.get_id()))
         IsometricServer::get_instance()->unregister_isometric_element(world, self);
     }
 
@@ -28,7 +28,7 @@ void IsometricPositionable::_enter_tree() {
                 world_owner = false;
                 self = IsometricServer::get_instance()->register_isometric_element(world, this->get_canvas_item(),
                                                                                    is_dynamic);
-                WARN_PRINT(vformat("Register RID %s", self.get_id()))
+//                WARN_PRINT(vformat("Register RID %s", self.get_id()))
                 update_position();
                 return;
             }
@@ -36,13 +36,13 @@ void IsometricPositionable::_enter_tree() {
     }
 
     world = IsometricServer::get_instance()->create_space();
-    WARN_PRINT(vformat("Create World RID %s", world.get_id()))
+//    WARN_PRINT(vformat("Create World RID %s", world.get_id()))
     world_owner = true;
 
 
     self = IsometricServer::get_instance()->register_isometric_element(world, this->get_canvas_item(),
                                                                        is_dynamic);
-    WARN_PRINT(vformat("Register RID %s", self.get_id()))
+//    WARN_PRINT(vformat("Register RID %s", self.get_id()))
     update_position();
 }
 
