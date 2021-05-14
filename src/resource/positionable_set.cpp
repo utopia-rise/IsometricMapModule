@@ -16,7 +16,7 @@ void PositionableSet::set_positionable_paths(const PoolStringArray& paths) {
     refresh_set();
 }
 
-const PositionableSet::PositionableSceneStorage& PositionableSet::get_storage_for_path(const StringName &path) {
+const Vector<Ref<PackedScene>>& PositionableSet::get_storage_for_path(const StringName &path) {
     return scenes_storage_map[path];
 }
 
@@ -94,13 +94,9 @@ void PositionableSet::insert_scene_if_positionable(const StringName &hash, const
     if (auto* packed_scene{Object::cast_to<PackedScene>(resource.ptr())}) {
         if (auto* positionable{Object::cast_to<node::IsometricPositionable>(packed_scene->instance())}) {
             if (!scenes_storage_map.has(hash)) {
-                scenes_storage_map[hash] = {Vector<Ref<PackedScene>>(), Vector<Ref<PackedScene>>()};
+                scenes_storage_map[hash] = Vector<Ref<PackedScene>>();
             }
-            if (Object::cast_to<node::IsometricMap>(positionable)) {
-                scenes_storage_map[hash].maps.push_back(Ref<PackedScene>(packed_scene));
-            } else {
-                scenes_storage_map[hash].positionables.push_back(Ref<PackedScene>(packed_scene));
-            }
+            scenes_storage_map[hash].push_back(Ref<PackedScene>(packed_scene));
             print_line(vformat("Inserted %s", hash));
             memdelete(positionable);
         }

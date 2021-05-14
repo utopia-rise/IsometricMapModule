@@ -1,5 +1,11 @@
 #ifdef TOOLS_ENABLED
 
+#include <modules/isometric_maps/src/node/isometric_positionable.h>
+#include <scene/main/viewport.h>
+#include <scene/2d/camera_2d.h>
+#include <editor/editor_node.h>
+#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
+#include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
 #include "positionable_selection_pane.h"
 
 using namespace editor::inspector;
@@ -39,29 +45,27 @@ void PositionableSelectionPane::_ready() {
 
 void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     print_line(vformat("selected path %s", index));
-    const resource::PositionableSet::PositionableSceneStorage& storage{
+    const Vector<Ref<PackedScene>>& scenes{
         positionable_set->get_storage_for_path(path_selector->get_item_text(index))
     };
-    _full_inspector_update(map_inspector, storage.maps);
-    _full_inspector_update(positionable_inspector, storage.positionables);
-}
-
-void PositionableSelectionPane::_full_inspector_update(PositionableSetInspector* inspector,
-                                                       const Vector<Ref<PackedScene>>& scenes) {
-    inspector->clear();
+    PositionableScenesCacheManager::get_instance().clear();
+    positionable_inspector->clear();
     for (int i = 0; i < scenes.size(); ++i) {
-        inspector->update_for_positionable(scenes[i]);
+        const Ref<PackedScene>& positionable_scene{scenes[i]};
+        StringName path{positionable_scene->get_path()};
+
+        Viewport* icon_viewport{_get_icon_for_scene(positionable_scene)};
+        IsometricEditorPlugin::get_instance()->add_icon_viewport(icon_viewport);
+        Ref<ViewportTexture> icon_texture{icon_viewport->get_texture()};
+        positionable_inspector->add_item(positionable_scene->get_path(), icon_texture);
+        PositionableScenesCacheManager::get_instance().add_scene(positionable_inspector->get_item_count(), positionable_scene);
     }
 }
 
 PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), path_selector(memnew(OptionButton)),
-                                                         positionable_set(), selectors_container(memnew(HSplitContainer)),
-                                                         map_inspector(memnew(PositionableSetInspector("Maps"))),
-                                                         positionable_inspector(memnew(PositionableSetInspector("Tiles"))) {
+                                                         positionable_set(), positionable_inspector(memnew(ItemList)) {
     add_child(path_selector);
-    selectors_container->add_child(map_inspector);
-    selectors_container->add_child(positionable_inspector);
-    add_child(selectors_container);
+    add_child(positionable_inspector);
     _refresh_path_selector();
 }
 
@@ -69,6 +73,27 @@ void PositionableSelectionPane::_bind_methods() {
     ClassDB::bind_method("_refresh_path_selector", &PositionableSelectionPane::_refresh_path_selector);
     ClassDB::bind_method("_select_item_from_path_selector", &PositionableSelectionPane::_select_item_from_path_selector);
     ClassDB::bind_method("set_positionable_set", &PositionableSelectionPane::set_positionable_set);
+}
+
+Viewport *PositionableSelectionPane::_get_icon_for_scene(Ref<PackedScene> scene) {
+    if (auto* positionable{Object::cast_to<node::IsometricPositionable>(scene->instance())}) {
+        const Vector2& original_scale{positionable->get_scale()};
+        positionable->set_scale(original_scale * Vector2(1, -1));
+
+        Viewport* viewport{memnew(Viewport)};
+        Camera2D* camera{memnew(Camera2D)};
+        viewport->add_child(camera);
+        viewport->add_child(positionable);
+        viewport->set_update_mode(Viewport::UPDATE_ONCE);
+//        Vector2 size{
+//            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(positionable->get_space_RID())),
+//            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(positionable->get_space_RID()))
+//        };
+        viewport->set_size({100, 100});
+        EditorNode::get_singleton()->add_child(viewport);
+        return viewport;
+    }
+    return nullptr;
 }
 
 #endif

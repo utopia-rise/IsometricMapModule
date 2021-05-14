@@ -8,7 +8,7 @@
 #include <scene/gui/option_button.h>
 #include <scene/gui/panel.h>
 #include <scene/gui/label.h>
-#include "positionable_set_inspector.h"
+#include <scene/gui/item_list.h>
 
 namespace editor {
     namespace inspector {
@@ -25,9 +25,7 @@ namespace editor {
 
         private:
             OptionButton* path_selector;
-            HSplitContainer* selectors_container;
-            PositionableSetInspector* map_inspector;
-            PositionableSetInspector* positionable_inspector;
+            ItemList* positionable_inspector;
 
             Ref<resource::PositionableSet> positionable_set;
 
@@ -35,7 +33,7 @@ namespace editor {
             void _refresh_path_selector();
             void _select_item_from_path_selector(int index);
 
-            static void _full_inspector_update(PositionableSetInspector* inspector, const Vector<Ref<PackedScene>>& scenes);
+            static Viewport* _get_icon_for_scene(Ref<PackedScene> scene);
 
         public:
             static void _bind_methods();

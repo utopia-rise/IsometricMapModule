@@ -9,14 +9,9 @@ namespace resource {
         GDCLASS(PositionableSet, Resource)
 
     public:
-        struct PositionableSceneStorage {
-            Vector<Ref<PackedScene>> maps;
-            Vector<Ref<PackedScene>> positionables;
-        };
-
         const PoolStringArray& get_positionable_paths() const;
         void set_positionable_paths(const PoolStringArray& paths);
-        const PositionableSet::PositionableSceneStorage& get_storage_for_path(const StringName &path);
+        const Vector<Ref<PackedScene>>& get_storage_for_path(const StringName &path);
         Error refresh_set();
 
         PositionableSet();
@@ -24,7 +19,7 @@ namespace resource {
 
     private:
         PoolStringArray positionable_paths;
-        HashMap<StringName, PositionableSceneStorage> scenes_storage_map;
+        HashMap<StringName, Vector<Ref<PackedScene>>> scenes_storage_map;
         Error insert_all_positionables_for_path(const String &path, const char *current_hash);
         void insert_scene_if_positionable(const StringName &hash, const String &path);
 

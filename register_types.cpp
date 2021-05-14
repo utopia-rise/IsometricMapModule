@@ -34,7 +34,6 @@ void register_isometric_maps_types() {
         ClassDB::register_class<editor::IsometricEditorPlugin>();
         EditorPlugins::add_create_func(isometric_editor_plugin_creator_func);
         ClassDB::register_class<editor::inspector::PositionableSelectionPane>();
-        ClassDB::register_class<editor::inspector::InspectorButton>();
     #endif
 
 }

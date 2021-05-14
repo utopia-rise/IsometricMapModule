@@ -1,6 +1,7 @@
 #ifdef TOOLS_ENABLED
 
 #include "isometric_editor_plugin.h"
+#include <scene/main/viewport.h>
 
 using namespace editor;
 
@@ -59,9 +60,13 @@ void IsometricEditorPlugin::_notification(int p_notification) {
 
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
-    selected_map->connect("draw", this, "refresh");
+    if (!selected_map->is_connected("draw", this, "refresh")) {
+        selected_map->connect("draw", this, "refresh");
+    }
     positionable_selection_pane->set_positionable_set(selected_map->get_positionable_set());
-    selected_map->connect("positional_set_changed", positionable_selection_pane, "set_positionable_set");
+    if (!selected_map->is_connected("draw", this, "refresh")) {
+        selected_map->connect("positional_set_changed", positionable_selection_pane, "set_positionable_set");
+    }
 
 
     auto index{reinterpret_cast<uint64_t>(selected_map)};
@@ -75,7 +80,9 @@ void IsometricEditorPlugin::edit(Object* p_object) {
 
 void IsometricEditorPlugin::drop() {
     selected_map->set_debug(false);
-    selected_map->disconnect("draw", this, "refresh");
+    if (selected_map->is_connected("draw", this, "refresh")) {
+        selected_map->disconnect("draw", this, "refresh");
+    }
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
 }
