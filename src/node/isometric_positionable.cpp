@@ -52,10 +52,10 @@ void IsometricPositionable::_process() {
 
 void IsometricPositionable::_exit_tree() {
     if (self != RID()) {
-        WARN_PRINT(vformat("Unregister RID %s", self.get_id()))
+//        WARN_PRINT(vformat("Unregister RID %s", self.get_id()))
         IsometricServer::get_instance()->unregister_isometric_element(world, self);
         if (world_owner) {
-            WARN_PRINT(vformat("Delete space %s", world.get_id()))
+//            WARN_PRINT(vformat("Delete space %s", world.get_id()))
             world_owner = false;
             IsometricServer::get_instance()->delete_space(world);
         }

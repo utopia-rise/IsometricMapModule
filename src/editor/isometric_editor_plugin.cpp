@@ -1,6 +1,7 @@
 #ifdef TOOLS_ENABLED
 
 #include "isometric_editor_plugin.h"
+#include "positionable_scenes_cache_manager.h"
 #include <scene/main/viewport.h>
 
 using namespace editor;
@@ -15,7 +16,13 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         debug_button{nullptr},
         selected_map{nullptr},
         show_debug(false),
-        edition_grid_drawer() {
+        edition_grid_drawer(),
+        swap_buffer(),
+        should_clear_buffer_on_next_frame() {
+}
+
+IsometricEditorPlugin::~IsometricEditorPlugin() {
+    PositionableScenesCacheManager::get_instance().clear();
 }
 
 IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
@@ -46,15 +53,8 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         positionable_selection_pane = memnew(editor::inspector::PositionableSelectionPane);
         positionable_pane_button = add_control_to_bottom_panel(positionable_selection_pane, POSITIONABLE_PANE_BUTTON_TITLE);
         positionable_pane_button->set_visible(false);
-    } else if (p_notification == NOTIFICATION_PROCESS) {
-        for (int i = 0; i < icon_viewports.size(); ++i) {
-            Viewport* viewport{icon_viewports[i]};
-            if (viewport->get_update_mode() == Viewport::UPDATE_DISABLED) {
-                EditorNode::get_singleton()->remove_child(viewport);
-                icon_viewports.remove(i);
-                --i;
-            }
-        }
+
+        VisualServer::get_singleton()->connect("frame_post_draw", this, "_on_frame_post_draw");
     }
 }
 
@@ -78,6 +78,7 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
 }
 
+
 void IsometricEditorPlugin::drop() {
     selected_map->set_debug(false);
     if (selected_map->is_connected("draw", this, "refresh")) {
@@ -86,7 +87,6 @@ void IsometricEditorPlugin::drop() {
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
 }
-
 
 bool IsometricEditorPlugin::handles(Object* p_object) const {
     return cast_to<node::IsometricMap>(p_object);
@@ -126,13 +126,31 @@ IsometricEditorPlugin::MapHandlingData::MapHandlingData(EditorPlane p_editor_pla
 
 }
 
+void IsometricEditorPlugin::add_icon_viewport(Viewport* viewport) {
+    swap_buffer.push_back(viewport);
+}
+
+void IsometricEditorPlugin::lock_icon_swap_buffer() {
+    swap_buffer.lock();
+}
+
+void IsometricEditorPlugin::unlock_icon_swap_buffer() {
+    swap_buffer.unlock();
+}
+
+void IsometricEditorPlugin::_on_frame_post_draw() {
+    if (should_clear_buffer_on_next_frame) {
+        swap_buffer.swap();
+        should_clear_buffer_on_next_frame = false;
+    } else {
+        should_clear_buffer_on_next_frame = true;
+    }
+}
+
 void IsometricEditorPlugin::_bind_methods() {
     ClassDB::bind_method("set_debug_mode", &IsometricEditorPlugin::set_debug_mode);
     ClassDB::bind_method("refresh", &IsometricEditorPlugin::refresh);
-}
-
-void IsometricEditorPlugin::add_icon_viewport(Viewport* viewport) {
-    icon_viewports.push_back(viewport);
+    ClassDB::bind_method("_on_frame_post_draw", &IsometricEditorPlugin::_on_frame_post_draw);
 }
 
 #endif

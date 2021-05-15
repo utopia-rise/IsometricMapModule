@@ -16,6 +16,7 @@ namespace editor {
             GDCLASS(PositionableSelectionPane, VSplitContainer)
         public:
             void set_positionable_set(const Ref<resource::PositionableSet>& set);
+            int get_selected_positionable_index() const;
 
             PositionableSelectionPane();
             ~PositionableSelectionPane() override = default;
@@ -25,7 +26,7 @@ namespace editor {
 
         private:
             OptionButton* path_selector;
-            ItemList* positionable_inspector;
+            ItemList* item_list;
 
             Ref<resource::PositionableSet> positionable_set;
 

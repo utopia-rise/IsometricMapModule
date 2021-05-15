@@ -19,6 +19,14 @@ void PositionableSelectionPane::set_positionable_set(const Ref<resource::Positio
     _refresh_path_selector();
 }
 
+int PositionableSelectionPane::get_selected_positionable_index() const {
+    const Vector<int>& selected_items{item_list->get_selected_items()};
+    if (selected_items.empty()) {
+        return -1;
+    }
+    return selected_items[0];
+}
+
 void PositionableSelectionPane::_refresh_path_selector() {
     path_selector->clear();
     if (positionable_set.is_valid()) {
@@ -49,7 +57,8 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
         positionable_set->get_storage_for_path(path_selector->get_item_text(index))
     };
     PositionableScenesCacheManager::get_instance().clear();
-    positionable_inspector->clear();
+    item_list->clear();
+    IsometricEditorPlugin::get_instance()->lock_icon_swap_buffer();
     for (int i = 0; i < scenes.size(); ++i) {
         const Ref<PackedScene>& positionable_scene{scenes[i]};
         StringName path{positionable_scene->get_path()};
@@ -57,22 +66,10 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
         Viewport* icon_viewport{_get_icon_for_scene(positionable_scene)};
         IsometricEditorPlugin::get_instance()->add_icon_viewport(icon_viewport);
         Ref<ViewportTexture> icon_texture{icon_viewport->get_texture()};
-        positionable_inspector->add_item(positionable_scene->get_path(), icon_texture);
-        PositionableScenesCacheManager::get_instance().add_scene(positionable_inspector->get_item_count(), positionable_scene);
+        item_list->add_item(positionable_scene->get_path(), icon_texture);
+        PositionableScenesCacheManager::get_instance().add_scene(item_list->get_item_count() - 1, positionable_scene);
     }
-}
-
-PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), path_selector(memnew(OptionButton)),
-                                                         positionable_set(), positionable_inspector(memnew(ItemList)) {
-    add_child(path_selector);
-    add_child(positionable_inspector);
-    _refresh_path_selector();
-}
-
-void PositionableSelectionPane::_bind_methods() {
-    ClassDB::bind_method("_refresh_path_selector", &PositionableSelectionPane::_refresh_path_selector);
-    ClassDB::bind_method("_select_item_from_path_selector", &PositionableSelectionPane::_select_item_from_path_selector);
-    ClassDB::bind_method("set_positionable_set", &PositionableSelectionPane::set_positionable_set);
+    IsometricEditorPlugin::get_instance()->unlock_icon_swap_buffer();
 }
 
 Viewport *PositionableSelectionPane::_get_icon_for_scene(Ref<PackedScene> scene) {
@@ -90,10 +87,22 @@ Viewport *PositionableSelectionPane::_get_icon_for_scene(Ref<PackedScene> scene)
 //            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(positionable->get_space_RID()))
 //        };
         viewport->set_size({100, 100});
-        EditorNode::get_singleton()->add_child(viewport);
         return viewport;
     }
     return nullptr;
+}
+
+PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), path_selector(memnew(OptionButton)),
+                                                         item_list(memnew(ItemList)), positionable_set() {
+    add_child(path_selector);
+    add_child(item_list);
+    _refresh_path_selector();
+}
+
+void PositionableSelectionPane::_bind_methods() {
+    ClassDB::bind_method("_refresh_path_selector", &PositionableSelectionPane::_refresh_path_selector);
+    ClassDB::bind_method("_select_item_from_path_selector", &PositionableSelectionPane::_select_item_from_path_selector);
+    ClassDB::bind_method("set_positionable_set", &PositionableSelectionPane::set_positionable_set);
 }
 
 #endif
