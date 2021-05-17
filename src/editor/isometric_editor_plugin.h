@@ -9,7 +9,6 @@
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
 #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
-#include "viewport_swap_buffer.h"
 
 namespace editor {
 
@@ -43,7 +42,6 @@ namespace editor {
 
         EditionGridDrawer edition_grid_drawer;
 
-        ViewportSwapBuffer swap_buffer;
         bool should_clear_buffer_on_next_frame;
 
         void _on_frame_post_draw();
@@ -57,10 +55,6 @@ namespace editor {
         IsometricEditorPlugin(const IsometricEditorPlugin&) = delete;
 
         void set_debug_mode(bool b);
-
-        void add_icon_viewport(Viewport* viewport);
-        void lock_icon_swap_buffer();
-        void unlock_icon_swap_buffer();
 
     protected:
         void _notification(int p_notification);

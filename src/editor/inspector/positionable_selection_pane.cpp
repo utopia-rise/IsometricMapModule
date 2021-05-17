@@ -27,6 +27,12 @@ int PositionableSelectionPane::get_selected_positionable_index() const {
     return selected_items[0];
 }
 
+void PositionableSelectionPane::refresh_icons() {
+    for (int i = 0; i < item_list->get_item_count(); ++i) {
+        item_list->set_item_icon(i, PositionableScenesCacheManager::get_instance().get_icon(i));
+    }
+}
+
 void PositionableSelectionPane::_refresh_path_selector() {
     path_selector->clear();
     if (positionable_set.is_valid()) {
@@ -58,38 +64,16 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     };
     PositionableScenesCacheManager::get_instance().clear();
     item_list->clear();
-    IsometricEditorPlugin::get_instance()->lock_icon_swap_buffer();
+    PositionableScenesCacheManager::get_instance().start_adding();
     for (int i = 0; i < scenes.size(); ++i) {
         const Ref<PackedScene>& positionable_scene{scenes[i]};
         StringName path{positionable_scene->get_path()};
 
-        Viewport* icon_viewport{_get_icon_for_scene(positionable_scene)};
-        IsometricEditorPlugin::get_instance()->add_icon_viewport(icon_viewport);
-        Ref<ViewportTexture> icon_texture{icon_viewport->get_texture()};
+        PositionableScenesCacheManager::get_instance().add_scene(item_list->get_item_count(), positionable_scene);
+        Ref<Texture> icon_texture{PositionableScenesCacheManager::get_instance().get_icon(item_list->get_item_count())};
         item_list->add_item(positionable_scene->get_path(), icon_texture);
-        PositionableScenesCacheManager::get_instance().add_scene(item_list->get_item_count() - 1, positionable_scene);
     }
-    IsometricEditorPlugin::get_instance()->unlock_icon_swap_buffer();
-}
-
-Viewport *PositionableSelectionPane::_get_icon_for_scene(Ref<PackedScene> scene) {
-    if (auto* positionable{Object::cast_to<node::IsometricPositionable>(scene->instance())}) {
-        const Vector2& original_scale{positionable->get_scale()};
-        positionable->set_scale(original_scale * Vector2(1, -1));
-
-        Viewport* viewport{memnew(Viewport)};
-        Camera2D* camera{memnew(Camera2D)};
-        viewport->add_child(camera);
-        viewport->add_child(positionable);
-        viewport->set_update_mode(Viewport::UPDATE_ONCE);
-//        Vector2 size{
-//            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(positionable->get_space_RID())),
-//            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(positionable->get_space_RID()))
-//        };
-        viewport->set_size({100, 100});
-        return viewport;
-    }
-    return nullptr;
+    PositionableScenesCacheManager::get_instance().end_adding();
 }
 
 PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), path_selector(memnew(OptionButton)),

@@ -18,6 +18,8 @@ namespace editor {
             void set_positionable_set(const Ref<resource::PositionableSet>& set);
             int get_selected_positionable_index() const;
 
+            void refresh_icons();
+
             PositionableSelectionPane();
             ~PositionableSelectionPane() override = default;
 
@@ -34,7 +36,6 @@ namespace editor {
             void _refresh_path_selector();
             void _select_item_from_path_selector(int index);
 
-            static Viewport* _get_icon_for_scene(Ref<PackedScene> scene);
 
         public:
             static void _bind_methods();

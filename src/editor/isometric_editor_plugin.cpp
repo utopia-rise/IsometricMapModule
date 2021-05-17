@@ -17,7 +17,6 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         selected_map{nullptr},
         show_debug(false),
         edition_grid_drawer(),
-        swap_buffer(),
         should_clear_buffer_on_next_frame() {
 }
 
@@ -126,24 +125,18 @@ IsometricEditorPlugin::MapHandlingData::MapHandlingData(EditorPlane p_editor_pla
 
 }
 
-void IsometricEditorPlugin::add_icon_viewport(Viewport* viewport) {
-    swap_buffer.push_back(viewport);
-}
-
-void IsometricEditorPlugin::lock_icon_swap_buffer() {
-    swap_buffer.lock();
-}
-
-void IsometricEditorPlugin::unlock_icon_swap_buffer() {
-    swap_buffer.unlock();
-}
-
 void IsometricEditorPlugin::_on_frame_post_draw() {
-    if (should_clear_buffer_on_next_frame) {
-        swap_buffer.swap();
+    if (PositionableScenesCacheManager::get_instance().is_adding()) {
         should_clear_buffer_on_next_frame = false;
     } else {
-        should_clear_buffer_on_next_frame = true;
+        if (should_clear_buffer_on_next_frame) {
+            PositionableScenesCacheManager::get_instance().copy_current_viewports_textures();
+            positionable_selection_pane->refresh_icons();
+            PositionableScenesCacheManager::get_instance().clear_current_viewports();
+            should_clear_buffer_on_next_frame = false;
+        } else {
+            should_clear_buffer_on_next_frame = true;
+        }
     }
 }
 
