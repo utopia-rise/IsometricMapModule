@@ -54,6 +54,8 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         positionable_pane_button->set_visible(false);
 
         VisualServer::get_singleton()->connect("frame_post_draw", this, "_on_frame_post_draw");
+
+        EditorFileSystem::get_singleton()->connect("filesystem_changed", positionable_selection_pane, "_refresh_current_set");
     }
 }
 
@@ -63,7 +65,7 @@ void IsometricEditorPlugin::edit(Object* p_object) {
         selected_map->connect("draw", this, "refresh");
     }
     positionable_selection_pane->set_positionable_set(selected_map->get_positionable_set());
-    if (!selected_map->is_connected("draw", this, "refresh")) {
+    if (!selected_map->is_connected("positional_set_changed", positionable_selection_pane, "set_positionable_set")) {
         selected_map->connect("positional_set_changed", positionable_selection_pane, "set_positionable_set");
     }
 

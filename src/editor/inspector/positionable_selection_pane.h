@@ -33,8 +33,9 @@ namespace editor {
             Ref<resource::PositionableSet> positionable_set;
 
             void _ready();
-            void _refresh_path_selector();
             void _select_item_from_path_selector(int index);
+            void _refresh_path_selector();
+            void _refresh_current_set();
 
 
         public:

@@ -1,6 +1,5 @@
 #include "positionable_set.h"
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
-#include <modules/isometric_maps/src/node/isometric_map.h>
 #include <core/os/file_access.h>
 #include <core/os/dir_access.h>
 #include <core/io/resource_saver.h>
@@ -56,6 +55,9 @@ Error PositionableSet::insert_all_positionables_for_path(const String &path, con
     StringName hash;
     if (!current_hash) {
         hash = path;
+        if (scenes_storage_map.has(hash)) {
+            scenes_storage_map[hash].clear();
+        }
     } else {
         hash = current_hash;
     }
