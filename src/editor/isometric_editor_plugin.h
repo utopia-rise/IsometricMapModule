@@ -55,6 +55,7 @@ namespace editor {
         IsometricEditorPlugin(const IsometricEditorPlugin&) = delete;
 
         void set_debug_mode(bool b);
+        void set_should_clear_buffer_on_next_frame(bool should);
 
     protected:
         void _notification(int p_notification);

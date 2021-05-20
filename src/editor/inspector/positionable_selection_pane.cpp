@@ -64,7 +64,7 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     };
     PositionableScenesCacheManager::get_instance().clear();
     item_list->clear();
-    PositionableScenesCacheManager::get_instance().start_adding();
+    PositionableScenesCacheManager::get_instance().start_adding(scenes.size());
     for (int i = 0; i < scenes.size(); ++i) {
         const Ref<PackedScene>& positionable_scene{scenes[i]};
         StringName path{positionable_scene->get_path()};

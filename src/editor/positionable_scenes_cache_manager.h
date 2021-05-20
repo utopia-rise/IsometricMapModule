@@ -17,7 +17,7 @@ namespace editor {
     public:
         static PositionableScenesCacheManager& get_instance();
 
-        Ref<PackedScene>& get_scene(int index);
+        Ref<PackedScene> get_scene(int index);
         void add_scene(int index, Ref<PackedScene> scene);
         void clear();
         Ref<Texture> get_icon(int index);
@@ -25,7 +25,7 @@ namespace editor {
         void copy_current_viewports_textures();
         void clear_current_viewports();
 
-        void start_adding();
+        void start_adding(int cache_size);
         void end_adding();
         bool is_adding() const;
 
@@ -33,8 +33,8 @@ namespace editor {
         PositionableScenesCacheManager& operator=(const PositionableScenesCacheManager&) = delete;
 
     private:
-        HashMap<int, CacheEntry> cache;
-        HashMap<int, Viewport*> drawing_viewport;
+        Vector<CacheEntry> cache;
+        Vector<Viewport*> drawing_viewport;
 
         bool _is_adding;
 

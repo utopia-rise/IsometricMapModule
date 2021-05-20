@@ -4,6 +4,7 @@
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
 #include <editor/editor_node.h>
 #include "positionable_scenes_cache_manager.h"
+#include "isometric_editor_plugin.h"
 
 using namespace editor;
 
@@ -12,7 +13,7 @@ PositionableScenesCacheManager& PositionableScenesCacheManager::get_instance() {
     return instance;
 }
 
-Ref<PackedScene>& PositionableScenesCacheManager::get_scene(int index) {
+Ref<PackedScene> PositionableScenesCacheManager::get_scene(int index) {
     return cache[index].scene;
 }
 
@@ -20,8 +21,8 @@ void PositionableScenesCacheManager::add_scene(int index, Ref<PackedScene> scene
     Viewport* scene_viewport{_get_icon_for_scene(scene)};
     if (scene_viewport) {
         EditorNode::get_singleton()->add_child(scene_viewport);
-        drawing_viewport[index] = scene_viewport;
-        cache[index] = {scene, scene_viewport->get_texture()};
+        drawing_viewport.set(index, scene_viewport);
+        cache.set(index, {scene, scene_viewport->get_texture()});
     }
 }
 
@@ -38,7 +39,9 @@ void PositionableScenesCacheManager::copy_current_viewports_textures() {
         Ref<ImageTexture> copy_texture;
         copy_texture.instance();
         copy_texture->create_from_image(drawing_viewport[i]->get_texture()->get_data());
-        cache[i].icon = copy_texture;
+        CacheEntry copy{cache.get(i)};
+        copy.icon = copy_texture;
+        cache.set(i, copy);
     }
 }
 
@@ -46,17 +49,20 @@ void PositionableScenesCacheManager::clear_current_viewports() {
     for (int i = 0; i < drawing_viewport.size(); ++i) {
         Viewport* viewport{drawing_viewport[i]};
         EditorNode::get_singleton()->remove_child(viewport);
-        memdelete(viewport);
+        viewport->queue_delete();
     }
     drawing_viewport.clear();
 }
 
-void PositionableScenesCacheManager::start_adding() {
+void PositionableScenesCacheManager::start_adding(int cache_size) {
     _is_adding = true;
+    drawing_viewport.resize(cache_size);
+    cache.resize(cache_size);
 }
 
 void PositionableScenesCacheManager::end_adding() {
     _is_adding = false;
+    IsometricEditorPlugin::get_instance()->set_should_clear_buffer_on_next_frame(false);
 }
 
 bool PositionableScenesCacheManager::is_adding() const {

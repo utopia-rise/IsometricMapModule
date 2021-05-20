@@ -34,6 +34,10 @@ void IsometricEditorPlugin::set_debug_mode(bool b) {
     selected_map->set_debug(b);
 }
 
+void IsometricEditorPlugin::set_should_clear_buffer_on_next_frame(bool should) {
+    should_clear_buffer_on_next_frame = should;
+}
+
 void IsometricEditorPlugin::_notification(int p_notification) {
     if (p_notification == NOTIFICATION_READY) {
         // Add menu items.
@@ -59,6 +63,7 @@ void IsometricEditorPlugin::_notification(int p_notification) {
     }
 }
 
+
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
     if (!selected_map->is_connected("draw", this, "refresh")) {
@@ -78,7 +83,6 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map->set_debug(show_debug);
     edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
 }
-
 
 void IsometricEditorPlugin::drop() {
     selected_map->set_debug(false);

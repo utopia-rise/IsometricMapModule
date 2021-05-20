@@ -51,15 +51,15 @@ Error PositionableSet::refresh_set() {
     return Error::OK;
 }
 
-Error PositionableSet::insert_all_positionables_for_path(const String &path, const char* current_hash) {
-    StringName hash;
-    if (!current_hash) {
-        hash = path;
-        if (scenes_storage_map.has(hash)) {
-            scenes_storage_map[hash].clear();
+Error PositionableSet::insert_all_positionables_for_path(const String& path, const char* base_path) {
+    StringName path_entry;
+    if (!base_path) {
+        path_entry = path;
+        if (scenes_storage_map.has(path_entry)) {
+            scenes_storage_map[path_entry].clear();
         }
     } else {
-        hash = current_hash;
+        path_entry = base_path;
     }
 
     Error error;
@@ -73,7 +73,7 @@ Error PositionableSet::insert_all_positionables_for_path(const String &path, con
             return Error::ERR_CANT_RESOLVE;
         }
         if (path.ends_with(".tscn")) {
-            insert_scene_if_positionable(hash, path);
+            insert_scene_if_positionable(path_entry, path);
         }
         file_access->close();
         memdelete(file_access);
@@ -84,21 +84,22 @@ Error PositionableSet::insert_all_positionables_for_path(const String &path, con
             if (item == "." || item == "..") {
                 continue;
             }
-            insert_all_positionables_for_path(path.plus_file(item), hash.operator String().utf8());
+            insert_all_positionables_for_path(path.plus_file(item), path_entry.operator String().utf8());
         }
         memdelete(dir_access);
     }
     return Error::OK;
 }
 
-void PositionableSet::insert_scene_if_positionable(const StringName &hash, const String &path) {
-    RES resource{ResourceLoader::load(path)};
+void PositionableSet::insert_scene_if_positionable(const StringName& base_path, const String& resource_path) {
+    RES resource{ResourceLoader::load(resource_path)};
     if (auto* packed_scene{Object::cast_to<PackedScene>(resource.ptr())}) {
+        //TODO: investigate get_inheritance_list_static generated from GDClass
         if (auto* positionable{Object::cast_to<node::IsometricPositionable>(packed_scene->instance())}) {
-            if (!scenes_storage_map.has(hash)) {
-                scenes_storage_map[hash] = Vector<Ref<PackedScene>>();
+            if (!scenes_storage_map.has(base_path)) {
+                scenes_storage_map[base_path] = Vector<Ref<PackedScene>>();
             }
-            scenes_storage_map[hash].push_back(Ref<PackedScene>(packed_scene));
+            scenes_storage_map[base_path].push_back(Ref<PackedScene>(packed_scene));
             memdelete(positionable);
         }
     }

@@ -20,8 +20,8 @@ namespace resource {
     private:
         PoolStringArray positionable_paths;
         HashMap<StringName, Vector<Ref<PackedScene>>> scenes_storage_map;
-        Error insert_all_positionables_for_path(const String &path, const char *current_hash);
-        void insert_scene_if_positionable(const StringName &hash, const String &path);
+        Error insert_all_positionables_for_path(const String &path, const char *base_path);
+        void insert_scene_if_positionable(const StringName &base_path, const String &resource_path);
 
     public:
         static void _bind_methods();
