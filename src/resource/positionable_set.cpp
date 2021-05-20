@@ -99,7 +99,6 @@ void PositionableSet::insert_scene_if_positionable(const StringName &hash, const
                 scenes_storage_map[hash] = Vector<Ref<PackedScene>>();
             }
             scenes_storage_map[hash].push_back(Ref<PackedScene>(packed_scene));
-            print_line(vformat("Inserted %s", hash));
             memdelete(positionable);
         }
     }

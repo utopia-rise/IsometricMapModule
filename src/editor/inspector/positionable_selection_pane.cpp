@@ -59,7 +59,6 @@ void PositionableSelectionPane::_ready() {
 }
 
 void PositionableSelectionPane::_select_item_from_path_selector(int index) {
-    print_line(vformat("selected path %s", index));
     const Vector<Ref<PackedScene>>& scenes{
         positionable_set->get_storage_for_path(path_selector->get_item_text(index))
     };
