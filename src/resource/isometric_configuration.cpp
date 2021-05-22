@@ -45,7 +45,7 @@ RID IsometricConfiguration::get_rid() const {
 IsometricConfiguration* IsometricConfiguration::get_instance(const RID rid) {
     IsometricConfiguration* conf{configurations_owner.getornull(rid)};
     if (!conf) {
-        WARN_PRINT("THis is not a valid isometric configuration RID.")
+        WARN_PRINT("This is not a valid isometric configuration RID.")
         return nullptr;
     }
     return conf;
