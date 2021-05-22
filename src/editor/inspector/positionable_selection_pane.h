@@ -27,7 +27,9 @@ namespace editor {
             void _notification(int notif);
 
         private:
+            HSplitContainer* top_container;
             OptionButton* path_selector;
+            Button* refresh_button;
             ItemList* item_list;
 
             Ref<resource::PositionableSet> positionable_set;

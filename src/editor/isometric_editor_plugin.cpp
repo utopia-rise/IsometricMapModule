@@ -58,8 +58,6 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         positionable_pane_button->set_visible(false);
 
         VisualServer::get_singleton()->connect("frame_post_draw", this, "_on_frame_post_draw");
-
-        EditorFileSystem::get_singleton()->connect("filesystem_changed", positionable_selection_pane, "_refresh_current_set");
     }
 }
 

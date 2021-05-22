@@ -1,8 +1,6 @@
 #ifdef TOOLS_ENABLED
 
-#include <modules/isometric_maps/src/node/isometric_positionable.h>
 #include <scene/main/viewport.h>
-#include <scene/2d/camera_2d.h>
 #include <editor/editor_node.h>
 #include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
 #include "positionable_selection_pane.h"
@@ -56,6 +54,7 @@ void PositionableSelectionPane::_notification(int notif) {
 
 void PositionableSelectionPane::_ready() {
     path_selector->connect("item_selected", this, "_select_item_from_path_selector");
+    refresh_button->connect("pressed", this, "_refresh_current_set");
 }
 
 void PositionableSelectionPane::_select_item_from_path_selector(int index) {
@@ -82,9 +81,16 @@ void PositionableSelectionPane::_refresh_current_set() {
     }
 }
 
-PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), path_selector(memnew(OptionButton)),
+PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_container(memnew(HSplitContainer)),
+                                                         path_selector(memnew(OptionButton)), refresh_button(memnew(Button)),
                                                          item_list(memnew(ItemList)), positionable_set() {
-    add_child(path_selector);
+    refresh_button->set_text("refresh");
+    add_child(top_container);
+    top_container->add_child(path_selector);
+    top_container->add_child(refresh_button);
+    top_container->set_split_offset(INT_MAX);
+    top_container->clamp_split_offset();
+    top_container->set_dragger_visibility(DraggerVisibility::DRAGGER_HIDDEN);
     add_child(item_list);
     _refresh_path_selector();
 }
