@@ -4,6 +4,7 @@
 #include <editor/editor_node.h>
 #include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
 #include "positionable_selection_pane.h"
+#include <climits>
 
 using namespace editor::inspector;
 
