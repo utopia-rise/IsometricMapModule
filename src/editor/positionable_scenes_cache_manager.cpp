@@ -3,7 +3,7 @@
 #include <scene/2d/camera_2d.h>
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
 #include <editor/editor_node.h>
-#include <modules/isometric_maps/src/isometric_server.h>
+#include <modules/isometric_maps/src/data/isometric_parameters.h>
 #include "positionable_scenes_cache_manager.h"
 #include "isometric_editor_plugin.h"
 
