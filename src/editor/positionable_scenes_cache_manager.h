@@ -6,6 +6,7 @@
 #include <core/hash_map.h>
 #include <core/reference.h>
 #include <scene/resources/packed_scene.h>
+#include <modules/isometric_maps/src/node/isometric_positionable.h>
 
 namespace editor {
     class PositionableScenesCacheManager {
@@ -39,6 +40,7 @@ namespace editor {
         bool _is_adding;
 
         static Viewport* _get_icon_for_scene(Ref<PackedScene> scene);
+        static Transform2D _get_hexagone_coordinates(node::IsometricPositionable* positionable);
 
         PositionableScenesCacheManager();
         ~PositionableScenesCacheManager() = default;

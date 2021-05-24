@@ -3,6 +3,7 @@
 #include <scene/2d/camera_2d.h>
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
 #include <editor/editor_node.h>
+#include <modules/isometric_maps/src/isometric_server.h>
 #include "positionable_scenes_cache_manager.h"
 #include "isometric_editor_plugin.h"
 
@@ -77,16 +78,55 @@ Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> s
         Viewport* viewport{memnew(Viewport)};
         Camera2D* camera{memnew(Camera2D)};
         viewport->add_child(camera);
-        viewport->add_child(positionable);
+        camera->add_child(positionable);
         viewport->set_update_mode(Viewport::UPDATE_ONCE);
-//        Vector2 size{
-//            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(positionable->get_space_RID())),
-//            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(positionable->get_space_RID()))
-//        };
-        viewport->set_size({100, 100});
+        const Transform2D& hexagone_coordinates{_get_hexagone_coordinates(positionable)};
+        Vector2 scene_size{
+            hexagone_coordinates.get_axis(0).y - hexagone_coordinates.get_axis(0).x,
+            hexagone_coordinates.get_axis(1).y - hexagone_coordinates.get_axis(1).x
+        };
+        print_line(vformat("scene size is %s", scene_size));
+        positionable->set_scale(positionable->get_scale() / scene_size);
+        Vector2 viewport_size{128, 128};
+        camera->set_position(viewport_size / 2);
+        viewport->set_size(viewport_size);
         return viewport;
     }
     return nullptr;
+}
+
+Transform2D PositionableScenesCacheManager::_get_hexagone_coordinates(node::IsometricPositionable *positionable) {
+    const Vector3& position_3d{positionable->get_local_position_3d()};
+    const Vector3& size_3d{positionable->get_size()};
+
+    Vector3 upper_point{
+        position_3d.x,
+        position_3d.y,
+        position_3d.z + data::IsometricParameters::getDefaultConfiguration().z_ratio * size_3d.z
+    };
+    Vector3 lower_point{
+        position_3d.x + size_3d.x,
+        position_3d.y + size_3d.y,
+        position_3d.z
+    };
+    Vector3 left_point{
+        position_3d.x,
+        position_3d.y + size_3d.y,
+        position_3d.z
+    };
+    Vector3 right_point{
+        position_3d.x + size_3d.x,
+        position_3d.y,
+        position_3d.z
+    };
+    return {
+        upper_point.x - upper_point.z,
+        lower_point.x - lower_point.z,
+        upper_point.y - upper_point.z,
+        lower_point.y - lower_point.z,
+        left_point.x - left_point.y,
+        right_point.x - right_point.y
+    };
 }
 
 PositionableScenesCacheManager::PositionableScenesCacheManager() : cache(), drawing_viewport(), _is_adding() {
