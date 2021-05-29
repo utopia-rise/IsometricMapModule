@@ -16,10 +16,13 @@ namespace data {
         bool is_dynamic = false;
 
         int z_order = 0;
-        bool dirty = true;
         int z_size = 1;
 
+        bool dirty = true;
+
         Vector<IsometricElement*> behind_statics;
+        Vector<IsometricElement*> colliding_statics;
+
         Vector<IsometricElement*> behind_dynamics;
 
         IsometricElement();

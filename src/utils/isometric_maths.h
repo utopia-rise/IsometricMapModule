@@ -70,31 +70,31 @@ namespace utils {
                !(hex1.minH >= hex2.maxH || hex2.minH >= hex1.maxH);
     }
 
-    static bool is_box_in_front(const data::IsometricParameters &params, const AABB &box, const AABB &other) {
+    // return 1 ==> box in front of other
+    // return 0 ==> colliding
+    // return -1 ==> box behind other
+    static int is_box_in_front(const data::IsometricParameters &params, const AABB &box, const AABB &other) {
         const Vector3 &boxEnd{box.position + box.size};
         const Vector3 &otherEnd{other.position + other.size};
 
         if (boxEnd.x - other.position.x <= params.topological_margin) {
-            return false;
+            return -1;
         } else if (otherEnd.x - box.position.x <= params.topological_margin) {
-            return true;
+            return 1;
         }
 
         if (boxEnd.y - other.position.y <= params.topological_margin) {
-            return false;
+            return -1;
         } else if (otherEnd.y - box.position.y <= params.topological_margin) {
-            return true;
+            return 1;
         }
 
         if (boxEnd.z - other.position.z <= params.topological_margin) {
-            return false;
+            return -1;
         } else if (otherEnd.z - box.position.z <= params.topological_margin) {
-            return true;
+            return 1;
         }
-
-        const Vector3 &distance{box.position + boxEnd - other.position - otherEnd};
-        const Vector3 &cameraVector{1, 1, params.z_ratio};
-        return distance.dot(cameraVector) >= 0;
+        return 0;
     }
 
     static PoolVector2Array get_bounding_box(const data::IsometricParameters &params, Vector3 size) {

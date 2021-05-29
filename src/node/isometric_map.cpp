@@ -38,9 +38,7 @@ void IsometricMap::add_iso_positionable(Node* node) {
     } else {
         edition_grid_3d.insert_box(aabb, isometric_positionable);
     }
-
     add_child(isometric_positionable);
-    isometric_positionable->add_to_group(ISO_GROUP, false);
 }
 
 void IsometricMap::remove_iso_positionable(Node* node) {
@@ -62,9 +60,6 @@ void IsometricMap::remove_iso_positionable(Node* node) {
         }
     } else {
         edition_grid_3d.insert_box(aabb, isometric_positionable, true);
-    }
-    if (isometric_positionable->is_in_group(ISO_GROUP)) {
-        isometric_positionable->remove_from_group(ISO_GROUP);
     }
     isometric_positionable->update();
 }

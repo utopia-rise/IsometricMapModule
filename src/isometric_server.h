@@ -48,7 +48,7 @@ public:
 
     void set_isometric_element_position(const RID element_rid, const Vector3 global_position);
 
-    void set_isometric_element_size(const RID element_rid, const Vector3 size);
+    void set_isometric_element_size(const RID element_rid, Vector3 size);
 
     uint64_t get_isometric_z_index(const RID element_rid);
 
