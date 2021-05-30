@@ -40,7 +40,6 @@ namespace editor {
         bool _is_adding;
 
         static Viewport* _get_icon_for_scene(Ref<PackedScene> scene);
-        static Transform2D _get_hexagone_coordinates(node::IsometricPositionable* positionable);
 
         PositionableScenesCacheManager();
         ~PositionableScenesCacheManager() = default;
