@@ -3,6 +3,8 @@
 #include <scene/2d/camera_2d.h>
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
 #include <editor/editor_node.h>
+#include <modules/isometric_maps/src/data/isometric_parameters.h>
+#include <modules/isometric_maps/src/utils/isometric_maths.h>
 #include "positionable_scenes_cache_manager.h"
 #include "isometric_editor_plugin.h"
 
@@ -77,13 +79,23 @@ Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> s
         Viewport* viewport{memnew(Viewport)};
         Camera2D* camera{memnew(Camera2D)};
         viewport->add_child(camera);
-        viewport->add_child(positionable);
+        camera->add_child(positionable);
         viewport->set_update_mode(Viewport::UPDATE_ONCE);
-//        Vector2 size{
-//            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(positionable->get_space_RID())),
-//            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(positionable->get_space_RID()))
-//        };
-        viewport->set_size({100, 100});
+        const utils::Hexagone& hexagone_coordinates{
+            utils::get_hexagone_points(
+                    data::IsometricParameters::getDefaultConfiguration(),
+                    {positionable->get_local_position_3d(), positionable->get_size()}
+            )
+        };
+        Vector2 scene_size{
+            hexagone_coordinates.maxX - hexagone_coordinates.minX,
+            hexagone_coordinates.maxY - hexagone_coordinates.minY
+        };
+        print_line(vformat("scene size is %s", scene_size));
+        positionable->set_scale(positionable->get_scale() / scene_size);
+        Vector2 viewport_size{128, 128};
+        camera->set_position(viewport_size / 2);
+        viewport->set_size(viewport_size);
         return viewport;
     }
     return nullptr;

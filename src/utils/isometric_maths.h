@@ -39,9 +39,9 @@ namespace utils {
         };
     }
 
-    static Hexagone get_hexagone_points(const data::IsometricParameters &params, const data::IsometricElement* data) {
-        const Vector3 &ortho_position{data->aabb.position};
-        const Vector3 &size{data->aabb.size};
+    static Hexagone get_hexagone_points(const data::IsometricParameters& params, const AABB& aabb) {
+        const Vector3 &ortho_position{aabb.position};
+        const Vector3 &size{aabb.size};
         const Vector3 &upper_point{
                 Vector3(ortho_position.x, ortho_position.y, ortho_position.z + params.z_ratio * size.z)};
         const Vector3 &lower_point{Vector3(ortho_position.x + size.x, ortho_position.y + size.y, ortho_position.z)};
@@ -58,6 +58,9 @@ namespace utils {
         return {minX, maxX, minY, maxY, hMin, hMax};
     }
 
+    static Hexagone get_hexagone_points(const data::IsometricParameters &params, const data::IsometricElement* data) {
+        return get_hexagone_points(params, data->aabb);
+    }
 
     static bool are_elements_overlapping(const data::IsometricParameters &params,
                                   const data::IsometricElement* data1,
