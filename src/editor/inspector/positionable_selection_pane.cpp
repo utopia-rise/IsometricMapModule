@@ -34,7 +34,7 @@ void PositionableSelectionPane::refresh_icons() {
 void PositionableSelectionPane::_refresh_path_selector() {
     path_selector->clear();
     if (positionable_set.is_valid()) {
-        const PoolStringArray &paths{positionable_set->get_positionable_paths()};
+        const PoolStringArray &paths{positionable_set->get_path_groups()};
         for (int i = 0; i < paths.size(); ++i) {
             path_selector->add_item(paths[i]);
         }

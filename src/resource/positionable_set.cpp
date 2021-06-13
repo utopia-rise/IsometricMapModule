@@ -1,34 +1,59 @@
 #include "positionable_set.h"
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
+
+#ifdef TOOLS_ENABLED
 #include <core/os/file_access.h>
 #include <core/os/dir_access.h>
 #include <core/io/resource_saver.h>
+#endif
 
 using namespace resource;
 
-const PoolStringArray& PositionableSet::get_positionable_paths() const {
-    return positionable_paths;
+
+void PositionableSet::get_positionable_scene_path_for_id(int id, String& r_path) const {
+    r_path = identifier_to_scene_path[id];
 }
 
-void PositionableSet::set_positionable_paths(const PoolStringArray& paths) {
-    positionable_paths = paths;
-    refresh_set();
+#ifdef TOOLS_ENABLED
+
+const PoolStringArray& PositionableSet::get_path_groups() const {
+    return path_groups;
 }
 
-const Vector<Ref<PackedScene>>& PositionableSet::get_storage_for_path(const StringName &path) {
-    return scenes_storage_map[path];
+void PositionableSet::set_path_groups(const PoolStringArray& paths) {
+    path_groups = paths;
+
+    if (unlikely(!(editor_check_set_call & PATH_GROUPS))) {
+        editor_check_set_call &= PATH_GROUPS;
+    }
+    if (is_data_set()) {
+        refresh_set();
+    }
+}
+
+Vector<String> PositionableSet::get_scene_paths_for_group(const String& p_group) const {
+    const PoolVector<int>& ids{group_to_identifiers[p_group]};
+
+    Vector<String> paths_for_group;
+    for (int i = 0; i < ids.size(); ++i) {
+        const Variant& path{identifier_to_scene_path[ids[i]]};
+        if (path.get_type() == Variant::STRING) {
+            paths_for_group.push_back(path);
+        }
+    }
+    return paths_for_group;
 }
 
 Error PositionableSet::refresh_set() {
-    for (int i = 0; i < positionable_paths.size(); ++i) {
-        String path{positionable_paths.get(i)};
+    for (int i = 0; i < path_groups.size(); ++i) {
+        String path{path_groups.get(i)};
         if (path.empty() || path == "res://") {
             return Error::ERR_CANT_RESOLVE;
         }
         if (!path.begins_with("res://")) {
             path = vformat("res://%s", path);
         }
-        if (insert_all_positionables_for_path(path, nullptr) != Error::OK) {
+        if (insert_all_positionables_for_path_if_not_present(path, nullptr) != Error::OK) {
             return Error::ERR_CANT_RESOLVE;
         }
     }
@@ -51,13 +76,10 @@ Error PositionableSet::refresh_set() {
     return Error::OK;
 }
 
-Error PositionableSet::insert_all_positionables_for_path(const String& path, const char* base_path) {
+Error PositionableSet::insert_all_positionables_for_path_if_not_present(const String& path, const char* base_path) {
     StringName path_entry;
     if (!base_path) {
         path_entry = path;
-        if (scenes_storage_map.has(path_entry)) {
-            scenes_storage_map[path_entry].clear();
-        }
     } else {
         path_entry = base_path;
     }
@@ -73,7 +95,7 @@ Error PositionableSet::insert_all_positionables_for_path(const String& path, con
             return Error::ERR_CANT_RESOLVE;
         }
         if (path.ends_with(".tscn")) {
-            insert_scene_if_positionable(path_entry, path);
+            insert_positionable_scene_if_not_present(path_entry, path);
         }
         file_access->close();
         memdelete(file_access);
@@ -84,34 +106,105 @@ Error PositionableSet::insert_all_positionables_for_path(const String& path, con
             if (item == "." || item == "..") {
                 continue;
             }
-            insert_all_positionables_for_path(path.plus_file(item), path_entry.operator String().utf8());
+            insert_all_positionables_for_path_if_not_present(path.plus_file(item), path_entry.operator String().utf8());
         }
         memdelete(dir_access);
     }
     return Error::OK;
 }
 
-void PositionableSet::insert_scene_if_positionable(const StringName& base_path, const String& resource_path) {
+void PositionableSet::insert_positionable_scene_if_not_present(const String& path_group, const String& resource_path) {
     RES resource{ResourceLoader::load(resource_path)};
     if (auto* packed_scene{Object::cast_to<PackedScene>(resource.ptr())}) {
         //TODO: investigate get_inheritance_list_static generated from GDClass
         if (auto* positionable{Object::cast_to<node::IsometricPositionable>(packed_scene->instance())}) {
-            if (!scenes_storage_map.has(base_path)) {
-                scenes_storage_map[base_path] = Vector<Ref<PackedScene>>();
+            if (!identifier_to_scene_path.values().has(resource_path)) {
+                identifier_to_scene_path[next_id] = resource_path;
+                if (!group_to_identifiers.has(path_group)) {
+                    group_to_identifiers[path_group] = PoolVector<int>();
+                }
+                PoolVector<int> identifiers{group_to_identifiers[path_group]};
+                identifiers.push_back(next_id);
+                ++next_id;
             }
-            scenes_storage_map[base_path].push_back(Ref<PackedScene>(packed_scene));
             memdelete(positionable);
         }
     }
 }
 
-PositionableSet::PositionableSet() : positionable_paths(), scenes_storage_map() {
+const Dictionary& PositionableSet::_get_group_to_identifiers() const {
+    return group_to_identifiers;
+}
+
+void PositionableSet::_set_group_to_identifiers(const Dictionary& p_group_to_identifiers) {
+    group_to_identifiers = p_group_to_identifiers;
+
+    if (unlikely(!(editor_check_set_call & GROUP_TO_IDENTIFIER))) {
+        editor_check_set_call &= GROUP_TO_IDENTIFIER;
+    }
+    if (is_data_set()) {
+        refresh_set();
+    }
+}
+
+bool PositionableSet::is_data_set() const {
+    return likely(editor_check_set_call == (PATH_GROUPS | GROUP_TO_IDENTIFIER | IDENTIFIER_TO_SCENE_PATH));
+}
+
+#endif
+
+const Dictionary& PositionableSet::_get_identifier_to_scene_path() const {
+    return identifier_to_scene_path;
+}
+
+void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path) {
+    identifier_to_scene_path = p_identifier_to_scene_path;
+
+#ifdef TOOLS_ENABLED
+    if (unlikely(!(editor_check_set_call & IDENTIFIER_TO_SCENE_PATH))) {
+        editor_check_set_call &= IDENTIFIER_TO_SCENE_PATH;
+        next_id = identifier_to_scene_path.size();
+    }
+    if (is_data_set()) {
+        refresh_set();
+    }
+#endif
+}
+
+PositionableSet::PositionableSet() :
+        identifier_to_scene_path()
+#ifdef TOOLS_ENABLED
+        , path_groups(),
+        group_to_identifiers(),
+        editor_check_set_call(),
+        next_id()
+#endif
+{
 
 }
 
 void PositionableSet::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_positionable_paths", "paths"), &PositionableSet::set_positionable_paths);
-    ClassDB::bind_method(D_METHOD("get_positionable_paths"), &PositionableSet::get_positionable_paths);
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "positionable_paths"), "set_positionable_paths", "get_positionable_paths");
-    ADD_PROPERTY_DEFAULT("positionable_paths", PoolStringArray());
+#ifdef TOOLS_ENABLED
+    ClassDB::bind_method(D_METHOD("set_path_groups", "paths"), &PositionableSet::set_path_groups);
+    ClassDB::bind_method(D_METHOD("get_path_groups"), &PositionableSet::get_path_groups);
+    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "path_groups"), "set_path_groups", "get_path_groups");
+    ADD_PROPERTY_DEFAULT("path_groups", PoolStringArray());
+
+    ClassDB::bind_method(D_METHOD("_set_group_to_identifiers", "p_group_to_identifiers"),
+                         &PositionableSet::_set_group_to_identifiers);
+    ClassDB::bind_method(D_METHOD("_get_group_to_identifiers"), &PositionableSet::_get_group_to_identifiers);
+    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "group_to_identifiers", PROPERTY_HINT_NONE, "",
+                              PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_group_to_identifiers",
+                 "_get_group_to_identifiers");
+    ADD_PROPERTY_DEFAULT("group_to_identifiers", Dictionary());
+#endif
+
+    ClassDB::bind_method(D_METHOD("_set_identifier_to_scene_path", "identifier_to_scene_path"),
+                         &PositionableSet::_set_identifier_to_scene_path);
+    ClassDB::bind_method(D_METHOD("_get_identifier_to_scene_path", "identifier_to_scene_path"),
+                         &PositionableSet::_get_identifier_to_scene_path);
+    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "identifier_to_scene_path", PROPERTY_HINT_NONE, "",
+                              PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_identifier_to_scene_path",
+                 "_get_identifier_to_scene_path");
+    ADD_PROPERTY_DEFAULT("identifier_to_scene_path", Dictionary());
 }
