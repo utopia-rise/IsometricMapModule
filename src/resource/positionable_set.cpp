@@ -9,7 +9,6 @@
 
 using namespace resource;
 
-
 void PositionableSet::get_positionable_scene_path_for_id(int id, String& r_path) const {
     r_path = identifier_to_scene_path[id];
 }
@@ -57,23 +56,49 @@ Error PositionableSet::refresh_set() {
             return Error::ERR_CANT_RESOLVE;
         }
     }
-    List<StringName> keys;
-    scenes_storage_map.get_key_list(&keys);
-    for (int i = 0; i < keys.size(); ++i) {
-        bool contained;
-        StringName& hash{keys[i]};
-        for (int j = 0; j < positionable_paths.size(); ++j) {
-            if (hash == positionable_paths[j]) {
-                contained = true;
-            }
-        }
-        if (!contained) {
-            scenes_storage_map.erase(hash);
+
+    const Array& values{identifier_to_scene_path.values()};
+    Vector<int> ids_to_remove;
+    for (int i = 0; i < values.size(); ++i) {
+        const String& scene_path{values[i]};
+        FileAccessRef file_access{FileAccess::create(FileAccess::ACCESS_RESOURCES)};
+        if (!file_access->file_exists(scene_path)) {
+            ids_to_remove.push_back(identifier_to_scene_path.keys()[i]);
         }
     }
 
+    const Array& keys{group_to_identifiers.keys()};
+    for (int i = 0; i < keys.size(); ++i) {
+        bool contained;
+        for (int j = 0; j < path_groups.size(); ++j) {
+            if (path_groups[j] == keys[i]) {
+                contained = true;
+                break;
+            }
+        }
+        if (!contained) {
+            ids_to_remove.append_array(group_to_identifiers.values()[i]);
+        }
+    }
+    
+    for (int i = 0; i < ids_to_remove.size(); ++i) {
+        int id{ids_to_remove[i]};
+        removed_elements.push_back({id, identifier_to_scene_path[id]});
+        identifier_to_scene_path.erase(id);
+    }
+    
     emit_changed();
     return Error::OK;
+}
+
+const Vector<RemovedSetElement>& PositionableSet::get_removed_elements() const {
+    return removed_elements;
+}
+
+void PositionableSet::insert_path_at_id(const String& existing_group_path, int id, const String& scene_path) {
+    PoolVector<int> identifiers{group_to_identifiers[existing_group_path]};
+    identifiers.push_back(id);
+    identifier_to_scene_path[id] = scene_path;
 }
 
 Error PositionableSet::insert_all_positionables_for_path_if_not_present(const String& path, const char* base_path) {
@@ -177,7 +202,8 @@ PositionableSet::PositionableSet() :
         , path_groups(),
         group_to_identifiers(),
         editor_check_set_call(),
-        next_id()
+        next_id(),
+        removed_elements()
 #endif
 {
 

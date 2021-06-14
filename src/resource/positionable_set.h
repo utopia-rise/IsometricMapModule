@@ -5,6 +5,14 @@
 #include <scene/resources/packed_scene.h>
 
 namespace resource {
+
+#ifdef TOOLS_ENABLED
+    struct RemovedSetElement {
+        int id;
+        String element_path;
+    };
+#endif
+
     class PositionableSet : public Resource {
         GDCLASS(PositionableSet, Resource)
 
@@ -17,6 +25,9 @@ namespace resource {
 
         Vector<String> get_scene_paths_for_group(const String& p_group) const;
         Error refresh_set();
+
+        const Vector<RemovedSetElement>& get_removed_elements() const;
+        void insert_path_at_id(const String& existing_group_path, int id, const String& scene_path);
 #endif
 
         PositionableSet();
@@ -45,6 +56,8 @@ namespace resource {
         int editor_check_set_call;
 
         int next_id;
+
+        Vector<RemovedSetElement> removed_elements;
 
         const Dictionary& _get_group_to_identifiers() const;
         void _set_group_to_identifiers(const Dictionary& p_group_to_identifiers);
