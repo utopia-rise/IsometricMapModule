@@ -23,7 +23,7 @@ void PositionableSet::set_path_groups(const PoolStringArray& paths) {
     path_groups = paths;
 
     if (unlikely(!(editor_check_set_call & PATH_GROUPS))) {
-        editor_check_set_call &= PATH_GROUPS;
+        editor_check_set_call |= PATH_GROUPS;
     }
     if (is_data_set()) {
         refresh_set();
@@ -34,6 +34,7 @@ Vector<String> PositionableSet::get_scene_paths_for_group(const String& p_group)
     const PoolVector<int>& ids{group_to_identifiers[p_group]};
 
     Vector<String> paths_for_group;
+    print_line(vformat("got %s elements for %s", ids.size(), p_group));
     for (int i = 0; i < ids.size(); ++i) {
         const Variant& path{identifier_to_scene_path[ids[i]]};
         if (path.get_type() == Variant::STRING) {
@@ -57,8 +58,8 @@ Error PositionableSet::refresh_set() {
         }
     }
 
-    const Array& values{identifier_to_scene_path.values()};
     Vector<int> ids_to_remove;
+    const Array& values{identifier_to_scene_path.values()};
     for (int i = 0; i < values.size(); ++i) {
         const String& scene_path{values[i]};
         FileAccessRef file_access{FileAccess::create(FileAccess::ACCESS_RESOURCES)};
@@ -148,8 +149,7 @@ void PositionableSet::insert_positionable_scene_if_not_present(const String& pat
                 if (!group_to_identifiers.has(path_group)) {
                     group_to_identifiers[path_group] = PoolVector<int>();
                 }
-                PoolVector<int> identifiers{group_to_identifiers[path_group]};
-                identifiers.push_back(next_id);
+                group_to_identifiers[path_group].operator PoolVector<int>().push_back(next_id);
                 ++next_id;
             }
             memdelete(positionable);
@@ -165,7 +165,7 @@ void PositionableSet::_set_group_to_identifiers(const Dictionary& p_group_to_ide
     group_to_identifiers = p_group_to_identifiers;
 
     if (unlikely(!(editor_check_set_call & GROUP_TO_IDENTIFIER))) {
-        editor_check_set_call &= GROUP_TO_IDENTIFIER;
+        editor_check_set_call |= GROUP_TO_IDENTIFIER;
     }
     if (is_data_set()) {
         refresh_set();
@@ -187,7 +187,7 @@ void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifi
 
 #ifdef TOOLS_ENABLED
     if (unlikely(!(editor_check_set_call & IDENTIFIER_TO_SCENE_PATH))) {
-        editor_check_set_call &= IDENTIFIER_TO_SCENE_PATH;
+        editor_check_set_call |= IDENTIFIER_TO_SCENE_PATH;
         next_id = identifier_to_scene_path.size();
     }
     if (is_data_set()) {
@@ -227,10 +227,9 @@ void PositionableSet::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("_set_identifier_to_scene_path", "identifier_to_scene_path"),
                          &PositionableSet::_set_identifier_to_scene_path);
-    ClassDB::bind_method(D_METHOD("_get_identifier_to_scene_path", "identifier_to_scene_path"),
-                         &PositionableSet::_get_identifier_to_scene_path);
+    ClassDB::bind_method(D_METHOD("_get_identifier_to_scene_path"), &PositionableSet::_get_identifier_to_scene_path);
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "identifier_to_scene_path", PROPERTY_HINT_NONE, "",
-                              PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_identifier_to_scene_path",
+                              PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_identifier_to_scene_path",
                  "_get_identifier_to_scene_path");
     ADD_PROPERTY_DEFAULT("identifier_to_scene_path", Dictionary());
 }

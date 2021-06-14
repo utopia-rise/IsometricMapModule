@@ -59,14 +59,15 @@ void PositionableSelectionPane::_ready() {
 }
 
 void PositionableSelectionPane::_select_item_from_path_selector(int index) {
-    const Vector<Ref<PackedScene>>& scenes{
-        positionable_set->get_storage_for_path(path_selector->get_item_text(index))
+    const Vector<String>& scenes_paths{
+        positionable_set->get_scene_paths_for_group(path_selector->get_item_text(index))
     };
     PositionableScenesCacheManager::get_instance().clear();
     item_list->clear();
-    PositionableScenesCacheManager::get_instance().start_adding(scenes.size());
-    for (int i = 0; i < scenes.size(); ++i) {
-        const Ref<PackedScene>& positionable_scene{scenes[i]};
+    int scene_count{scenes_paths.size()};
+    PositionableScenesCacheManager::get_instance().start_adding(scene_count);
+    for (int i = 0; i < scene_count; ++i) {
+        const Ref<PackedScene>& positionable_scene{ResourceLoader::load(scenes_paths[i])};
         StringName path{positionable_scene->get_path()};
 
         PositionableScenesCacheManager::get_instance().add_scene(item_list->get_item_count(), positionable_scene);
@@ -74,6 +75,17 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
         item_list->add_item(positionable_scene->get_path(), icon_texture);
     }
     PositionableScenesCacheManager::get_instance().end_adding();
+    
+    const Vector<resource::RemovedSetElement>& removed_elements{
+        positionable_set->get_removed_elements()
+    };
+    for (int i = 0; i < removed_elements.size(); ++i) {
+        const resource::RemovedSetElement& element{removed_elements[i]};
+        item_list->add_item(vformat("REMOVED ! %s", element.element_path));
+        int last_item_id{item_list->get_item_count() - 1};
+        item_list->set_item_metadata(last_item_id, element.id);
+        item_list->set_item_custom_bg_color(last_item_id, Color(184, 40, 0));
+    }
 }
 
 void PositionableSelectionPane::_refresh_current_set() {
