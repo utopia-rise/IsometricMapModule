@@ -51,7 +51,7 @@ namespace resource {
         PoolStringArray path_groups;
 
         // exported, not visible in editor, here for set inspection purpose
-        Dictionary group_to_identifiers;
+        HashMap<StringName, Vector<int>> group_to_identifiers;
 
         int editor_check_set_call;
 
@@ -59,7 +59,7 @@ namespace resource {
 
         Vector<RemovedSetElement> removed_elements;
 
-        const Dictionary& _get_group_to_identifiers() const;
+        Dictionary _get_group_to_identifiers() const;
         void _set_group_to_identifiers(const Dictionary& p_group_to_identifiers);
 
         inline bool is_data_set() const;

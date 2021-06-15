@@ -31,7 +31,7 @@ void PositionableSet::set_path_groups(const PoolStringArray& paths) {
 }
 
 Vector<String> PositionableSet::get_scene_paths_for_group(const String& p_group) const {
-    const PoolVector<int>& ids{group_to_identifiers[p_group]};
+    const Vector<int>& ids{group_to_identifiers[p_group]};
 
     Vector<String> paths_for_group;
     print_line(vformat("got %s elements for %s", ids.size(), p_group));
@@ -68,7 +68,8 @@ Error PositionableSet::refresh_set() {
         }
     }
 
-    const Array& keys{group_to_identifiers.keys()};
+    List<StringName> keys;
+    group_to_identifiers.get_key_list(&keys);
     for (int i = 0; i < keys.size(); ++i) {
         bool contained;
         for (int j = 0; j < path_groups.size(); ++j) {
@@ -78,7 +79,7 @@ Error PositionableSet::refresh_set() {
             }
         }
         if (!contained) {
-            ids_to_remove.append_array(group_to_identifiers.values()[i]);
+            ids_to_remove.append_array(group_to_identifiers[keys[i]]);
         }
     }
     
@@ -97,7 +98,7 @@ const Vector<RemovedSetElement>& PositionableSet::get_removed_elements() const {
 }
 
 void PositionableSet::insert_path_at_id(const String& existing_group_path, int id, const String& scene_path) {
-    PoolVector<int> identifiers{group_to_identifiers[existing_group_path]};
+    Vector<int>& identifiers{group_to_identifiers[existing_group_path]};
     identifiers.push_back(id);
     identifier_to_scene_path[id] = scene_path;
 }
@@ -147,9 +148,10 @@ void PositionableSet::insert_positionable_scene_if_not_present(const String& pat
             if (!identifier_to_scene_path.values().has(resource_path)) {
                 identifier_to_scene_path[next_id] = resource_path;
                 if (!group_to_identifiers.has(path_group)) {
-                    group_to_identifiers[path_group] = PoolVector<int>();
+                    group_to_identifiers[path_group] = Vector<int>();
                 }
-                group_to_identifiers[path_group].operator PoolVector<int>().push_back(next_id);
+                Vector<int>& identifiers{group_to_identifiers[path_group]};
+                identifiers.push_back(next_id);
                 ++next_id;
             }
             memdelete(positionable);
@@ -157,12 +159,36 @@ void PositionableSet::insert_positionable_scene_if_not_present(const String& pat
     }
 }
 
-const Dictionary& PositionableSet::_get_group_to_identifiers() const {
-    return group_to_identifiers;
+Dictionary PositionableSet::_get_group_to_identifiers() const {
+    List<StringName> keys;
+    group_to_identifiers.get_key_list(&keys);
+    Dictionary to_return;
+
+    for (int i = 0; i < keys.size(); ++i) {
+        StringName key{keys[i]};
+
+        Array entry;
+        const Vector<int>& identifiers{group_to_identifiers[key]};
+        for (int j = 0; j < identifiers.size(); ++j) {
+            entry.append(identifiers[i]);
+        }
+        to_return[key.operator String()] = entry;
+    }
+
+    return to_return;
 }
 
 void PositionableSet::_set_group_to_identifiers(const Dictionary& p_group_to_identifiers) {
-    group_to_identifiers = p_group_to_identifiers;
+    group_to_identifiers = HashMap<StringName, Vector<int>>();
+    for (int i = 0; i < p_group_to_identifiers.size(); ++i) {
+        Vector<int> entry;
+
+        Array value{p_group_to_identifiers.values()[i]};
+        for (int j = 0; j < value.size(); ++j) {
+            entry.push_back(value[j]);
+        }
+        group_to_identifiers[p_group_to_identifiers.keys()[i]] = entry;
+    }
 
     if (unlikely(!(editor_check_set_call & GROUP_TO_IDENTIFIER))) {
         editor_check_set_call |= GROUP_TO_IDENTIFIER;
