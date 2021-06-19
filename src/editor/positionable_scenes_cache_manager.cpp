@@ -91,7 +91,6 @@ Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> s
             hexagone_coordinates.maxX - hexagone_coordinates.minX,
             hexagone_coordinates.maxY - hexagone_coordinates.minY
         };
-        print_line(vformat("scene size is %s", scene_size));
         positionable->set_scale(positionable->get_scale() / scene_size);
         Vector2 viewport_size{128, 128};
         camera->set_position(viewport_size / 2);

@@ -10,10 +10,6 @@ using namespace editor::inspector;
 
 void PositionableSelectionPane::set_positionable_set(const Ref<resource::PositionableSet>& set) {
     positionable_set = set;
-    if (positionable_set.is_valid() &&
-            !positionable_set->is_connected("changed", this, "_refresh_path_selector")) {
-        positionable_set->connect("changed", this, "_refresh_path_selector");
-    }
     _refresh_path_selector();
 }
 
@@ -27,6 +23,7 @@ int PositionableSelectionPane::get_selected_positionable_index() const {
 
 void PositionableSelectionPane::refresh_icons() {
     for (int i = 0; i < item_list->get_item_count(); ++i) {
+        if (item_list->get_item_metadata(i).get_type() != Variant::NIL) continue;
         item_list->set_item_icon(i, PositionableScenesCacheManager::get_instance().get_icon(i));
     }
 }
@@ -34,6 +31,8 @@ void PositionableSelectionPane::refresh_icons() {
 void PositionableSelectionPane::_refresh_path_selector() {
     path_selector->clear();
     if (positionable_set.is_valid()) {
+        positionable_set->refresh_set();
+        EditorNode::get_singleton()->save_resource(positionable_set);
         const PoolStringArray &paths{positionable_set->get_path_groups()};
         for (int i = 0; i < paths.size(); ++i) {
             path_selector->add_item(paths[i]);
@@ -84,14 +83,12 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
         item_list->add_item(vformat("REMOVED ! %s", element.element_path));
         int last_item_id{item_list->get_item_count() - 1};
         item_list->set_item_metadata(last_item_id, element.id);
-        item_list->set_item_custom_bg_color(last_item_id, Color(184, 40, 0));
+        item_list->set_item_custom_bg_color(last_item_id, Color(0.65, 0.14, 0));
     }
 }
 
 void PositionableSelectionPane::_refresh_current_set() {
-    if (positionable_set.is_valid()) {
-        positionable_set->refresh_set();
-    }
+    _refresh_path_selector();
 }
 
 PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_container(memnew(HSplitContainer)),

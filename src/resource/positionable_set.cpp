@@ -21,20 +21,16 @@ const PoolStringArray& PositionableSet::get_path_groups() const {
 
 void PositionableSet::set_path_groups(const PoolStringArray& paths) {
     path_groups = paths;
-
-    if (unlikely(!(editor_check_set_call & PATH_GROUPS))) {
-        editor_check_set_call |= PATH_GROUPS;
-    }
-    if (is_data_set()) {
-        refresh_set();
-    }
 }
 
 Vector<String> PositionableSet::get_scene_paths_for_group(const String& p_group) const {
+    if (!group_to_identifiers.has(p_group)) {
+        return {};
+    }
+
     const Vector<int>& ids{group_to_identifiers[p_group]};
 
     Vector<String> paths_for_group;
-    print_line(vformat("got %s elements for %s", ids.size(), p_group));
     for (int i = 0; i < ids.size(); ++i) {
         const Variant& path{identifier_to_scene_path[ids[i]]};
         if (path.get_type() == Variant::STRING) {
@@ -45,6 +41,8 @@ Vector<String> PositionableSet::get_scene_paths_for_group(const String& p_group)
 }
 
 Error PositionableSet::refresh_set() {
+    remove_not_anymore_present_positionables();
+
     for (int i = 0; i < path_groups.size(); ++i) {
         String path{path_groups.get(i)};
         if (path.empty() || path == "res://") {
@@ -58,6 +56,14 @@ Error PositionableSet::refresh_set() {
         }
     }
 
+    remove_not_anymore_present_positionables();
+
+    emit_changed();
+    return Error::OK;
+}
+
+
+void PositionableSet::remove_not_anymore_present_positionables() {
     Vector<int> ids_to_remove;
     const Array& values{identifier_to_scene_path.values()};
     for (int i = 0; i < values.size(); ++i) {
@@ -71,36 +77,36 @@ Error PositionableSet::refresh_set() {
     List<StringName> keys;
     group_to_identifiers.get_key_list(&keys);
     for (int i = 0; i < keys.size(); ++i) {
-        bool contained;
+        bool contained{false};
+        const StringName &key{keys[i]};
         for (int j = 0; j < path_groups.size(); ++j) {
-            if (path_groups[j] == keys[i]) {
+            if (path_groups[j] == key) {
                 contained = true;
                 break;
             }
         }
         if (!contained) {
-            ids_to_remove.append_array(group_to_identifiers[keys[i]]);
+            ids_to_remove.append_array(group_to_identifiers[key]);
+            group_to_identifiers.erase(key);
         }
     }
-    
+
     for (int i = 0; i < ids_to_remove.size(); ++i) {
         int id{ids_to_remove[i]};
-        removed_elements.push_back({id, identifier_to_scene_path[id]});
+        bool contained;
+        RemovedSetElement element_to_remove{id, identifier_to_scene_path[id]};
+        for (int j = 0; j < removed_elements.size(); ++j) {
+            contained = removed_elements[j].id == element_to_remove.id && removed_elements[j].element_path == element_to_remove.element_path;
+            if (contained) break;
+        }
+        if (contained) continue;
+        removed_elements.push_back(element_to_remove);
         identifier_to_scene_path.erase(id);
     }
-    
-    emit_changed();
-    return Error::OK;
 }
 
 const Vector<RemovedSetElement>& PositionableSet::get_removed_elements() const {
     return removed_elements;
-}
-
-void PositionableSet::insert_path_at_id(const String& existing_group_path, int id, const String& scene_path) {
-    Vector<int>& identifiers{group_to_identifiers[existing_group_path]};
-    identifiers.push_back(id);
-    identifier_to_scene_path[id] = scene_path;
 }
 
 Error PositionableSet::insert_all_positionables_for_path_if_not_present(const String& path, const char* base_path) {
@@ -146,17 +152,33 @@ void PositionableSet::insert_positionable_scene_if_not_present(const String& pat
         //TODO: investigate get_inheritance_list_static generated from GDClass
         if (auto* positionable{Object::cast_to<node::IsometricPositionable>(packed_scene->instance())}) {
             if (!identifier_to_scene_path.values().has(resource_path)) {
-                identifier_to_scene_path[next_id] = resource_path;
                 if (!group_to_identifiers.has(path_group)) {
                     group_to_identifiers[path_group] = Vector<int>();
                 }
-                Vector<int>& identifiers{group_to_identifiers[path_group]};
-                identifiers.push_back(next_id);
-                ++next_id;
+
+                for (int i = 0; i < removed_elements.size(); ++i) {
+                    const RemovedSetElement& removed_element{removed_elements[i]};
+                    if (removed_element.element_path == resource_path) {
+                        insert_positionable_for_path_group_and_id(path_group, resource_path, removed_element.id);
+                        removed_elements.remove(i);
+                        memdelete(positionable);
+                        return;
+                    }
+                }
+
+                insert_positionable_for_path_group_and_id(path_group, resource_path, ++next_id);
             }
             memdelete(positionable);
         }
     }
+}
+
+
+void PositionableSet::insert_positionable_for_path_group_and_id(const String &path_group, const String &resource_path,
+                                                                int id) {
+    Vector<int>& identifiers{group_to_identifiers[path_group]};
+    identifiers.push_back(id);
+    identifier_to_scene_path[id] = resource_path;
 }
 
 Dictionary PositionableSet::_get_group_to_identifiers() const {
@@ -170,7 +192,7 @@ Dictionary PositionableSet::_get_group_to_identifiers() const {
         Array entry;
         const Vector<int>& identifiers{group_to_identifiers[key]};
         for (int j = 0; j < identifiers.size(); ++j) {
-            entry.append(identifiers[i]);
+            entry.append(identifiers[j]);
         }
         to_return[key.operator String()] = entry;
     }
@@ -189,17 +211,6 @@ void PositionableSet::_set_group_to_identifiers(const Dictionary& p_group_to_ide
         }
         group_to_identifiers[p_group_to_identifiers.keys()[i]] = entry;
     }
-
-    if (unlikely(!(editor_check_set_call & GROUP_TO_IDENTIFIER))) {
-        editor_check_set_call |= GROUP_TO_IDENTIFIER;
-    }
-    if (is_data_set()) {
-        refresh_set();
-    }
-}
-
-bool PositionableSet::is_data_set() const {
-    return likely(editor_check_set_call == (PATH_GROUPS | GROUP_TO_IDENTIFIER | IDENTIFIER_TO_SCENE_PATH));
 }
 
 #endif
@@ -210,16 +221,6 @@ const Dictionary& PositionableSet::_get_identifier_to_scene_path() const {
 
 void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path) {
     identifier_to_scene_path = p_identifier_to_scene_path;
-
-#ifdef TOOLS_ENABLED
-    if (unlikely(!(editor_check_set_call & IDENTIFIER_TO_SCENE_PATH))) {
-        editor_check_set_call |= IDENTIFIER_TO_SCENE_PATH;
-        next_id = identifier_to_scene_path.size();
-    }
-    if (is_data_set()) {
-        refresh_set();
-    }
-#endif
 }
 
 PositionableSet::PositionableSet() :
@@ -227,7 +228,6 @@ PositionableSet::PositionableSet() :
 #ifdef TOOLS_ENABLED
         , path_groups(),
         group_to_identifiers(),
-        editor_check_set_call(),
         next_id(),
         removed_elements()
 #endif

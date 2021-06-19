@@ -27,7 +27,6 @@ namespace resource {
         Error refresh_set();
 
         const Vector<RemovedSetElement>& get_removed_elements() const;
-        void insert_path_at_id(const String& existing_group_path, int id, const String& scene_path);
 #endif
 
         PositionableSet();
@@ -41,19 +40,11 @@ namespace resource {
         void _set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path);
 
 #ifdef TOOLS_ENABLED
-        enum EditorCheckSetterCall {
-            PATH_GROUPS,
-            GROUP_TO_IDENTIFIER,
-            IDENTIFIER_TO_SCENE_PATH
-        };
-
         // exported and visible in editor
         PoolStringArray path_groups;
 
         // exported, not visible in editor, here for set inspection purpose
         HashMap<StringName, Vector<int>> group_to_identifiers;
-
-        int editor_check_set_call;
 
         int next_id;
 
@@ -65,6 +56,8 @@ namespace resource {
         inline bool is_data_set() const;
         Error insert_all_positionables_for_path_if_not_present(const String& path, const char* base_path);
         void insert_positionable_scene_if_not_present(const String& path_group, const String& resource_path);
+        void insert_positionable_for_path_group_and_id(const String& path_group, const String& resource_path, int id);
+        void remove_not_anymore_present_positionables();
 
 
 #endif
