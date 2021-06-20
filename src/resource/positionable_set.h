@@ -53,6 +53,9 @@ namespace resource {
         Dictionary _get_group_to_identifiers() const;
         void _set_group_to_identifiers(const Dictionary& p_group_to_identifiers);
 
+        Dictionary _get_removed_elements() const;
+        void _set_removed_elements(const Dictionary& p_removed_elements);
+
         inline bool is_data_set() const;
         Error insert_all_positionables_for_path_if_not_present(const String& path, const char* base_path);
         void insert_positionable_scene_if_not_present(const String& path_group, const String& resource_path);

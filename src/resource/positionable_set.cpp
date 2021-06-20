@@ -229,6 +229,29 @@ void PositionableSet::_set_group_to_identifiers(const Dictionary& p_group_to_ide
     }
 }
 
+
+Dictionary PositionableSet::_get_removed_elements() const {
+    Dictionary converted;
+
+    for (int i = 0; i < removed_elements.size(); ++i) {
+        const RemovedSetElement& removed_element{removed_elements[i]};
+        converted[removed_element.id] = removed_element.element_path;
+    }
+
+    return converted;
+}
+
+void PositionableSet::_set_removed_elements(const Dictionary& p_removed_elements) {
+    removed_elements = Vector<RemovedSetElement>();
+
+    const Array& keys{p_removed_elements.keys()};
+    const Array& values{p_removed_elements.values()};
+
+    for (int i = 0; i < p_removed_elements.size(); ++i) {
+        removed_elements.push_back({keys[i], values[i]});
+    }
+}
+
 #endif
 
 Dictionary PositionableSet::_get_identifier_to_scene_path() const {
@@ -282,6 +305,13 @@ void PositionableSet::_bind_methods() {
                               PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_group_to_identifiers",
                  "_get_group_to_identifiers");
     ADD_PROPERTY_DEFAULT("group_to_identifiers", Dictionary());
+
+    ClassDB::bind_method(D_METHOD("_set_removed_elements", "p_removed_elements"), &PositionableSet::_set_removed_elements);
+    ClassDB::bind_method(D_METHOD("_get_removed_elements"), &PositionableSet::_get_removed_elements);
+    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "removed_elements", PROPERTY_HINT_NONE, "",
+                              PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_removed_elements",
+                 "_get_removed_elements");
+    ADD_PROPERTY_DEFAULT("removed_elements", Dictionary());
 #endif
 
     ClassDB::bind_method(D_METHOD("_set_identifier_to_scene_path", "identifier_to_scene_path"),
