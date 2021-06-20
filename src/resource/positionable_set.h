@@ -34,9 +34,9 @@ namespace resource {
 
     private:
         // exported, not visible in editor
-        Dictionary identifier_to_scene_path;
+        Map<int, String> identifier_to_scene_path;
 
-        const Dictionary& _get_identifier_to_scene_path() const;
+        Dictionary _get_identifier_to_scene_path() const;
         void _set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path);
 
 #ifdef TOOLS_ENABLED

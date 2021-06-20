@@ -65,13 +65,14 @@ Error PositionableSet::refresh_set() {
 
 void PositionableSet::remove_not_anymore_present_positionables() {
     Vector<int> ids_to_remove;
-    const Array& values{identifier_to_scene_path.values()};
-    for (int i = 0; i < values.size(); ++i) {
-        const String& scene_path{values[i]};
+    Map<int, String>::Element* current{identifier_to_scene_path.front()};
+    while (current) {
+        const String& scene_path{current->value()};
         FileAccessRef file_access{FileAccess::create(FileAccess::ACCESS_RESOURCES)};
         if (!file_access->file_exists(scene_path)) {
-            ids_to_remove.push_back(identifier_to_scene_path.keys()[i]);
+            ids_to_remove.push_back(current->key());
         }
+        current = current->next();
     }
 
     List<StringName> keys;
@@ -151,7 +152,18 @@ void PositionableSet::insert_positionable_scene_if_not_present(const String& pat
     if (auto* packed_scene{Object::cast_to<PackedScene>(resource.ptr())}) {
         //TODO: investigate get_inheritance_list_static generated from GDClass
         if (auto* positionable{Object::cast_to<node::IsometricPositionable>(packed_scene->instance())}) {
-            if (!identifier_to_scene_path.values().has(resource_path)) {
+            bool contained{false};
+            Map<int, String>::Element* current{identifier_to_scene_path.front()};
+            while (current) {
+                contained = current->value() == resource_path;
+                if (contained) {
+                    break;
+                } else {
+                    current = current->next();
+                }
+            }
+            
+            if (!contained) {
                 if (!group_to_identifiers.has(path_group)) {
                     group_to_identifiers[path_group] = Vector<int>();
                 }
@@ -184,7 +196,7 @@ void PositionableSet::insert_positionable_for_path_group_and_id(const String &pa
 Dictionary PositionableSet::_get_group_to_identifiers() const {
     List<StringName> keys;
     group_to_identifiers.get_key_list(&keys);
-    Dictionary to_return;
+    Dictionary converted;
 
     for (int i = 0; i < keys.size(); ++i) {
         StringName key{keys[i]};
@@ -194,33 +206,54 @@ Dictionary PositionableSet::_get_group_to_identifiers() const {
         for (int j = 0; j < identifiers.size(); ++j) {
             entry.append(identifiers[j]);
         }
-        to_return[key.operator String()] = entry;
+        converted[key.operator String()] = entry;
     }
 
-    return to_return;
+    return converted;
 }
 
 void PositionableSet::_set_group_to_identifiers(const Dictionary& p_group_to_identifiers) {
     group_to_identifiers = HashMap<StringName, Vector<int>>();
+
+    const Array& keys{p_group_to_identifiers.keys()};
+    const Array& values{p_group_to_identifiers.values()};
+
     for (int i = 0; i < p_group_to_identifiers.size(); ++i) {
         Vector<int> entry;
 
-        Array value{p_group_to_identifiers.values()[i]};
+        Array value{values[i]};
         for (int j = 0; j < value.size(); ++j) {
             entry.push_back(value[j]);
         }
-        group_to_identifiers[p_group_to_identifiers.keys()[i]] = entry;
+        group_to_identifiers[keys[i]] = entry;
     }
 }
 
 #endif
 
-const Dictionary& PositionableSet::_get_identifier_to_scene_path() const {
-    return identifier_to_scene_path;
+Dictionary PositionableSet::_get_identifier_to_scene_path() const {
+    Dictionary converted;
+    
+    Map<int, String>::Element* current{identifier_to_scene_path.front()};
+    while (current) {
+        converted[current->key()] = current->value();
+        current = current->next();
+    }
+    
+    return converted;
 }
 
 void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path) {
-    identifier_to_scene_path = p_identifier_to_scene_path;
+    identifier_to_scene_path = Map<int, String>();
+
+    const Array& keys{p_identifier_to_scene_path.keys()};
+    const Array& values{p_identifier_to_scene_path.values()};
+
+    for (int i = 0; i < p_identifier_to_scene_path.size(); ++i) {
+        int id{keys[i]};
+        String value{values[i]};
+        identifier_to_scene_path[id] = value;
+    }
 }
 
 PositionableSet::PositionableSet() :
