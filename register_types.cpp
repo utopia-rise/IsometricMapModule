@@ -8,6 +8,8 @@
 #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 #include <editor/editor_node.h>
 #include <modules/isometric_maps/src/resource/positionable_set.h>
+#include <modules/isometric_maps/src/editor/inspector/fix_set_dialog.h>
+
 #endif
 
 #ifdef TOOLS_ENABLED
@@ -34,6 +36,7 @@ void register_isometric_maps_types() {
         ClassDB::register_class<editor::IsometricEditorPlugin>();
         EditorPlugins::add_create_func(isometric_editor_plugin_creator_func);
         ClassDB::register_class<editor::inspector::PositionableSelectionPane>();
+        ClassDB::register_class<editor::inspector::FixSetDialog>();
     #endif
 
 }
