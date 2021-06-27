@@ -91,12 +91,14 @@ void IsometricEditorPlugin::edit(Object* p_object) {
 }
 
 void IsometricEditorPlugin::drop() {
-    selected_map->set_debug(false);
-    if (selected_map->is_connected("draw", this, "refresh")) {
-        selected_map->disconnect("draw", this, "refresh");
+    if (selected_map) {
+        selected_map->set_debug(false);
+        if (selected_map->is_connected("draw", this, "refresh")) {
+            selected_map->disconnect("draw", this, "refresh");
+        }
+        auto index{reinterpret_cast<uint64_t>(selected_map)};
+        edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
     }
-    auto index{reinterpret_cast<uint64_t>(selected_map)};
-    edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
 }
 
 bool IsometricEditorPlugin::handles(Object* p_object) const {

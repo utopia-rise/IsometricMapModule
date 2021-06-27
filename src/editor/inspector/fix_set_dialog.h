@@ -21,6 +21,9 @@ namespace editor {
             FixSetDialog();
             ~FixSetDialog() override = default;
 
+        protected:
+            void _notification(int notif);
+
         private:
             class AssociationMetadata : public Reference {
             public:

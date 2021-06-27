@@ -32,6 +32,7 @@ void FixSetDialog::reset() {
     removed_elements_item_list->clear();
     new_elements_item_list->clear();
     fix_recap_item_list->clear();
+    validate_button->set_disabled(true);
 }
 
 void FixSetDialog::_on_add_group_path_button() {
@@ -200,7 +201,7 @@ FixSetDialog::FixSetDialog() : WindowDialog(), add_group_path_line_edit(memnew(L
     Label* added_group_paths_title{memnew(Label)};
     added_group_paths_title->set_text("Looking group paths:");
     added_group_paths_container->add_child(added_group_paths_title);
-    added_group_paths_item_list->set_custom_minimum_size({0, 100});
+    added_group_paths_item_list->set_custom_minimum_size({0, 150});
     added_group_paths_container->add_child(added_group_paths_item_list);
 
     main_container->add_child(added_group_paths_container);
@@ -215,7 +216,7 @@ FixSetDialog::FixSetDialog() : WindowDialog(), add_group_path_line_edit(memnew(L
     Button* remove_button{memnew(Button)};
     remove_button->set_text("Remove !");
     remove_button->set_h_size_flags(SizeFlags::SIZE_SHRINK_CENTER);
-    removed_elements_item_list->set_custom_minimum_size({0, 100});
+    removed_elements_item_list->set_custom_minimum_size({0, 250});
     removed_elements_item_list->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     remove_elements_container->set_h_size_flags(SIZE_EXPAND_FILL);
     remove_elements_container->add_child(removed_elements_title);
@@ -227,7 +228,7 @@ FixSetDialog::FixSetDialog() : WindowDialog(), add_group_path_line_edit(memnew(L
     Button* new_association_button{memnew(Button)};
     new_association_button->set_text("Fix !");
     new_association_button->set_h_size_flags(SizeFlags::SIZE_SHRINK_CENTER);
-    new_elements_item_list->set_custom_minimum_size({0, 100});
+    new_elements_item_list->set_custom_minimum_size({0, 250});
     new_elements_item_list->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     new_elements_in_group_paths_container->set_h_size_flags(SIZE_EXPAND_FILL);
     new_elements_in_group_paths_container->add_child(new_elements_title);
@@ -246,10 +247,11 @@ FixSetDialog::FixSetDialog() : WindowDialog(), add_group_path_line_edit(memnew(L
     fix_recap_title->set_text("Fix recap:");
     Button* remove_fix_button{memnew(Button)};
     remove_fix_button->set_text("Revert !");
-    fix_recap_item_list->set_custom_minimum_size({0, 100});
+    fix_recap_item_list->set_v_size_flags(SIZE_EXPAND_FILL);
     fix_recap_container->add_child(fix_recap_title);
     fix_recap_container->add_child(fix_recap_item_list);
     fix_recap_container->add_child(remove_fix_button);
+    fix_recap_container->set_v_size_flags(SIZE_EXPAND_FILL);
 
     main_container->add_child(fix_recap_container);
 
@@ -261,8 +263,10 @@ FixSetDialog::FixSetDialog() : WindowDialog(), add_group_path_line_edit(memnew(L
     validate_button->set_text("Validate !");
     main_container->add_child(validate_button);
 
-    main_container->set_anchor(Margin::MARGIN_RIGHT, 1);
-    main_container->set_anchor(Margin::MARGIN_BOTTOM, 1);
+    main_container->set_anchor(Margin::MARGIN_RIGHT, 0.99);
+    main_container->set_anchor(Margin::MARGIN_BOTTOM, 0.99);
+    main_container->set_anchor(Margin::MARGIN_LEFT, 0.01);
+    main_container->set_anchor(Margin::MARGIN_TOP, 0.01);
 
     add_child(main_container);
 
@@ -281,6 +285,12 @@ void FixSetDialog::_bind_methods() {
     ClassDB::bind_method("_on_new_association_button", &FixSetDialog::_on_new_association_button);
     ClassDB::bind_method("_on_revert_association_button", &FixSetDialog::_on_revert_association_button);
     ClassDB::bind_method("_on_validate_button", &FixSetDialog::_on_validate_button);
+}
+
+void FixSetDialog::_notification(int notif) {
+    if (notif == NOTIFICATION_READY) {
+        set_theme(IsometricEditorPlugin::get_instance()->get_editor_interface()->get_base_control()->get_theme());
+    }
 }
 
 FixSetDialog::AssociationMetadata::AssociationMetadata() :Reference(), id(-1), removed_path(), new_path() {
