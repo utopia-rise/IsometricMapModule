@@ -5,6 +5,8 @@
 #include <core/os/file_access.h>
 #include <core/os/dir_access.h>
 #include <core/io/resource_saver.h>
+#include <modules/isometric_maps/src/editor/editor_utils.h>
+
 #endif
 
 using namespace resource;
@@ -51,8 +53,12 @@ Error PositionableSet::refresh_set() {
         if (!path.begins_with("res://")) {
             path = vformat("res://%s", path);
         }
-        if (insert_all_positionables_for_path_if_not_present(path, nullptr) != Error::OK) {
+        List<String> positionable_paths;
+        if (editor::EditorUtils::find_all_positionables_in_path(path, &positionable_paths)) {
             return Error::ERR_CANT_RESOLVE;
+        }
+        for (int j = 0; j < positionable_paths.size(); ++j) {
+            insert_positionable_if_not_present(path, positionable_paths[j]);
         }
     }
 
@@ -110,78 +116,60 @@ const Vector<RemovedSetElement>& PositionableSet::get_removed_elements() const {
     return removed_elements;
 }
 
-Error PositionableSet::insert_all_positionables_for_path_if_not_present(const String& path, const char* base_path) {
-    StringName path_entry;
-    if (!base_path) {
-        path_entry = path;
-    } else {
-        path_entry = base_path;
-    }
-
-    Error error;
-    DirAccess* dir_access{DirAccess::open(path, &error)};
-
-    if (error != OK) {
-        FileAccess* file_access{FileAccess::open(path, FileAccess::READ, &error)};
-        if (error != OK) {
-            //TODO : show popup saying wrong path
-            WARN_PRINT(vformat("%s cannot be opened", path))
-            return Error::ERR_CANT_RESOLVE;
-        }
-        if (path.ends_with(".tscn")) {
-            insert_positionable_scene_if_not_present(path_entry, path);
-        }
-        file_access->close();
-        memdelete(file_access);
-    } else {
-        dir_access->list_dir_begin();
-        String item;
-        while (!(item = dir_access->get_next()).empty()) {
-            if (item == "." || item == "..") {
-                continue;
-            }
-            insert_all_positionables_for_path_if_not_present(path.plus_file(item), path_entry.operator String().utf8());
-        }
-        memdelete(dir_access);
-    }
-    return Error::OK;
+Map<int, String>::Element *PositionableSet::get_present_scenes_iterator() {
+    return identifier_to_scene_path.front();
 }
 
-void PositionableSet::insert_positionable_scene_if_not_present(const String& path_group, const String& resource_path) {
-    RES resource{ResourceLoader::load(resource_path)};
-    if (auto* packed_scene{Object::cast_to<PackedScene>(resource.ptr())}) {
-        //TODO: investigate get_inheritance_list_static generated from GDClass
-        if (auto* positionable{Object::cast_to<node::IsometricPositionable>(packed_scene->instance())}) {
-            bool contained{false};
-            Map<int, String>::Element* current{identifier_to_scene_path.front()};
-            while (current) {
-                contained = current->value() == resource_path;
-                if (contained) {
-                    break;
-                } else {
-                    current = current->next();
-                }
-            }
-            
-            if (!contained) {
-                if (!group_to_identifiers.has(path_group)) {
-                    group_to_identifiers[path_group] = Vector<int>();
-                }
+void PositionableSet::add_path_group(const String& p_path_group) {
+    path_groups.append(p_path_group);
+    group_to_identifiers[p_path_group] = Vector<int>();
+}
 
-                for (int i = 0; i < removed_elements.size(); ++i) {
-                    const RemovedSetElement& removed_element{removed_elements[i]};
-                    if (removed_element.element_path == resource_path) {
-                        insert_positionable_for_path_group_and_id(path_group, resource_path, removed_element.id);
-                        removed_elements.remove(i);
-                        memdelete(positionable);
-                        return;
-                    }
-                }
+void PositionableSet::add_positionable(int id, const String& path_group, const String& path) {
+    group_to_identifiers[path_group].push_back(id);
+    identifier_to_scene_path[id] = path;
+}
 
-                insert_positionable_for_path_group_and_id(path_group, resource_path, ++next_id);
-            }
-            memdelete(positionable);
+void PositionableSet::clear_removed_elements() {
+    removed_elements.clear();
+}
+
+bool PositionableSet::has_path_group(const String& p_path_group) const {
+    for (int i = 0; i < path_groups.size(); ++i) {
+        if (path_groups[i] == p_path_group) {
+            return true;
         }
+    }
+    return false;
+}
+
+void PositionableSet::insert_positionable_if_not_present(const String& path_group, const String& resource_path) {
+    bool contained{false};
+    Map<int, String>::Element* current{identifier_to_scene_path.front()};
+    while (current) {
+        contained = current->value() == resource_path;
+        if (contained) {
+            break;
+        } else {
+            current = current->next();
+        }
+    }
+
+    if (!contained) {
+        if (!group_to_identifiers.has(path_group)) {
+            group_to_identifiers[path_group] = Vector<int>();
+        }
+
+        for (int i = 0; i < removed_elements.size(); ++i) {
+            const RemovedSetElement& removed_element{removed_elements[i]};
+            if (removed_element.element_path == resource_path) {
+                insert_positionable_for_path_group_and_id(path_group, resource_path, removed_element.id);
+                removed_elements.remove(i);
+                return;
+            }
+        }
+
+        insert_positionable_for_path_group_and_id(path_group, resource_path, ++last_id);
     }
 }
 
@@ -252,6 +240,14 @@ void PositionableSet::_set_removed_elements(const Dictionary& p_removed_elements
     }
 }
 
+int PositionableSet::_get_last_id() const {
+    return last_id;
+}
+
+void PositionableSet::_set_last_id(int p_last_id) {
+    last_id = p_last_id;
+}
+
 #endif
 
 Dictionary PositionableSet::_get_identifier_to_scene_path() const {
@@ -280,11 +276,12 @@ void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifi
 }
 
 PositionableSet::PositionableSet() :
+        Resource(),
         identifier_to_scene_path()
 #ifdef TOOLS_ENABLED
         , path_groups(),
         group_to_identifiers(),
-        next_id(),
+        last_id(),
         removed_elements()
 #endif
 {
@@ -312,6 +309,15 @@ void PositionableSet::_bind_methods() {
                               PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_removed_elements",
                  "_get_removed_elements");
     ADD_PROPERTY_DEFAULT("removed_elements", Dictionary());
+
+    ClassDB::bind_method(D_METHOD("_set_last_id", "p_last_id"), &PositionableSet::_set_last_id);
+    ClassDB::bind_method(D_METHOD("_get_last_id"), &PositionableSet::_get_last_id);
+    ADD_PROPERTY(
+            PropertyInfo(Variant::INT, "last_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+            "_set_last_id",
+            "_get_last_id"
+    );
+    ADD_PROPERTY_DEFAULT("last_id", 0);
 #endif
 
     ClassDB::bind_method(D_METHOD("_set_identifier_to_scene_path", "identifier_to_scene_path"),

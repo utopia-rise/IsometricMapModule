@@ -26,7 +26,13 @@ namespace resource {
         Vector<String> get_scene_paths_for_group(const String& p_group) const;
         Error refresh_set();
 
+        void add_path_group(const String& p_path_group);
+        void add_positionable(int id, const String& path_group, const String& path);
+        void clear_removed_elements();
+        bool has_path_group(const String& p_path_group) const;
+
         const Vector<RemovedSetElement>& get_removed_elements() const;
+        Map<int, String>::Element* get_present_scenes_iterator();
 #endif
 
         PositionableSet();
@@ -46,7 +52,7 @@ namespace resource {
         // exported, not visible in editor, here for set inspection purpose
         HashMap<StringName, Vector<int>> group_to_identifiers;
 
-        int next_id;
+        int last_id;
 
         Vector<RemovedSetElement> removed_elements;
 
@@ -56,9 +62,10 @@ namespace resource {
         Dictionary _get_removed_elements() const;
         void _set_removed_elements(const Dictionary& p_removed_elements);
 
-        inline bool is_data_set() const;
-        Error insert_all_positionables_for_path_if_not_present(const String& path, const char* base_path);
-        void insert_positionable_scene_if_not_present(const String& path_group, const String& resource_path);
+        int _get_last_id() const;
+        void _set_last_id(int p_last_id);
+
+        void insert_positionable_if_not_present(const String& path_group, const String& resource_path);
         void insert_positionable_for_path_group_and_id(const String& path_group, const String& resource_path, int id);
         void remove_not_anymore_present_positionables();
 

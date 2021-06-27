@@ -5,6 +5,7 @@
 #include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
 #include "positionable_selection_pane.h"
 #include <climits>
+#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 
 using namespace editor::inspector;
 
@@ -23,7 +24,7 @@ int PositionableSelectionPane::get_selected_positionable_index() const {
 
 void PositionableSelectionPane::refresh_icons() {
     for (int i = 0; i < item_list->get_item_count(); ++i) {
-        if (item_list->get_item_metadata(i).get_type() != Variant::NIL) continue;
+        if (_item_has_metadata(i)) continue;
         item_list->set_item_icon(i, PositionableScenesCacheManager::get_instance().get_icon(i));
     }
 }
@@ -80,15 +81,33 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     };
     for (int i = 0; i < removed_elements.size(); ++i) {
         const resource::RemovedSetElement& element{removed_elements[i]};
-        item_list->add_item(vformat("REMOVED ! %s", element.element_path));
+        item_list->add_item(element.element_path);
         int last_item_id{item_list->get_item_count() - 1};
         item_list->set_item_metadata(last_item_id, element.id);
         item_list->set_item_custom_bg_color(last_item_id, Color(0.65, 0.14, 0));
+        item_list->set_item_icon(
+                last_item_id,
+                IsometricEditorPlugin::get_instance()->get_editor_interface()->get_base_control()->get_icon("Remove", "EditorIcons")
+        );
     }
 }
 
 void PositionableSelectionPane::_refresh_current_set() {
     _refresh_path_selector();
+}
+
+void PositionableSelectionPane::_on_item_selected(int index) {
+    if (_item_has_metadata(index)) {
+        FixSetDialog* fix_set_dialog = editor::IsometricEditorPlugin::get_instance()->get_fix_set_dialog();
+        fix_set_dialog->reset();
+        fix_set_dialog->setup(positionable_set);
+        fix_set_dialog->show_modal(true);
+        fix_set_dialog->popup_centered_ratio(0.75);
+    }
+}
+
+bool PositionableSelectionPane::_item_has_metadata(int index) {
+    return item_list->get_item_metadata(index).get_type() != Variant::NIL;
 }
 
 PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_container(memnew(HSplitContainer)),
@@ -102,6 +121,9 @@ PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_
     top_container->clamp_split_offset();
     top_container->set_dragger_visibility(DraggerVisibility::DRAGGER_HIDDEN);
     add_child(item_list);
+
+    item_list->connect("item_selected", this, "_on_item_selected");
+
     _refresh_path_selector();
 }
 
@@ -110,6 +132,7 @@ void PositionableSelectionPane::_bind_methods() {
     ClassDB::bind_method("_refresh_current_set", &PositionableSelectionPane::_refresh_current_set);
     ClassDB::bind_method("_select_item_from_path_selector", &PositionableSelectionPane::_select_item_from_path_selector);
     ClassDB::bind_method("set_positionable_set", &PositionableSelectionPane::set_positionable_set);
+    ClassDB::bind_method("_on_item_selected", &PositionableSelectionPane::_on_item_selected);
 }
 
 #endif

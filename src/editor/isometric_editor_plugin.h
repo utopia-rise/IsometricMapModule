@@ -6,6 +6,7 @@
 #include <modules/isometric_maps/src/node/isometric_map.h>
 #include <editor/editor_node.h>
 #include <editor/editor_plugin.h>
+#include <modules/isometric_maps/src/editor/inspector/fix_set_dialog.h>
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
 #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
@@ -33,6 +34,7 @@ namespace editor {
         UndoRedo *undo_redo;
         HBoxContainer *toolbar;
         Button *debug_button;
+        editor::inspector::FixSetDialog* fix_set_dialog;
 
         HashMap<uint64_t, MapHandlingData> handling_data_map;
         node::IsometricMap* selected_map;
@@ -56,6 +58,7 @@ namespace editor {
 
         void set_debug_mode(bool b);
         void set_should_clear_buffer_on_next_frame(bool should);
+        editor::inspector::FixSetDialog* get_fix_set_dialog() const;
 
     protected:
         void _notification(int p_notification);

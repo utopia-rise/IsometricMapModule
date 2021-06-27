@@ -14,6 +14,7 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         positionable_selection_pane{nullptr},
         positionable_pane_button{nullptr},
         debug_button{nullptr},
+        fix_set_dialog{nullptr},
         selected_map{nullptr},
         show_debug(false),
         edition_grid_drawer(),
@@ -38,6 +39,10 @@ void IsometricEditorPlugin::set_should_clear_buffer_on_next_frame(bool should) {
     should_clear_buffer_on_next_frame = should;
 }
 
+editor::inspector::FixSetDialog *IsometricEditorPlugin::get_fix_set_dialog() const {
+    return fix_set_dialog;
+}
+
 void IsometricEditorPlugin::_notification(int p_notification) {
     if (p_notification == NOTIFICATION_READY) {
         // Add menu items.
@@ -51,6 +56,9 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         debug_button->set_toggle_mode(true);
         debug_button->set_text("Debug");
         toolbar->add_child(debug_button);
+
+        fix_set_dialog = memnew(editor::inspector::FixSetDialog);
+        get_editor_interface()->add_child(fix_set_dialog);
 
         //Add to editor bottom
         positionable_selection_pane = memnew(editor::inspector::PositionableSelectionPane);
