@@ -54,6 +54,8 @@ namespace editor {
             ItemList* fix_recap_item_list;
             Button* validate_button;
 
+            AcceptDialog* popup;
+
             Ref<resource::PositionableSet> current_positionable_set;
             Vector<String> already_presents;
 

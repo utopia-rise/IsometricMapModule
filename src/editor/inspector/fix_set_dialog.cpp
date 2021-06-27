@@ -40,7 +40,8 @@ void FixSetDialog::_on_add_group_path_button() {
     const PoolStringArray& existing_group_path{current_positionable_set->get_path_groups()};
     for (int i = 0; i < existing_group_path.size(); ++i) {
         if (existing_group_path[i].find(group_path) >= 0) {
-            //TODO: throw popup saying "Cannot add an existing group path"
+            popup->set_text("Cannot add an existing path group.");
+            popup->popup_centered();
             return;
         }
     }
@@ -58,7 +59,8 @@ void FixSetDialog::_on_add_group_path_button() {
 
 void FixSetDialog::_on_remove_button() {
     if (removed_elements_item_list->get_selected_items().size() != 1) {
-        //TODO : Display popup to say require to select
+        popup->set_text("You must select one removed element.");
+        popup->popup_centered();
         return;
     }
     int selected_index{removed_elements_item_list->get_selected_items()[0]};
@@ -76,8 +78,9 @@ void FixSetDialog::_on_remove_button() {
 }
 
 void FixSetDialog::_on_new_association_button() {
-    if (removed_elements_item_list->get_selected_items().size() != 1 && new_elements_item_list->get_selected_items().size() != 1) {
-        //TODO: Display popup to say require to select
+    if (removed_elements_item_list->get_selected_items().size() != 1 || new_elements_item_list->get_selected_items().size() != 1) {
+        popup->set_text("You must select one removed and one new item to fix.");
+        popup->popup_centered();
         return;
     }
     int selected_removed_element{removed_elements_item_list->get_selected_items()[0]};
@@ -178,7 +181,8 @@ void FixSetDialog::_add_new_association(const Ref<AssociationMetadata>& associat
 FixSetDialog::FixSetDialog() : WindowDialog(), add_group_path_line_edit(memnew(LineEdit)),
                                added_group_paths_item_list(memnew(ItemList)), removed_elements_item_list(memnew(ItemList)),
                                new_elements_item_list(memnew(ItemList)), fix_recap_item_list(memnew(ItemList)),
-                               validate_button(memnew(Button)), current_positionable_set(), already_presents() {
+                               validate_button(memnew(Button)), popup(memnew(AcceptDialog)), current_positionable_set(),
+                               already_presents() {
     set_title("Fix positionable set");
     Button* add_group_path_button{memnew(Button)};
     add_group_path_button->set_text("Add");
@@ -277,6 +281,8 @@ FixSetDialog::FixSetDialog() : WindowDialog(), add_group_path_line_edit(memnew(L
     validate_button->connect("pressed", this, "_on_validate_button");
 
     validate_button->set_disabled(true);
+
+    add_child(popup);
 }
 
 void FixSetDialog::_bind_methods() {
