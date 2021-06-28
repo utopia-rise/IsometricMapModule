@@ -25,7 +25,6 @@ void FixSetDialog::setup(Ref<resource::PositionableSet> positionable_set) {
 }
 
 void FixSetDialog::reset() {
-    current_positionable_set.unref();
     current_positionable_set = Ref<resource::PositionableSet>();
     add_group_path_line_edit->clear();
     added_group_paths_item_list->clear();
