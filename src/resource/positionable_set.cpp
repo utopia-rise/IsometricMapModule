@@ -25,25 +25,25 @@ void PositionableSet::set_path_groups(const PoolStringArray& paths) {
     path_groups = paths;
 }
 
-Vector<String> PositionableSet::get_scene_paths_for_group(const String& p_group) const {
+Map<int, String> PositionableSet::get_scene_paths_for_group(const String& p_group) const {
     if (!group_to_identifiers.has(p_group)) {
         return {};
     }
 
     const Vector<int>& ids{group_to_identifiers[p_group]};
 
-    Vector<String> paths_for_group;
+    Map<int, String> paths_for_group;
     for (int i = 0; i < ids.size(); ++i) {
         const Variant& path{identifier_to_scene_path[ids[i]]};
         if (path.get_type() == Variant::STRING) {
-            paths_for_group.push_back(path);
+            paths_for_group[ids[i]] = path;
         }
     }
     return paths_for_group;
 }
 
 Error PositionableSet::refresh_set() {
-    remove_not_anymore_present_positionables();
+    remove_not_anymore_presents_groups_to_identifiers();
 
     for (int i = 0; i < path_groups.size(); ++i) {
         String path{path_groups.get(i)};
@@ -62,61 +62,43 @@ Error PositionableSet::refresh_set() {
         }
     }
 
-    remove_not_anymore_present_positionables();
-
     emit_changed();
     return Error::OK;
 }
 
-
-void PositionableSet::remove_not_anymore_present_positionables() {
-    Vector<int> ids_to_remove;
-    Map<int, String>::Element* current{identifier_to_scene_path.front()};
-    while (current) {
-        const String& scene_path{current->value()};
-        FileAccessRef file_access{FileAccess::create(FileAccess::ACCESS_RESOURCES)};
-        if (!file_access->file_exists(scene_path)) {
-            ids_to_remove.push_back(current->key());
-        }
-        current = current->next();
-    }
+Vector<resource::PositionableSet::RemovedElement> PositionableSet::get_removed_elements() const {
+    Vector<RemovedElement> removed_elements;
 
     List<StringName> keys;
     group_to_identifiers.get_key_list(&keys);
-    for (int i = 0; i < keys.size(); ++i) {
+
+    Map<int, String>::Element* current{identifier_to_scene_path.front()};
+    while (current) {
         bool contained{false};
-        const StringName &key{keys[i]};
-        for (int j = 0; j < path_groups.size(); ++j) {
-            if (path_groups[j] == key) {
+        int id{current->key()};
+        const String& path{current->value()};
+        for (int i = 0; i < keys.size(); ++i) {
+            const Vector<int>& ids{group_to_identifiers[keys[i]]};
+            if (ids.find(id) > -1) {
                 contained = true;
                 break;
             }
         }
         if (!contained) {
-            ids_to_remove.append_array(group_to_identifiers[key]);
-            group_to_identifiers.erase(key);
+            removed_elements.push_back({id, path});
+        } else {
+            FileAccessRef file_access{FileAccess::create(FileAccess::ACCESS_RESOURCES)};
+            if (!file_access->file_exists(path)) {
+                removed_elements.push_back({id, path});
+            }
         }
+        current = current->next();
     }
-
-    for (int i = 0; i < ids_to_remove.size(); ++i) {
-        int id{ids_to_remove[i]};
-        bool contained;
-        RemovedSetElement element_to_remove{id, identifier_to_scene_path[id]};
-        for (int j = 0; j < removed_elements.size(); ++j) {
-            contained = removed_elements[j].id == element_to_remove.id && removed_elements[j].element_path == element_to_remove.element_path;
-            if (contained) break;
-        }
-        if (contained) continue;
-        removed_elements.push_back(element_to_remove);
-        identifier_to_scene_path.erase(id);
-    }
-}
-
-const Vector<RemovedSetElement>& PositionableSet::get_removed_elements() const {
+    
     return removed_elements;
 }
 
-Map<int, String>::Element *PositionableSet::get_present_scenes_iterator() {
+Map<int, String>::Element* PositionableSet::get_present_scenes_iterator() {
     return identifier_to_scene_path.front();
 }
 
@@ -130,8 +112,19 @@ void PositionableSet::add_positionable(int id, const String& path_group, const S
     identifier_to_scene_path[id] = path;
 }
 
-void PositionableSet::clear_removed_elements() {
-    removed_elements.clear();
+void PositionableSet::remove_positionable(int id) {
+    List<StringName> keys;
+    group_to_identifiers.get_key_list(&keys);
+    for (int i = 0; i < keys.size(); ++i) {
+        Vector<int>& ids{group_to_identifiers[keys[i]]};
+        int id_index{ids.find(id)};
+        if (id_index > 0) {
+            ids.remove(id_index);
+            break;
+        }
+    }
+
+    identifier_to_scene_path.erase(id);
 }
 
 bool PositionableSet::has_path_group(const String& p_path_group) const {
@@ -144,37 +137,43 @@ bool PositionableSet::has_path_group(const String& p_path_group) const {
 }
 
 void PositionableSet::insert_positionable_if_not_present(const String& path_group, const String& resource_path) {
-    bool contained{false};
+    int current_id{-1};
     Map<int, String>::Element* current{identifier_to_scene_path.front()};
     while (current) {
-        contained = current->value() == resource_path;
-        if (contained) {
+        if (current->value() == resource_path) {
+            current_id = current->key();
+        }
+        if (current_id != -1) {
             break;
         } else {
             current = current->next();
         }
     }
 
-    if (!contained) {
-        if (!group_to_identifiers.has(path_group)) {
-            group_to_identifiers[path_group] = Vector<int>();
+    StringName path_group_hash{path_group};
+
+    if (current_id == -1) {
+        if (!group_to_identifiers.has(path_group_hash)) {
+            group_to_identifiers[path_group_hash] = Vector<int>();
         }
 
-        for (int i = 0; i < removed_elements.size(); ++i) {
-            const RemovedSetElement& removed_element{removed_elements[i]};
-            if (removed_element.element_path == resource_path) {
-                insert_positionable_for_path_group_and_id(path_group, resource_path, removed_element.id);
-                removed_elements.remove(i);
-                return;
-            }
+        insert_positionable_for_path_group_and_id(path_group_hash, resource_path, ++last_id);
+    } else {
+        // if already contained but group path has changed, update group_to_identifier
+        List<StringName> keys;
+        group_to_identifiers.get_key_list(&keys);
+        if (!group_to_identifiers.has(path_group_hash)) {
+            group_to_identifiers[path_group_hash] = Vector<int>();
         }
-
-        insert_positionable_for_path_group_and_id(path_group, resource_path, ++last_id);
+        print_verbose(vformat("Will push back: %s", current_id));
+        if (group_to_identifiers[path_group_hash].find(current_id) == -1) {
+            group_to_identifiers[path_group_hash].push_back(current_id);
+        }
     }
 }
 
 
-void PositionableSet::insert_positionable_for_path_group_and_id(const String &path_group, const String &resource_path,
+void PositionableSet::insert_positionable_for_path_group_and_id(const StringName& path_group, const String &resource_path,
                                                                 int id) {
     Vector<int>& identifiers{group_to_identifiers[path_group]};
     identifiers.push_back(id);
@@ -217,35 +216,36 @@ void PositionableSet::_set_group_to_identifiers(const Dictionary& p_group_to_ide
     }
 }
 
-
-Dictionary PositionableSet::_get_removed_elements() const {
-    Dictionary converted;
-
-    for (int i = 0; i < removed_elements.size(); ++i) {
-        const RemovedSetElement& removed_element{removed_elements[i]};
-        converted[removed_element.id] = removed_element.element_path;
-    }
-
-    return converted;
-}
-
-void PositionableSet::_set_removed_elements(const Dictionary& p_removed_elements) {
-    removed_elements = Vector<RemovedSetElement>();
-
-    const Array& keys{p_removed_elements.keys()};
-    const Array& values{p_removed_elements.values()};
-
-    for (int i = 0; i < p_removed_elements.size(); ++i) {
-        removed_elements.push_back({keys[i], values[i]});
-    }
-}
-
 int PositionableSet::_get_last_id() const {
     return last_id;
 }
 
 void PositionableSet::_set_last_id(int p_last_id) {
     last_id = p_last_id;
+}
+
+bool PositionableSet::path_groups_contains(const String& p_path_group) const {
+    bool contained{false};
+
+    for (int i = 0; i < path_groups.size(); ++i) {
+        contained = path_groups[i] == p_path_group;
+        if (contained) {
+            break;
+        }
+    }
+    
+    return contained;
+}
+
+void PositionableSet::remove_not_anymore_presents_groups_to_identifiers() {
+    List<StringName> keys;
+    group_to_identifiers.get_key_list(&keys);
+    for (int i = 0; i < keys.size(); ++i) {
+        const StringName& path_group{keys[i]};
+        if (!path_groups_contains(path_group)) {
+            group_to_identifiers.erase(path_group);
+        }
+    }
 }
 
 #endif
@@ -281,8 +281,7 @@ PositionableSet::PositionableSet() :
 #ifdef TOOLS_ENABLED
         , path_groups(),
         group_to_identifiers(),
-        last_id(),
-        removed_elements()
+        last_id()
 #endif
 {
 
@@ -302,13 +301,6 @@ void PositionableSet::_bind_methods() {
                               PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_group_to_identifiers",
                  "_get_group_to_identifiers");
     ADD_PROPERTY_DEFAULT("group_to_identifiers", Dictionary());
-
-    ClassDB::bind_method(D_METHOD("_set_removed_elements", "p_removed_elements"), &PositionableSet::_set_removed_elements);
-    ClassDB::bind_method(D_METHOD("_get_removed_elements"), &PositionableSet::_get_removed_elements);
-    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "removed_elements", PROPERTY_HINT_NONE, "",
-                              PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_removed_elements",
-                 "_get_removed_elements");
-    ADD_PROPERTY_DEFAULT("removed_elements", Dictionary());
 
     ClassDB::bind_method(D_METHOD("_set_last_id", "p_last_id"), &PositionableSet::_set_last_id);
     ClassDB::bind_method(D_METHOD("_get_last_id"), &PositionableSet::_get_last_id);

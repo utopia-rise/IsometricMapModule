@@ -57,7 +57,6 @@ namespace editor {
             AcceptDialog* popup;
 
             Ref<resource::PositionableSet> current_positionable_set;
-            Vector<String> already_presents;
 
             void _on_add_group_path_button();
             void _on_remove_button();

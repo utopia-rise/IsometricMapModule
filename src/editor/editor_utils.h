@@ -9,6 +9,7 @@ namespace editor {
     class EditorUtils {
     public:
         static Error find_all_positionables_in_path(const String& path, List<String>* r_value);
+        static bool is_valid_res_path(const String& path);
     };
 }
 

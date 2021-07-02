@@ -6,15 +6,16 @@
 
 namespace resource {
 
-#ifdef TOOLS_ENABLED
-    struct RemovedSetElement {
-        int id;
-        String element_path;
-    };
-#endif
-
     class PositionableSet : public Resource {
         GDCLASS(PositionableSet, Resource)
+
+#ifdef TOOLS_ENABLED
+    public:
+        struct RemovedElement {
+            int id;
+            String element_path;
+        };
+#endif
 
     public:
         void get_positionable_scene_path_for_id(int id, String& r_path) const;
@@ -23,16 +24,17 @@ namespace resource {
         const PoolStringArray& get_path_groups() const;
         void set_path_groups(const PoolStringArray& paths);
 
-        Vector<String> get_scene_paths_for_group(const String& p_group) const;
+        Map<int, String> get_scene_paths_for_group(const String& p_group) const;
         Error refresh_set();
 
         void add_path_group(const String& p_path_group);
         void add_positionable(int id, const String& path_group, const String& path);
-        void clear_removed_elements();
+        void remove_positionable(int id);
         bool has_path_group(const String& p_path_group) const;
 
-        const Vector<RemovedSetElement>& get_removed_elements() const;
         Map<int, String>::Element* get_present_scenes_iterator();
+
+        Vector<resource::PositionableSet::RemovedElement> get_removed_elements() const;
 #endif
 
         PositionableSet();
@@ -54,21 +56,17 @@ namespace resource {
 
         int last_id;
 
-        Vector<RemovedSetElement> removed_elements;
-
         Dictionary _get_group_to_identifiers() const;
         void _set_group_to_identifiers(const Dictionary& p_group_to_identifiers);
-
-        Dictionary _get_removed_elements() const;
-        void _set_removed_elements(const Dictionary& p_removed_elements);
 
         int _get_last_id() const;
         void _set_last_id(int p_last_id);
 
         void insert_positionable_if_not_present(const String& path_group, const String& resource_path);
-        void insert_positionable_for_path_group_and_id(const String& path_group, const String& resource_path, int id);
-        void remove_not_anymore_present_positionables();
+        void insert_positionable_for_path_group_and_id(const StringName& path_group, const String& resource_path, int id);
 
+        bool path_groups_contains(const String& p_path_group) const;
+        void remove_not_anymore_presents_groups_to_identifiers();
 
 #endif
 

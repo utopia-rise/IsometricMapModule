@@ -11,15 +11,20 @@ using namespace editor::inspector;
 
 void FixSetDialog::setup(Ref<resource::PositionableSet> positionable_set) {
     current_positionable_set = positionable_set;
-    const Vector<resource::RemovedSetElement>& removed_elements{positionable_set->get_removed_elements()};
+    const Vector<resource::PositionableSet::RemovedElement>& removed_elements{positionable_set->get_removed_elements()};
     for (int i = 0; i < removed_elements.size(); ++i) {
-        const resource::RemovedSetElement& removed_element{removed_elements[i]};
+        const resource::PositionableSet::RemovedElement& removed_element{removed_elements[i]};
         removed_elements_item_list->add_item(removed_element.element_path);
         removed_elements_item_list->set_item_metadata(removed_elements_item_list->get_item_count() - 1, removed_element.id);
     }
     Map<int, String>::Element* current{positionable_set->get_present_scenes_iterator()};
     while (current) {
-        already_presents.push_back(current->value());
+        FileAccessRef file_access{FileAccess::create(FileAccess::ACCESS_RESOURCES)};
+        const String& path{current->value()};
+        if (!file_access->file_exists(path)) {
+            removed_elements_item_list->add_item(path);
+            removed_elements_item_list->set_item_metadata(removed_elements_item_list->get_item_count() - 1, current->key());
+        }
         current = current->next();
     }
 }
@@ -36,6 +41,13 @@ void FixSetDialog::reset() {
 
 void FixSetDialog::_on_add_group_path_button() {
     const String& group_path{add_group_path_line_edit->get_text()};
+
+    if (group_path.empty() || group_path == "res://" || !group_path.begins_with("res://")) {
+        popup->set_text("New path group should be a valid res path.");
+        popup->popup_centered();
+        return;
+    }
+
     const PoolStringArray& existing_group_path{current_positionable_set->get_path_groups()};
     for (int i = 0; i < existing_group_path.size(); ++i) {
         if (existing_group_path[i].find(group_path) >= 0) {
@@ -125,19 +137,19 @@ void FixSetDialog::_on_revert_association_button() {
 }
 
 void FixSetDialog::_on_validate_button() {
-    current_positionable_set->clear_removed_elements();
     for (int i = 0; i < fix_recap_item_list->get_item_count(); ++i) {
         Ref<AssociationMetadata> association_metadata{fix_recap_item_list->get_item_metadata(i)};
         const String& new_path{association_metadata->get_new_path()};
-        if (new_path.empty()) {
-            continue;
-        }
+        int id{association_metadata->get_id()};
+        current_positionable_set->remove_positionable(id);
 
         const String& path_group{association_metadata->get_path_group()};
         if (!current_positionable_set->has_path_group(path_group)) {
             current_positionable_set->add_path_group(path_group);
         }
-        current_positionable_set->add_positionable(association_metadata->get_id(), path_group, new_path);
+        if (!new_path.empty()) {
+            current_positionable_set->add_positionable(id, path_group, new_path);
+        }
     }
     current_positionable_set->refresh_set();
     EditorNode::get_singleton()->save_resource(current_positionable_set);
@@ -180,8 +192,7 @@ void FixSetDialog::_add_new_association(const Ref<AssociationMetadata>& associat
 FixSetDialog::FixSetDialog() : WindowDialog(), add_group_path_line_edit(memnew(LineEdit)),
                                added_group_paths_item_list(memnew(ItemList)), removed_elements_item_list(memnew(ItemList)),
                                new_elements_item_list(memnew(ItemList)), fix_recap_item_list(memnew(ItemList)),
-                               validate_button(memnew(Button)), popup(memnew(AcceptDialog)), current_positionable_set(),
-                               already_presents() {
+                               validate_button(memnew(Button)), popup(memnew(AcceptDialog)), current_positionable_set() {
     set_title("Fix positionable set");
     Button* add_group_path_button{memnew(Button)};
     add_group_path_button->set_text("Add");
