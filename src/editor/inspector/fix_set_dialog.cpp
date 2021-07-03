@@ -134,7 +134,7 @@ void FixSetDialog::_on_validate_button() {
         current_positionable_set->remove_positionable(id);
 
         const String& path_group{association_metadata->get_path_group()};
-        if (!current_positionable_set->has_path_group(path_group)) {
+        if (!path_group.empty() && !current_positionable_set->has_path_group(path_group)) {
             current_positionable_set->add_path_group(path_group);
         }
         if (!new_path.empty()) {
