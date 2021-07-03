@@ -61,9 +61,15 @@ void PositionableSelectionPane::_ready() {
 void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     const String& selected_path_group{path_selector->get_item_text(index)};
     const Map<int, String>& scenes_paths{positionable_set->get_scene_paths_for_group(selected_path_group)};
+
+    const Vector<resource::PositionableSet::RemovedElement>& removed_elements{
+            positionable_set->get_removed_elements()
+    };
+
     PositionableScenesCacheManager::get_instance().clear();
     item_list->clear();
-    PositionableScenesCacheManager::get_instance().start_adding(scenes_paths.size());
+
+    PositionableScenesCacheManager::get_instance().start_adding(scenes_paths.size() - removed_elements.size());
 
     Map<int, String>::Element* current{scenes_paths.front()};
 
@@ -84,10 +90,6 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     }
 
     PositionableScenesCacheManager::get_instance().end_adding();
-
-    const Vector<resource::PositionableSet::RemovedElement>& removed_elements{
-        positionable_set->get_removed_elements()
-    };
 
     for (int i = 0; i < removed_elements.size(); ++i) {
         const resource::PositionableSet::RemovedElement& element{removed_elements[i]};
