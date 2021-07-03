@@ -62,34 +62,38 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     const String& selected_path_group{path_selector->get_item_text(index)};
     const Map<int, String>& scenes_paths{positionable_set->get_scene_paths_for_group(selected_path_group)};
 
-    const Vector<resource::PositionableSet::RemovedElement>& removed_elements{
-            positionable_set->get_removed_elements()
-    };
-
     PositionableScenesCacheManager::get_instance().clear();
     item_list->clear();
 
-    PositionableScenesCacheManager::get_instance().start_adding(scenes_paths.size() - removed_elements.size());
-
+    Vector<Ref<PackedScene>> scenes_to_add;
     Map<int, String>::Element* current{scenes_paths.front()};
-
     while (current) {
         String& positionable_path = current->value();
         FileAccessRef file_access{FileAccess::create(FileAccess::ACCESS_RESOURCES)};
         if (file_access->file_exists(positionable_path) && positionable_path.find(selected_path_group) >= 0) {
-            const Ref<PackedScene>& positionable_scene{ResourceLoader::load(positionable_path)};
-            const String& path{positionable_scene->get_path()};
-
-            PositionableScenesCacheManager::get_instance().add_scene(item_list->get_item_count(), positionable_scene);
-            Ref<Texture> icon_texture{
-                    PositionableScenesCacheManager::get_instance().get_icon(item_list->get_item_count())};
-            item_list->add_item(path, icon_texture);
+            scenes_to_add.push_back(ResourceLoader::load(positionable_path));
         }
 
         current = current->next();
     }
 
+    PositionableScenesCacheManager::get_instance().start_adding(scenes_to_add.size());
+
+    for (int i = 0; i < scenes_to_add.size(); ++i) {
+        const Ref<PackedScene>& positionable_scene{scenes_to_add[i]};
+        const String& path{positionable_scene->get_path()};
+
+        PositionableScenesCacheManager::get_instance().add_scene(item_list->get_item_count(), positionable_scene);
+        Ref<Texture> icon_texture{
+                PositionableScenesCacheManager::get_instance().get_icon(item_list->get_item_count())};
+        item_list->add_item(path, icon_texture);
+    }
+
     PositionableScenesCacheManager::get_instance().end_adding();
+
+    const Vector<resource::PositionableSet::RemovedElement>& removed_elements{
+            positionable_set->get_removed_elements()
+    };
 
     for (int i = 0; i < removed_elements.size(); ++i) {
         const resource::PositionableSet::RemovedElement& element{removed_elements[i]};

@@ -165,7 +165,6 @@ void PositionableSet::insert_positionable_if_not_present(const String& path_grou
         if (!group_to_identifiers.has(path_group_hash)) {
             group_to_identifiers[path_group_hash] = Vector<int>();
         }
-        print_verbose(vformat("Will push back: %s", current_id));
         if (group_to_identifiers[path_group_hash].find(current_id) == -1) {
             group_to_identifiers[path_group_hash].push_back(current_id);
         }
