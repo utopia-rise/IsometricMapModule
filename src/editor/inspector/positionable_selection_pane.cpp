@@ -131,6 +131,7 @@ PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_
     top_container->set_dragger_visibility(DraggerVisibility::DRAGGER_HIDDEN);
     add_child(item_list);
 
+    item_list->set_allow_reselect(true);
     item_list->connect("item_selected", this, "_on_item_selected");
 
     refresh_path_selector();
