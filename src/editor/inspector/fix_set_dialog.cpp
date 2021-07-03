@@ -17,16 +17,6 @@ void FixSetDialog::setup(Ref<resource::PositionableSet> positionable_set) {
         removed_elements_item_list->add_item(removed_element.element_path);
         removed_elements_item_list->set_item_metadata(removed_elements_item_list->get_item_count() - 1, removed_element.id);
     }
-    Map<int, String>::Element* current{positionable_set->get_present_scenes_iterator()};
-    while (current) {
-        FileAccessRef file_access{FileAccess::create(FileAccess::ACCESS_RESOURCES)};
-        const String& path{current->value()};
-        if (!file_access->file_exists(path)) {
-            removed_elements_item_list->add_item(path);
-            removed_elements_item_list->set_item_metadata(removed_elements_item_list->get_item_count() - 1, current->key());
-        }
-        current = current->next();
-    }
 }
 
 void FixSetDialog::reset() {
