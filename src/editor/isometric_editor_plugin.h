@@ -60,6 +60,8 @@ namespace editor {
         void set_should_clear_buffer_on_next_frame(bool should);
         editor::inspector::FixSetDialog* get_fix_set_dialog() const;
 
+        void refresh_positionable_selection_pane();
+
     protected:
         void _notification(int p_notification);
 

@@ -19,6 +19,7 @@ namespace editor {
             int get_selected_positionable_index() const;
 
             void refresh_icons();
+            void refresh_path_selector();
 
             PositionableSelectionPane();
             ~PositionableSelectionPane() override = default;
@@ -36,8 +37,6 @@ namespace editor {
 
             void _ready();
             void _select_item_from_path_selector(int index);
-            void _refresh_path_selector();
-            void _refresh_current_set();
             void _on_item_selected(int index);
 
             bool _item_has_metadata(int index);

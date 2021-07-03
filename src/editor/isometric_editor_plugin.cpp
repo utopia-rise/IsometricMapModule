@@ -43,6 +43,10 @@ editor::inspector::FixSetDialog *IsometricEditorPlugin::get_fix_set_dialog() con
     return fix_set_dialog;
 }
 
+void IsometricEditorPlugin::refresh_positionable_selection_pane() {
+    positionable_selection_pane->refresh_path_selector();
+}
+
 void IsometricEditorPlugin::_notification(int p_notification) {
     if (p_notification == NOTIFICATION_READY) {
         // Add menu items.

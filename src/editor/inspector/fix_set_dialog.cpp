@@ -142,6 +142,7 @@ void FixSetDialog::_on_validate_button() {
         }
     }
     current_positionable_set->refresh_set();
+    IsometricEditorPlugin::get_instance()->refresh_positionable_selection_pane();
     EditorNode::get_singleton()->save_resource(current_positionable_set);
     set_visible(false);
     reset();

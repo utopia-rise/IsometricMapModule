@@ -11,7 +11,7 @@ using namespace editor::inspector;
 
 void PositionableSelectionPane::set_positionable_set(const Ref<resource::PositionableSet>& set) {
     positionable_set = set;
-    _refresh_path_selector();
+    refresh_path_selector();
 }
 
 int PositionableSelectionPane::get_selected_positionable_index() const {
@@ -29,7 +29,7 @@ void PositionableSelectionPane::refresh_icons() {
     }
 }
 
-void PositionableSelectionPane::_refresh_path_selector() {
+void PositionableSelectionPane::refresh_path_selector() {
     path_selector->clear();
     if (positionable_set.is_valid()) {
         positionable_set->refresh_set();
@@ -50,7 +50,7 @@ void PositionableSelectionPane::_notification(int notif) {
 
 void PositionableSelectionPane::_ready() {
     path_selector->connect("item_selected", this, "_select_item_from_path_selector");
-    refresh_button->connect("pressed", this, "_refresh_current_set");
+    refresh_button->connect("pressed", this, "refresh_path_selector");
 }
 
 void PositionableSelectionPane::_select_item_from_path_selector(int index) {
@@ -105,10 +105,6 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     }
 }
 
-void PositionableSelectionPane::_refresh_current_set() {
-    _refresh_path_selector();
-}
-
 void PositionableSelectionPane::_on_item_selected(int index) {
     if (_item_has_metadata(index)) {
         FixSetDialog* fix_set_dialog = editor::IsometricEditorPlugin::get_instance()->get_fix_set_dialog();
@@ -137,12 +133,11 @@ PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_
 
     item_list->connect("item_selected", this, "_on_item_selected");
 
-    _refresh_path_selector();
+    refresh_path_selector();
 }
 
 void PositionableSelectionPane::_bind_methods() {
-    ClassDB::bind_method("_refresh_path_selector", &PositionableSelectionPane::_refresh_path_selector);
-    ClassDB::bind_method("_refresh_current_set", &PositionableSelectionPane::_refresh_current_set);
+    ClassDB::bind_method("refresh_path_selector", &PositionableSelectionPane::refresh_path_selector);
     ClassDB::bind_method("_select_item_from_path_selector", &PositionableSelectionPane::_select_item_from_path_selector);
     ClassDB::bind_method("set_positionable_set", &PositionableSelectionPane::set_positionable_set);
     ClassDB::bind_method("_on_item_selected", &PositionableSelectionPane::_on_item_selected);
