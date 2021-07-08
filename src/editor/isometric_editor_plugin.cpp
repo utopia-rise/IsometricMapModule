@@ -14,7 +14,6 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         positionable_selection_pane{nullptr},
         positionable_pane_button{nullptr},
         debug_button{nullptr},
-        fix_set_dialog{nullptr},
         selected_map{nullptr},
         show_debug(false),
         edition_grid_drawer(),
@@ -39,10 +38,6 @@ void IsometricEditorPlugin::set_should_clear_buffer_on_next_frame(bool should) {
     should_clear_buffer_on_next_frame = should;
 }
 
-editor::inspector::FixSetDialog *IsometricEditorPlugin::get_fix_set_dialog() const {
-    return fix_set_dialog;
-}
-
 void IsometricEditorPlugin::refresh_positionable_selection_pane() {
     positionable_selection_pane->refresh_path_selector();
 }
@@ -60,9 +55,6 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         debug_button->set_toggle_mode(true);
         debug_button->set_text("Debug");
         toolbar->add_child(debug_button);
-
-        fix_set_dialog = memnew(editor::inspector::FixSetDialog);
-        get_editor_interface()->add_child(fix_set_dialog);
 
         //Add to editor bottom
         positionable_selection_pane = memnew(editor::inspector::PositionableSelectionPane);
@@ -149,7 +141,7 @@ void IsometricEditorPlugin::_on_frame_post_draw() {
     } else {
         if (should_clear_buffer_on_next_frame) {
             PositionableScenesCacheManager::get_instance().copy_current_viewports_textures();
-            positionable_selection_pane->refresh_icons();
+            PositionableScenesCacheManager::get_instance().refresh_all_icons();
             PositionableScenesCacheManager::get_instance().clear_current_viewports();
             should_clear_buffer_on_next_frame = false;
         } else {
