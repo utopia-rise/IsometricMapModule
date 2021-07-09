@@ -7,6 +7,7 @@
 #include <core/reference.h>
 #include <scene/resources/packed_scene.h>
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
+#include <functional>
 
 namespace editor {
     class PositionableScenesCacheManager {
