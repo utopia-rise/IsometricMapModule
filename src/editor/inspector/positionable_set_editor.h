@@ -62,6 +62,8 @@ namespace editor {
 
             void _refresh_icons();
 
+            void _refresh();
+
             static Button* _generate_alert_remove_dialog(WindowDialog* dialog, CheckBox* do_not_display_alert_check_box);
 
         public:

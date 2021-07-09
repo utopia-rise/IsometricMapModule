@@ -9,7 +9,6 @@
 #include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
 #include <modules/isometric_maps/src/editor/editor_utils.h>
 #include <editor/editor_node.h>
-#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 #include "positionable_set_editor.h"
 
 using namespace editor::inspector;
@@ -40,11 +39,14 @@ PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selec
     add_category_button->set_text("+");
     Button* remove_category_button{memnew(Button)};
     remove_category_button->set_text("-");
+    Button* refresh_button{memnew(Button)};
+    refresh_button->set_text("Refresh");
 
     select_category_container->add_child(category_selector_label);
     select_category_container->add_child(category_selector);
     select_category_container->add_child(add_category_button);
     select_category_container->add_child(remove_category_button);
+    select_category_container->add_child(refresh_button);
 
     add_child(select_category_container);
 
@@ -129,6 +131,7 @@ PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selec
     remove_category_button->connect("pressed", this, "_on_remove_category_button");
     add_category_dialog_ok_button->connect("pressed", this, "_on_add_category_dialog_ok_button");
     remove_category_alert_ok_button->connect("pressed", this, "_on_remove_category_alert_ok_button");
+    refresh_button->connect("pressed", this, "_refresh");
 
     add_positionable_button->connect("pressed", this, "_on_add_positionable_button");
     remove_positionable_button->connect("pressed", this, "_on_remove_positionable_button");
@@ -324,6 +327,10 @@ void PositionableSetEditor::_refresh_icons() {
     EditorUtils::refresh_positionable_icons_for_item_list(this->contained_tiles_list, this);
 }
 
+void PositionableSetEditor::_refresh() {
+    _on_category_selected(category_selector->get_selected());
+}
+
 Button* PositionableSetEditor::_generate_alert_remove_dialog(WindowDialog* dialog,
                                                              CheckBox* do_not_display_alert_check_box) {
     dialog->set_title("Remove from positionable set");
@@ -364,6 +371,7 @@ void PositionableSetEditor::_bind_methods() {
     ClassDB::bind_method("_on_save_button", &PositionableSetEditor::_on_save_button);
 
     ClassDB::bind_method("_refresh_icons", &PositionableSetEditor::_refresh_icons);
+    ClassDB::bind_method("_refresh", &PositionableSetEditor::_refresh);
 }
 
 #endif
