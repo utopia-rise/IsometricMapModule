@@ -147,7 +147,7 @@ PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selec
 
     PositionableScenesCacheManager::get_instance().register_control(
             this,
-            [this]() { EditorUtils::refresh_positionable_icons_for_item_list(this->contained_tiles_list, this);}
+            "_refresh_icons"
     );
 }
 
@@ -320,6 +320,10 @@ void PositionableSetEditor::_remove_selected_category() {
     _refresh_categories();
 }
 
+void PositionableSetEditor::_refresh_icons() {
+    EditorUtils::refresh_positionable_icons_for_item_list(this->contained_tiles_list, this);
+}
+
 Button* PositionableSetEditor::_generate_alert_remove_dialog(WindowDialog* dialog,
                                                              CheckBox* do_not_display_alert_check_box) {
     dialog->set_title("Remove from positionable set");
@@ -358,6 +362,8 @@ void PositionableSetEditor::_bind_methods() {
     ClassDB::bind_method("_on_category_selected", &PositionableSetEditor::_on_category_selected);
     ClassDB::bind_method("_on_positionable_selected", &PositionableSetEditor::_on_positionable_selected);
     ClassDB::bind_method("_on_save_button", &PositionableSetEditor::_on_save_button);
+
+    ClassDB::bind_method("_refresh_icons", &PositionableSetEditor::_refresh_icons);
 }
 
 #endif

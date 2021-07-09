@@ -66,6 +66,10 @@ void PositionableSelectionPane::_select_item_from_path_selector(int index) {
     );
 }
 
+void PositionableSelectionPane::_refresh_icons() {
+    EditorUtils::refresh_positionable_icons_for_item_list(this->item_list, this);
+}
+
 PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_container(memnew(HSplitContainer)),
                                                          category_selector(memnew(OptionButton)), refresh_button(memnew(Button)),
                                                          item_list(memnew(ItemList)), positionable_set() {
@@ -80,7 +84,7 @@ PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_
 
     PositionableScenesCacheManager::get_instance().register_control(
             this,
-            [this]() { EditorUtils::refresh_positionable_icons_for_item_list(this->item_list, this);}
+            "_refresh_icons"
     );
 
     refresh_path_selector();
@@ -94,6 +98,8 @@ void PositionableSelectionPane::_bind_methods() {
     ClassDB::bind_method("refresh_path_selector", &PositionableSelectionPane::refresh_path_selector);
     ClassDB::bind_method("_select_item_from_path_selector", &PositionableSelectionPane::_select_item_from_path_selector);
     ClassDB::bind_method("set_positionable_set", &PositionableSelectionPane::set_positionable_set);
+
+    ClassDB::bind_method("_refresh_icons", &PositionableSelectionPane::_refresh_icons);
 }
 
 #endif

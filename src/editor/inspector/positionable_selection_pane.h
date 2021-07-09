@@ -37,6 +37,8 @@ namespace editor {
             void _ready();
             void _select_item_from_path_selector(int index);
 
+            void _refresh_icons();
+
         public:
             static void _bind_methods();
         };

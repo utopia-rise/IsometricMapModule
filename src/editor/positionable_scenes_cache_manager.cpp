@@ -67,18 +67,18 @@ void PositionableScenesCacheManager::clear_current_viewports() {
     }
 }
 
-void PositionableScenesCacheManager::register_control(Control* p_control, const std::function<void()>& refresh_icon_function) {
+void PositionableScenesCacheManager::register_control(Control* p_control, const StringName& refresh_icon_function) {
     cache[p_control] = Vector<CacheEntry>();
     drawing_viewport[p_control] = Vector<Viewport*>();
     _is_adding[p_control] = false;
-    refresh_icons[p_control] = refresh_icon_function;
+    refresh_icons_methods[p_control] = refresh_icon_function;
 }
 
 void PositionableScenesCacheManager::unregister_control(Control* p_control) {
     cache.erase(p_control);
     drawing_viewport.erase(p_control);
     _is_adding.erase(p_control);
-    refresh_icons.erase(p_control);
+    refresh_icons_methods.erase(p_control);
 }
 
 void PositionableScenesCacheManager::start_adding(Control* p_control, int cache_size) {
@@ -102,9 +102,9 @@ bool PositionableScenesCacheManager::is_adding() const {
 }
 
 void PositionableScenesCacheManager::refresh_all_icons() const {
-    Map<Control*, std::function<void()>>::Element* current{refresh_icons.front()};
+    Map<Control*, StringName>::Element* current{refresh_icons_methods.front()};
     while (current) {
-        current->value()();
+        current->key()->call(current->value());
         current = current->next();
     }
 }
@@ -139,7 +139,7 @@ Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> s
 }
 
 PositionableScenesCacheManager::PositionableScenesCacheManager() : cache(), drawing_viewport(), _is_adding(),
-    refresh_icons() {
+                                                                   refresh_icons_methods() {
 
 }
 

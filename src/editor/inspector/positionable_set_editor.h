@@ -60,6 +60,8 @@ namespace editor {
             void _remove_selected_positionable();
             void _remove_selected_category();
 
+            void _refresh_icons();
+
             static Button* _generate_alert_remove_dialog(WindowDialog* dialog, CheckBox* do_not_display_alert_check_box);
 
         public:

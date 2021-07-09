@@ -7,7 +7,6 @@
 #include <core/reference.h>
 #include <scene/resources/packed_scene.h>
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
-#include <functional>
 
 namespace editor {
     class PositionableScenesCacheManager {
@@ -27,7 +26,7 @@ namespace editor {
         void copy_current_viewports_textures();
         void clear_current_viewports();
 
-        void register_control(Control* p_control, const std::function<void()>& refresh_icon_function);
+        void register_control(Control* p_control, const StringName& refresh_icon_function);
         void unregister_control(Control* p_control);
         void start_adding(Control* p_control, int cache_size);
         void end_adding(Control* p_control);
@@ -43,7 +42,7 @@ namespace editor {
 
         Map<Control*, bool> _is_adding;
 
-        Map<Control*, std::function<void ()>> refresh_icons;
+        Map<Control*, StringName> refresh_icons_methods;
 
         static Viewport* _get_icon_for_scene(Ref<PackedScene> scene);
 
