@@ -15,16 +15,12 @@ PositionableScenesCacheManager& PositionableScenesCacheManager::get_instance() {
     return instance;
 }
 
-Ref<PackedScene> PositionableScenesCacheManager::get_scene(int index) {
-    return cache[index].scene;
-}
-
-void PositionableScenesCacheManager::add_scene(int index, Ref<PackedScene> scene) {
+void PositionableScenesCacheManager::add_scene(Control* p_control, int index, Ref<PackedScene> scene) {
     Viewport* scene_viewport{_get_icon_for_scene(scene)};
     if (scene_viewport) {
         EditorNode::get_singleton()->add_child(scene_viewport);
-        drawing_viewport.set(index, scene_viewport);
-        cache.set(index, {scene, scene_viewport->get_texture()});
+        drawing_viewport[p_control].set(index, scene_viewport);
+        cache[p_control].set(index, {scene, scene_viewport->get_texture()});
     }
 }
 
@@ -32,43 +28,85 @@ void PositionableScenesCacheManager::clear() {
     cache.clear();
 }
 
-Ref<Texture> PositionableScenesCacheManager::get_icon(int index) {
-    return cache[index].icon;
+void PositionableScenesCacheManager::clear(Control* p_control) {
+    cache[p_control].clear();
+}
+
+Ref<Texture> PositionableScenesCacheManager::get_icon(Control* p_control, int index) {
+    return cache[p_control][index].icon;
 }
 
 void PositionableScenesCacheManager::copy_current_viewports_textures() {
-    for (int i = 0; i < drawing_viewport.size(); ++i) {
-        Ref<ImageTexture> copy_texture;
-        copy_texture.instance();
-        copy_texture->create_from_image(drawing_viewport[i]->get_texture()->get_data());
-        CacheEntry copy{cache.get(i)};
-        copy.icon = copy_texture;
-        cache.set(i, copy);
+    Map<Control*, Vector<Viewport*>>::Element* current{drawing_viewport.front()};
+    while (current) {
+        Control* control{current->key()};
+        const Vector<Viewport*>& viewports{current->value()};
+        for (int i = 0; i < viewports.size(); ++i) {
+            Ref<ImageTexture> copy_texture;
+            copy_texture.instance();
+            copy_texture->create_from_image(viewports[i]->get_texture()->get_data());
+            CacheEntry copy{cache[control].get(i)};
+            copy.icon = copy_texture;
+            cache[control].set(i, copy);
+        }
+        current = current->next();
     }
 }
 
 void PositionableScenesCacheManager::clear_current_viewports() {
-    for (int i = 0; i < drawing_viewport.size(); ++i) {
-        Viewport* viewport{drawing_viewport[i]};
-        EditorNode::get_singleton()->remove_child(viewport);
-        viewport->queue_delete();
+    Map<Control*, Vector<Viewport*>>::Element* current{drawing_viewport.front()};
+    while (current) {
+        Vector<Viewport*>& viewports{current->value()};
+        for (int i = 0; i < viewports.size(); ++i) {
+            Viewport* viewport{viewports[i]};
+            EditorNode::get_singleton()->remove_child(viewport);
+            viewport->queue_delete();
+        }
+        viewports.clear();
+        current = current->next();
     }
-    drawing_viewport.clear();
 }
 
-void PositionableScenesCacheManager::start_adding(int cache_size) {
-    _is_adding = true;
-    drawing_viewport.resize(cache_size);
-    cache.resize(cache_size);
+void PositionableScenesCacheManager::register_control(Control* p_control, const StringName& refresh_icon_function) {
+    cache[p_control] = Vector<CacheEntry>();
+    drawing_viewport[p_control] = Vector<Viewport*>();
+    _is_adding[p_control] = false;
+    refresh_icons_methods[p_control] = refresh_icon_function;
 }
 
-void PositionableScenesCacheManager::end_adding() {
-    _is_adding = false;
-    IsometricEditorPlugin::get_instance()->set_should_clear_buffer_on_next_frame(false);
+void PositionableScenesCacheManager::unregister_control(Control* p_control) {
+    cache.erase(p_control);
+    drawing_viewport.erase(p_control);
+    _is_adding.erase(p_control);
+    refresh_icons_methods.erase(p_control);
+}
+
+void PositionableScenesCacheManager::start_adding(Control* p_control, int cache_size) {
+    _is_adding[p_control] = true;
+    drawing_viewport[p_control].resize(cache_size);
+    cache[p_control].resize(cache_size);
+}
+
+void PositionableScenesCacheManager::end_adding(Control* p_control) {
+    _is_adding[p_control] = false;
+    IsometricEditorPlugin::get_instance()->set_should_clear_buffer_on_next_frame(is_adding());
 }
 
 bool PositionableScenesCacheManager::is_adding() const {
-    return _is_adding;
+    Map<Control*, bool>::Element* current{_is_adding.front()};
+    while (current) {
+        if (current->value()) return true;
+        current = current->next();
+    }
+    return false;
+}
+
+void PositionableScenesCacheManager::refresh_all_icons() const {
+    Map<Control*, StringName>::Element* current{refresh_icons_methods.front()};
+    while (current) {
+        current->key()->call(current->value());
+        current = current->next();
+    }
 }
 
 Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> scene) {
@@ -91,7 +129,6 @@ Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> s
             hexagone_coordinates.maxX - hexagone_coordinates.minX,
             hexagone_coordinates.maxY - hexagone_coordinates.minY
         };
-        print_line(vformat("scene size is %s", scene_size));
         positionable->set_scale(positionable->get_scale() / scene_size);
         Vector2 viewport_size{128, 128};
         camera->set_position(viewport_size / 2);
@@ -101,7 +138,8 @@ Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> s
     return nullptr;
 }
 
-PositionableScenesCacheManager::PositionableScenesCacheManager() : cache(), drawing_viewport(), _is_adding() {
+PositionableScenesCacheManager::PositionableScenesCacheManager() : cache(), drawing_viewport(), _is_adding(),
+                                                                   refresh_icons_methods() {
 
 }
 

@@ -16,19 +16,19 @@ namespace editor {
             GDCLASS(PositionableSelectionPane, VSplitContainer)
         public:
             void set_positionable_set(const Ref<resource::PositionableSet>& set);
-            int get_selected_positionable_index() const;
+            int get_selected_positionable_id() const;
 
-            void refresh_icons();
+            void refresh_path_selector();
 
             PositionableSelectionPane();
-            ~PositionableSelectionPane() override = default;
+            ~PositionableSelectionPane() override;
 
         protected:
             void _notification(int notif);
 
         private:
             HSplitContainer* top_container;
-            OptionButton* path_selector;
+            OptionButton* category_selector;
             Button* refresh_button;
             ItemList* item_list;
 
@@ -36,9 +36,8 @@ namespace editor {
 
             void _ready();
             void _select_item_from_path_selector(int index);
-            void _refresh_path_selector();
-            void _refresh_current_set();
 
+            void _refresh_icons();
 
         public:
             static void _bind_methods();

@@ -38,6 +38,10 @@ void IsometricEditorPlugin::set_should_clear_buffer_on_next_frame(bool should) {
     should_clear_buffer_on_next_frame = should;
 }
 
+void IsometricEditorPlugin::refresh_positionable_selection_pane() {
+    positionable_selection_pane->refresh_path_selector();
+}
+
 void IsometricEditorPlugin::_notification(int p_notification) {
     if (p_notification == NOTIFICATION_READY) {
         // Add menu items.
@@ -83,12 +87,14 @@ void IsometricEditorPlugin::edit(Object* p_object) {
 }
 
 void IsometricEditorPlugin::drop() {
-    selected_map->set_debug(false);
-    if (selected_map->is_connected("draw", this, "refresh")) {
-        selected_map->disconnect("draw", this, "refresh");
+    if (selected_map) {
+        selected_map->set_debug(false);
+        if (selected_map->is_connected("draw", this, "refresh")) {
+            selected_map->disconnect("draw", this, "refresh");
+        }
+        auto index{reinterpret_cast<uint64_t>(selected_map)};
+        edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
     }
-    auto index{reinterpret_cast<uint64_t>(selected_map)};
-    edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
 }
 
 bool IsometricEditorPlugin::handles(Object* p_object) const {
@@ -135,7 +141,7 @@ void IsometricEditorPlugin::_on_frame_post_draw() {
     } else {
         if (should_clear_buffer_on_next_frame) {
             PositionableScenesCacheManager::get_instance().copy_current_viewports_textures();
-            positionable_selection_pane->refresh_icons();
+            PositionableScenesCacheManager::get_instance().refresh_all_icons();
             PositionableScenesCacheManager::get_instance().clear_current_viewports();
             should_clear_buffer_on_next_frame = false;
         } else {
