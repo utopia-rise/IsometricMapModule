@@ -1,11 +1,11 @@
 #ifdef TOOLS_ENABLED
 
+#ifndef ISOMETRIC_MAPS_EDITION_GRID_DRAWER_H
+#define ISOMETRIC_MAPS_EDITION_GRID_DRAWER_H
+
 #include <core/rid.h>
 #include "editor_plane.h"
 #include "../node/isometric_map.h"
-
-#ifndef ISOMETRIC_MAPS_EDITION_GRID_DRAWER_H
-#define ISOMETRIC_MAPS_EDITION_GRID_DRAWER_H
 
 
 namespace editor {
