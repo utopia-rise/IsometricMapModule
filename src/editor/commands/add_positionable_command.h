@@ -12,10 +12,9 @@ namespace editor {
         class AddPositionableCommand : public Command<AddPositionableCommand> {
             GDCLASS(AddPositionableCommand, Reference)
 
-        public:
-            void redo_implementation();
-            void undo_implementation();
+            friend class Command<AddPositionableCommand>;
 
+        public:
             AddPositionableCommand(const Vector3& p_position, int p_positionable_id, node::IsometricMap* p_map);
             ~AddPositionableCommand() override = default;
 
@@ -23,6 +22,9 @@ namespace editor {
             Vector3 position;
             int positionable_id;
             node::IsometricMap* map;
+
+            void redo_implementation();
+            void undo_implementation();
 
         public:
             static void _bind_methods_impl();
