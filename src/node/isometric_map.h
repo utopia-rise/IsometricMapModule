@@ -15,10 +15,17 @@ namespace node {
         containers::Grid3D<int, -1> grid_3d;
         Ref<resource::PositionableSet> positionable_set;
 
+        Array _get_grid_3d() const;
+        void _set_grid_3d(const Array& array);
+
     public:
         Ref<resource::PositionableSet> get_positionable_set() const;
 
         void set_positionable_set(const Ref<resource::PositionableSet>& set);
+
+        void add_positionable_if_nothing_present(const Vector3& position, int id);
+
+        void remove_positionable(const Vector3& position);
 
         IsometricMap();
 

@@ -66,6 +66,8 @@ namespace containers {
         const Vector<T> &get_internal_array() const;
 
         void set_internal_array(const Vector<T> &array);
+
+        static inline T get_default_value();
     };
 
     template<class T, T default_value>
@@ -274,6 +276,10 @@ namespace containers {
         return increment;
     }
 
+    template<class T, T default_value>
+    T Grid3D<T, default_value>::get_default_value() {
+        return default_value;
+    }
 } // namespace containers
 
 #endif //ISOMETRIC_MAPS_GRID_3D_H

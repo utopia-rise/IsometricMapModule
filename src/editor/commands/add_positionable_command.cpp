@@ -5,11 +5,11 @@
 using namespace editor::commands;
 
 void AddPositionableCommand::redo_implementation() {
-    //TODO
+    map->add_positionable_if_nothing_present(position, positionable_id);
 }
 
 void AddPositionableCommand::undo_implementation() {
-    //TODO
+    map->remove_positionable(position);
 }
 
 void AddPositionableCommand::_bind_methods_impl() {
