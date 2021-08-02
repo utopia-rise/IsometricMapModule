@@ -1,7 +1,9 @@
 #include "positionable_set.h"
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
+#include <modules/isometric_maps/src/logging.h>
 
 #ifdef TOOLS_ENABLED
+
 #include <core/os/file_access.h>
 #include <core/os/dir_access.h>
 #include <core/io/resource_saver.h>
@@ -11,8 +13,35 @@
 
 using namespace resource;
 
-void PositionableSet::get_positionable_scene_path_for_id(int id, String& r_path) const {
-    r_path = identifier_to_scene_path[id];
+void PositionableSet::preload_scenes() {
+    identifier_to_loaded_scene.clear();
+
+    Map<int, String>::Element* current{identifier_to_scene_path.front()};
+    while (current) {
+        const String& element_path{current->value()};
+        Ref<PackedScene> loaded{ResourceLoader::load(element_path)};
+        if (!loaded.is_valid()) {
+            LOG_ERROR(vformat("Element %s from tileset is not valid.", element_path))
+        }
+        identifier_to_loaded_scene[current->key()] = loaded;
+        current = current->next();
+    }
+
+    if (!is_loaded) {
+        is_loaded = true;
+    }
+}
+
+bool PositionableSet::is_set_loaded() const {
+    return is_loaded;
+}
+
+String PositionableSet::get_positionable_scene_path_for_id(int id) const {
+    return identifier_to_scene_path[id];
+}
+
+Ref<PackedScene> PositionableSet::get_positionable_scene_for_id(int id) const {
+    return identifier_to_loaded_scene[id];
 }
 
 #ifdef TOOLS_ENABLED
@@ -238,7 +267,9 @@ void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifi
 
 PositionableSet::PositionableSet() :
         Resource(),
-        identifier_to_scene_path()
+        identifier_to_scene_path(),
+        identifier_to_loaded_scene(),
+        is_loaded(false)
 #ifdef TOOLS_ENABLED
         , categories(),
         categories_to_identifiers(),

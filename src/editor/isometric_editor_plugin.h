@@ -48,7 +48,7 @@ namespace editor {
 
     public:
         IsometricEditorPlugin();
-        ~IsometricEditorPlugin();
+        ~IsometricEditorPlugin() override;
 
         static IsometricEditorPlugin* get_instance();
 

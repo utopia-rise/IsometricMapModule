@@ -5,6 +5,7 @@
 
 #include <core/class_db.h>
 #include <core/reference.h>
+#include <core/undo_redo.h>
 
 
 namespace editor {
@@ -25,6 +26,8 @@ namespace editor {
             void redo();
             void undo();
 
+            void append_to_undoredo(UndoRedo* undo_redo);
+
             Command() = default;
             ~Command() override = default;
         };
@@ -37,6 +40,12 @@ namespace editor {
         template<class Derived>
         void Command<Derived>::undo() {
             reinterpret_cast<Derived*>(this)->undo_implementation();
+        }
+
+        template<class Derived>
+        void Command<Derived>::append_to_undoredo(UndoRedo* undo_redo) {
+            undo_redo->add_do_method(this, redo());
+            undo_redo->add_undo_method(this, undo());
         }
     }
 }

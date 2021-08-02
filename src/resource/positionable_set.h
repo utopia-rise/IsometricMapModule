@@ -18,7 +18,10 @@ namespace resource {
 #endif
 
     public:
-        void get_positionable_scene_path_for_id(int id, String& r_path) const;
+        void preload_scenes();
+        bool is_set_loaded() const;
+        String get_positionable_scene_path_for_id(int id) const;
+        Ref<PackedScene> get_positionable_scene_for_id(int id) const;
 
 #ifdef TOOLS_ENABLED
         const PoolStringArray& get_categories() const;
@@ -44,6 +47,10 @@ namespace resource {
     private:
         // exported, not visible in editor
         Map<int, String> identifier_to_scene_path;
+
+        // Store loaded scenes
+        Map<int, Ref<PackedScene>> identifier_to_loaded_scene;
+        bool is_loaded;
 
         Dictionary _get_identifier_to_scene_path() const;
         void _set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path);

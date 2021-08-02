@@ -15,8 +15,12 @@ namespace node {
         containers::Grid3D<int, -1> grid_3d;
         Ref<resource::PositionableSet> positionable_set;
 
+        void _on_enter_tree();
         Array _get_grid_3d() const;
         void _set_grid_3d(const Array& array);
+
+    protected:
+        void _notification(int notif);
 
     public:
         Ref<resource::PositionableSet> get_positionable_set() const;
