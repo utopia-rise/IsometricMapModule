@@ -4,6 +4,18 @@
 
 using namespace editor::commands;
 
+void AddPositionableCommand::set_position(const Vector3& p_position) {
+    position = p_position;
+}
+
+void AddPositionableCommand::set_positionable_id(int id) {
+    positionable_id = id;
+}
+
+void AddPositionableCommand::set_map(node::IsometricMap* p_map) {
+    map = p_map;
+}
+
 void AddPositionableCommand::redo_implementation() {
     map->add_positionable_if_nothing_present(position, positionable_id);
 }
@@ -13,14 +25,6 @@ void AddPositionableCommand::undo_implementation() {
 }
 
 void AddPositionableCommand::_bind_methods_impl() {
-
-}
-
-AddPositionableCommand::AddPositionableCommand(const Vector3& p_position, int p_positionable_id, node::IsometricMap* p_map)
-        : Command<AddPositionableCommand>(),
-          position(p_position),
-          positionable_id(p_positionable_id),
-          map(p_map) {
 
 }
 

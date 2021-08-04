@@ -44,8 +44,8 @@ namespace editor {
 
         template<class Derived>
         void Command<Derived>::append_to_undoredo(UndoRedo* undo_redo) {
-            undo_redo->add_do_method(this, redo());
-            undo_redo->add_undo_method(this, undo());
+            undo_redo->add_do_method(this, "redo");
+            undo_redo->add_undo_method(this, "undo");
         }
     }
 }
