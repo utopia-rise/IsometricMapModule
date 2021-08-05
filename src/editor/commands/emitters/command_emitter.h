@@ -15,7 +15,7 @@ namespace editor {
             template<class Derived, class Command, class Evt>
             class CommandEmitter {
             public:
-                void _on_gui_input(const Ref<InputEvent>& p_event);
+                bool _on_gui_input(const Ref<InputEvent>& p_event);
 
                 CommandEmitter() = delete;
                 explicit CommandEmitter(UndoRedo* p_undo_redo);
@@ -28,19 +28,28 @@ namespace editor {
             };
 
             template<class Derived, class Command, class Evt>
-            void CommandEmitter<Derived, Command, Evt>::_on_gui_input(const Ref<InputEvent>& p_event) {
+            bool CommandEmitter<Derived, Command, Evt>::_on_gui_input(const Ref<InputEvent>& p_event) {
                 if (auto* event{Object::cast_to<Evt>(p_event.ptr())}) {
                     Vector<Ref<Command>> commands{from_gui_input_to_command(event)};
-                    if (commands.empty()) return;
+                    if (commands.empty()) return false;
 
-                    undo_redo->create_action();
+                    bool has_valid_command{false};
                     for (int i = 0; i < commands.size(); ++i) {
                         Ref<Command> command{commands[i]};
-                        if (!command.is_valid()) return;
+                        if (!command.is_valid()) continue;
+                        if (!has_valid_command) {
+                            undo_redo->create_action();
+                        }
+                        has_valid_command = true;
                         command->append_to_undoredo(undo_redo);
                     }
-                    undo_redo->commit_action();
+
+                    if (has_valid_command) {
+                        undo_redo->commit_action();
+                        return true;
+                    }
                 }
+                return false;
             }
 
             template<class Derived, class Command, class Evt>

@@ -80,6 +80,9 @@ void IsometricEditorPlugin::_notification(int p_notification) {
 
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
+
+    painting_command_emitter.set_map(selected_map);
+
     if (!selected_map->is_connected("draw", this, "refresh")) {
         selected_map->connect("draw", this, "refresh");
     }
@@ -125,8 +128,7 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
         case SELECT:
             break;
         case PAINT:
-            painting_command_emitter._on_gui_input(p_event);
-            break;
+            return painting_command_emitter._on_gui_input(p_event);
     }
     return false;
 }
