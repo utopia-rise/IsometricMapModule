@@ -18,6 +18,8 @@ void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& se
     emit_signal("positional_set_changed", positionable_set);
 }
 
+#ifdef TOOLS_ENABLED
+
 void IsometricMap::add_positionable_if_nothing_present(const Vector3& position, int id) {
     if (grid_3d.get_data(position) != containers::Grid3D<int, -1>::get_default_value()) return;
 
@@ -27,6 +29,25 @@ void IsometricMap::add_positionable_if_nothing_present(const Vector3& position, 
 void IsometricMap::remove_positionable(const Vector3& position) {
     grid_3d.set_data(position, containers::Grid3D<int, -1>::get_default_value());
 }
+
+bool IsometricMap::is_position_in_map(const Vector3& p_position) const {
+    int pos_x{static_cast<int>(p_position.x)};
+    int pos_y{static_cast<int>(p_position.y)};
+    int pos_z{static_cast<int>(p_position.z)};
+
+    if (pos_x < 0 || pos_y < 0 || pos_z < 0 ||
+        pos_x >= grid_3d.get_width() || pos_y >= grid_3d.get_depth() || pos_z >= grid_3d.get_height()) {
+        return false;
+    }
+    return true;
+}
+
+void IsometricMap::set_size(Vector3 p_size) {
+    IsometricPositionable::set_size(p_size);
+    grid_3d.update_array_size(p_size);
+}
+
+#endif
 
 void IsometricMap::_notification(int notif) {
     if (notif == NOTIFICATION_ENTER_TREE) {

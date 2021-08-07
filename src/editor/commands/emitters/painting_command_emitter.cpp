@@ -36,6 +36,10 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseMotion
         was_last_event_intercepted = true;
     }
 
+    if (!map->is_position_in_map(position)) {
+        return commands;
+    }
+
     last_event_position = position;
 
     Ref<editor::commands::AddPositionableCommand> add_command;

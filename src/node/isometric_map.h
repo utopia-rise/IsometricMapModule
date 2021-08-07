@@ -27,9 +27,15 @@ namespace node {
 
         void set_positionable_set(const Ref<resource::PositionableSet>& set);
 
+#ifdef TOOLS_ENABLED
         void add_positionable_if_nothing_present(const Vector3& position, int id);
 
         void remove_positionable(const Vector3& position);
+
+        bool is_position_in_map(const Vector3& p_position) const;
+
+        void set_size(Vector3 p_size) override;
+#endif
 
         IsometricMap();
 
