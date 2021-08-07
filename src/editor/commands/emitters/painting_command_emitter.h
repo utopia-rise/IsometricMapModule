@@ -23,7 +23,11 @@ namespace editor {
 
             private:
                 node::IsometricMap* map;
-                Vector<Ref<editor::commands::AddPositionableCommand>> from_gui_input_to_command_impl(const InputEventMouseMotion* p_event);
+                Vector3 last_event_position;
+                bool was_last_event_intercepted;
+
+                bool from_gui_input_to_command_impl(Ref<InputEventMouseMotion> p_event,
+                                                    Vector<Ref<editor::commands::AddPositionableCommand>>& r_ret);
 
             };
         }
