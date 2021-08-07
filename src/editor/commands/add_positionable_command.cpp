@@ -28,4 +28,11 @@ void AddPositionableCommand::_bind_methods_impl() {
 
 }
 
+AddPositionableCommand::AddPositionableCommand() : Command<AddPositionableCommand>(),
+        position(),
+        positionable_id(-1),
+        map(nullptr) {
+
+}
+
 #endif

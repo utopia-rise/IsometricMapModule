@@ -19,7 +19,7 @@ namespace editor {
             void set_positionable_id(int id);
             void set_map(node::IsometricMap* p_map);
 
-            AddPositionableCommand() = default;
+            AddPositionableCommand();
             ~AddPositionableCommand() override = default;
 
         private:

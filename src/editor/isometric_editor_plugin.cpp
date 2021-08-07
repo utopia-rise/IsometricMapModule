@@ -122,15 +122,19 @@ void IsometricEditorPlugin::clear() {
 }
 
 bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_event) {
+    if (!selected_map) {
+        return false;
+    }
+
     switch (current_mode) {
         case NONE:
             break;
         case SELECT:
             break;
         case PAINT:
-            return painting_command_emitter._on_gui_input(p_event);
+            painting_command_emitter._on_gui_input(p_event);
     }
-    return false;
+    return true;
 }
 
 void IsometricEditorPlugin::make_visible(bool b) {

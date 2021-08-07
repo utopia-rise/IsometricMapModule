@@ -1,17 +1,19 @@
 #include <core/os/input.h>
 #include <modules/isometric_maps/src/utils/isometric_maths.h>
 #include <modules/isometric_maps/src/isometric_server.h>
+#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 #include "painting_command_emitter.h"
 
 using namespace editor::commands::emitters;
 
-bool PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseMotion> p_event, // NOLINT(performance-unnecessary-value-param)
-                                                            Vector<Ref<editor::commands::AddPositionableCommand>>& r_ret) {
+Vector<Ref<editor::commands::AddPositionableCommand>>
+PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseMotion> p_event) { // NOLINT(performance-unnecessary-value-param)
+    Vector<Ref<editor::commands::AddPositionableCommand>> commands;
     if (!Input::get_singleton()->is_mouse_button_pressed(BUTTON_LEFT)) {
         if (was_last_event_intercepted) {
             was_last_event_intercepted = false;
         }
-        return false;
+        return commands;
     }
 
     const data::IsometricParameters* parameters{
@@ -27,7 +29,7 @@ bool PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseM
     };
 
     if (was_last_event_intercepted && last_event_position == position) {
-        return true;
+        return commands;
     }
 
     if (!was_last_event_intercepted) {
@@ -42,8 +44,8 @@ bool PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseM
 
     print_line(position);
     add_command->set_position(position);
-//    r_ret.push_back(add_command);
-    return true;
+//    commands.push_back(add_command);
+    return commands;
 }
 
 void PaintingCommandEmitter::set_map(node::IsometricMap* p_map) {
