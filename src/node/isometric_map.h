@@ -12,12 +12,13 @@ namespace node {
 
     private:
         bool draw_tiles;
-        containers::Grid3D<int, -1> grid_3d;
+        containers::Grid3D<int, resource::PositionableSet::NONE_VALUE> grid_3d;
         Ref<resource::PositionableSet> positionable_set;
 
         void _on_enter_tree();
         Array _get_grid_3d() const;
         void _set_grid_3d(const Array& array);
+        void add_positionable_as_child(int positionable_id, const Vector3& position);
 
     protected:
         void _notification(int notif);
@@ -31,6 +32,8 @@ namespace node {
         void add_positionable_if_nothing_present(const Vector3& position, int id);
 
         void remove_positionable(const Vector3& position);
+
+        int get_positionable_id_at(const Vector3& p_position);
 
         bool is_position_in_map(const Vector3& p_position) const;
 

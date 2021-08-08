@@ -39,6 +39,8 @@ namespace resource {
         Map<int, String>::Element* get_present_scenes_iterator();
 
         Vector<resource::PositionableSet::RemovedElement> get_removed_elements() const;
+
+        static constexpr int NONE_VALUE = -1;
 #endif
 
         PositionableSet();

@@ -30,7 +30,7 @@ void AddPositionableCommand::_bind_methods_impl() {
 
 AddPositionableCommand::AddPositionableCommand() : Command<AddPositionableCommand>(),
         position(),
-        positionable_id(-1),
+        positionable_id(resource::PositionableSet::NONE_VALUE),
         map(nullptr) {
 
 }

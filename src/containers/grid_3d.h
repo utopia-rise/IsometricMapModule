@@ -20,8 +20,6 @@ namespace containers {
 
         int get_index_from_position(const Vector3 &position) const;
 
-        Vector3 get_position_3d(int id) const;
-
         Vector3 plane_square_and_jumps_from(const Vector3 &size) const;
 
         inline int compute_array_size() const {
@@ -31,7 +29,7 @@ namespace containers {
         static int index_increment_from(const Vector3 &planeSquareAndJumps, const Vector3 &size, int iteration);
 
     public:
-        Grid3D() = default;
+        Grid3D();
 
         ~Grid3D() = default;
 
@@ -42,6 +40,8 @@ namespace containers {
         T get_data(const Vector3 &position);
 
         void set_data(const Vector3 &position, T data);
+
+        Vector3 get_position_3d_from_index(int id) const;
 
         bool insert_box(const AABB &aabb, T data, bool remove = false);
 
@@ -164,7 +164,7 @@ namespace containers {
             if (element) {
                 return true;
             }
-            for (int i = 1; i < static_cast<int>(size.x) * static_cast<int>(size.y) * static_cast<int>(size.z); i++) {
+            for (int i = 1; i < static_cast<int>(size.x) * static_cast<int>(size.y) * static_cast<int>(size.z); ++i) {
                 index += Grid3D::index_increment_from(plane_square_and_jumps_from(size), size, i);
                 if (index >= 0 && index < internal_array.size()) {
                     element = internal_array[index];
@@ -179,7 +179,7 @@ namespace containers {
 
     template<class T, T default_value>
     bool Grid3D<T, default_value>::has(T object) const {
-        for (int i = 0; i < internal_array.size(); i++) {
+        for (int i = 0; i < internal_array.size(); ++i) {
             if (internal_array[i] == object) {
                 return true;
             }
@@ -189,7 +189,7 @@ namespace containers {
 
     template<class T, T default_value>
     void Grid3D<T, default_value>::for_each(void (* fptr)(T)) {
-        for (int i = 0; i < internal_array.size(); i++) {
+        for (int i = 0; i < internal_array.size(); ++i) {
             T element = internal_array[i];
             if (element) {
                 fptr(element);
@@ -249,11 +249,11 @@ namespace containers {
     }
 
     template<class T, T default_value>
-    Vector3 Grid3D<T, default_value>::get_position_3d(int id) const {
+    Vector3 Grid3D<T, default_value>::get_position_3d_from_index(int id) const {
         return {
                 static_cast<real_t>(id % width),
                 static_cast<real_t>((id / width) % depth),
-                static_cast<real_t>(id) / (width * depth)
+                static_cast<real_t>(static_cast<int>(id / (width * depth)))
         };
     }
 
@@ -279,6 +279,11 @@ namespace containers {
     template<class T, T default_value>
     T Grid3D<T, default_value>::get_default_value() {
         return default_value;
+    }
+
+    template<class T, T default_value>
+    Grid3D<T, default_value>::Grid3D() {
+        update_array_size(Vector3(1, 1, 1));
     }
 } // namespace containers
 

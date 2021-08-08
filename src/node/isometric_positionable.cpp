@@ -157,22 +157,23 @@ void IsometricPositionable::prepare_points() {
             break;
     }
 
-    PoolVector2Array points{
-            utils::get_bounding_box(
-                    *IsometricServer::get_instance()->get_space_configuration(world),
-                    size)};
+    if (const data::IsometricParameters* space_configuration{
+        IsometricServer::get_instance()->get_space_configuration(world)
+    }) {
+        PoolVector2Array points{utils::get_bounding_box(*space_configuration,size)};
 
-    up_points.resize(0);
-    up_points.push_back((no_slope + left_slope + forward_slope) * points[4] + (right_slope + backward_slope) * points[0]);
-    up_points.push_back((no_slope + right_slope + forward_slope) * points[5] + (left_slope + backward_slope) * points[1]);
-    up_points.push_back((no_slope + right_slope + backward_slope) * points[6] + (left_slope + forward_slope) * points[2]);
-    up_points.push_back((no_slope + left_slope + backward_slope) * points[7] + (right_slope + forward_slope) * points[3]);
+        up_points.resize(0);
+        up_points.push_back((no_slope + left_slope + forward_slope) * points[4] + (right_slope + backward_slope) * points[0]);
+        up_points.push_back((no_slope + right_slope + forward_slope) * points[5] + (left_slope + backward_slope) * points[1]);
+        up_points.push_back((no_slope + right_slope + backward_slope) * points[6] + (left_slope + forward_slope) * points[2]);
+        up_points.push_back((no_slope + left_slope + backward_slope) * points[7] + (right_slope + forward_slope) * points[3]);
 
-    down_points.resize(0);
-    down_points.push_back(points[0]);
-    down_points.push_back(points[1]);
-    down_points.push_back(points[2]);
-    down_points.push_back(points[3]);
+        down_points.resize(0);
+        down_points.push_back(points[0]);
+        down_points.push_back(points[1]);
+        down_points.push_back(points[2]);
+        down_points.push_back(points[3]);
+    }
 }
 
 void IsometricPositionable::_notification(int notif) {

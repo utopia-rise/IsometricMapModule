@@ -21,13 +21,18 @@ void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& se
 #ifdef TOOLS_ENABLED
 
 void IsometricMap::add_positionable_if_nothing_present(const Vector3& position, int id) {
-    if (grid_3d.get_data(position) != containers::Grid3D<int, -1>::get_default_value()) return;
+    if (get_positionable_id_at(position) != containers::Grid3D<int, resource::PositionableSet::NONE_VALUE>::get_default_value()) return;
 
     grid_3d.set_data(position, id);
+    add_positionable_as_child(id, position);
 }
 
 void IsometricMap::remove_positionable(const Vector3& position) {
-    grid_3d.set_data(position, containers::Grid3D<int, -1>::get_default_value());
+    grid_3d.set_data(position, containers::Grid3D<int, resource::PositionableSet::NONE_VALUE>::get_default_value());
+}
+
+int IsometricMap::get_positionable_id_at(const Vector3& p_position) {
+    return grid_3d.get_data(p_position);
 }
 
 bool IsometricMap::is_position_in_map(const Vector3& p_position) const {
@@ -58,7 +63,7 @@ void IsometricMap::_notification(int notif) {
 void IsometricMap::_on_enter_tree() {
     const Vector<int>& id_vector{grid_3d.get_internal_array()};
     for (int i = 0; i < id_vector.size(); ++i) {
-        add_child(positionable_set->get_positionable_scene_for_id(id_vector[i])->instance());
+        add_positionable_as_child(id_vector[i], grid_3d.get_position_3d_from_index(i));
     }
 }
 
@@ -77,6 +82,19 @@ void IsometricMap::_set_grid_3d(const Array& array) {
         internal_array.push_back(array[i]);
     }
     grid_3d.set_internal_array(internal_array);
+}
+
+void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3& position) {
+    if (positionable_id == resource::PositionableSet::NONE_VALUE) return;
+    if (auto* positionable{
+            Object::cast_to<IsometricPositionable>(
+                    positionable_set->get_positionable_scene_for_id(positionable_id)->instance()
+            )
+        }
+    ) {
+        add_child(positionable);
+        positionable->set_local_position_3d(position);
+    }
 }
 
 void IsometricMap::_bind_methods() {

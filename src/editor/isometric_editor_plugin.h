@@ -23,6 +23,8 @@ namespace editor {
             PAINT
         };
 
+        editor::inspector::PositionableSelectionPane* get_selection_pane() const;
+
         IsometricEditorPlugin();
         ~IsometricEditorPlugin() override;
 

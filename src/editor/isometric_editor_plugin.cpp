@@ -11,6 +11,10 @@ const char* POSITIONABLE_PANE_BUTTON_TITLE{"Isometric positionables"};
 const char* SELECT_EDITION_LABEL{"Select"};
 const char* PAINT_EDITION_LABEL{"Paint"};
 
+editor::inspector::PositionableSelectionPane* IsometricEditorPlugin::get_selection_pane() const {
+    return positionable_selection_pane;
+}
+
 IsometricEditorPlugin::IsometricEditorPlugin() :
         undo_redo{EditorNode::get_undo_redo()},
         toolbar{nullptr},

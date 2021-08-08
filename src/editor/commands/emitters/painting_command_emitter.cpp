@@ -36,7 +36,19 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseMotion
         was_last_event_intercepted = true;
     }
 
+    int selected_tile_id{
+        editor::IsometricEditorPlugin::get_instance()->get_selection_pane()->get_selected_positionable_id()
+    };
+
+    if (selected_tile_id == resource::PositionableSet::NONE_VALUE) {
+        return commands;
+    }
+
     if (!map->is_position_in_map(position)) {
+        return commands;
+    }
+
+    if (map->get_positionable_id_at(position) != resource::PositionableSet::NONE_VALUE) {
         return commands;
     }
 
@@ -45,10 +57,10 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseMotion
     Ref<editor::commands::AddPositionableCommand> add_command;
     add_command.instance();
     add_command->set_map(map);
-
-    print_line(position);
     add_command->set_position(position);
-//    commands.push_back(add_command);
+    add_command->set_positionable_id(selected_tile_id);
+    commands.push_back(add_command);
+    print_line(position);
     return commands;
 }
 
