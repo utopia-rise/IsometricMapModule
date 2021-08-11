@@ -10,24 +10,23 @@
 namespace editor {
     namespace commands {
         namespace emitters {
-            class PaintingCommandEmitter : public CommandEmitter<PaintingCommandEmitter, AddPositionableCommand, InputEventMouseMotion>{
+            class PaintingCommandEmitter : public CommandEmitter<PaintingCommandEmitter, AddPositionableCommand, InputEventMouse>{
 
-                friend class CommandEmitter<PaintingCommandEmitter, AddPositionableCommand, InputEventMouseMotion>;
+                friend class CommandEmitter<PaintingCommandEmitter, AddPositionableCommand, InputEventMouse>;
 
             public:
                 void set_map(node::IsometricMap* p_map);
 
                 PaintingCommandEmitter() = delete;
                 explicit PaintingCommandEmitter(UndoRedo* undo_redo);
-                ~PaintingCommandEmitter() = default;
+                ~PaintingCommandEmitter();
 
             private:
                 node::IsometricMap* map;
-                Vector3 last_event_position;
-                bool was_last_event_intercepted;
+                node::IsometricPositionable* current_preview_node;
 
                 Vector<Ref<editor::commands::AddPositionableCommand>>
-                from_gui_input_to_command_impl(Ref<InputEventMouseMotion> p_event);
+                from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
 
             };
         }

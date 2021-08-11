@@ -8,6 +8,7 @@ using namespace editor;
 
 const char* POSITIONABLE_PANE_BUTTON_TITLE{"Isometric positionables"};
 
+const char* NONE_EDITION_LABEL{"None"};
 const char* SELECT_EDITION_LABEL{"Select"};
 const char* PAINT_EDITION_LABEL{"Paint"};
 
@@ -59,8 +60,9 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         toolbar->hide();
         add_control_to_container(CustomControlContainer::CONTAINER_CANVAS_EDITOR_MENU, toolbar);
 
-        edition_mode_button->add_item("Select");
-        edition_mode_button->add_item("Paint");
+        edition_mode_button->add_item(NONE_EDITION_LABEL);
+        edition_mode_button->add_item(SELECT_EDITION_LABEL);
+        edition_mode_button->add_item(PAINT_EDITION_LABEL);
         edition_mode_button->set_flat(true);
         edition_mode_button->connect("item_selected", this, "_on_edition_mode_changed");
         toolbar->add_child(edition_mode_button);
@@ -132,7 +134,7 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
 
     switch (current_mode) {
         case NONE:
-            break;
+            return false;
         case SELECT:
             break;
         case PAINT:
@@ -183,7 +185,9 @@ void IsometricEditorPlugin::_on_frame_post_draw() {
 
 void IsometricEditorPlugin::_on_edition_mode_changed(int selected_index) {
     const String& selected_label{edition_mode_button->get_item_text(selected_index)};
-    if (selected_label == SELECT_EDITION_LABEL) {
+    if (selected_label == NONE_EDITION_LABEL) {
+        current_mode = Mode::NONE;
+    } else if (selected_label == SELECT_EDITION_LABEL) {
         current_mode = Mode::SELECT;
     } else if (selected_label == PAINT_EDITION_LABEL) {
         current_mode = Mode::PAINT;

@@ -7,13 +7,13 @@
 using namespace editor::commands::emitters;
 
 Vector<Ref<editor::commands::AddPositionableCommand>>
-PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseMotion> p_event) { // NOLINT(performance-unnecessary-value-param)
+PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event) { // NOLINT(performance-unnecessary-value-param)
     Vector<Ref<editor::commands::AddPositionableCommand>> commands;
-    if (!Input::get_singleton()->is_mouse_button_pressed(BUTTON_LEFT)) {
-        if (was_last_event_intercepted) {
-            was_last_event_intercepted = false;
-        }
-        return commands;
+
+    if (current_preview_node) {
+        map->remove_child(current_preview_node);
+        memdelete(current_preview_node);
+        current_preview_node = nullptr;
     }
 
     const data::IsometricParameters* parameters{
@@ -27,14 +27,6 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseMotion
                     0
             )
     };
-
-    if (was_last_event_intercepted && last_event_position == position) {
-        return commands;
-    }
-
-    if (!was_last_event_intercepted) {
-        was_last_event_intercepted = true;
-    }
 
     int selected_tile_id{
         editor::IsometricEditorPlugin::get_instance()->get_selection_pane()->get_selected_positionable_id()
@@ -52,7 +44,18 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouseMotion
         return commands;
     }
 
-    last_event_position = position;
+    if (!Input::get_singleton()->is_mouse_button_pressed(BUTTON_LEFT)) {
+        current_preview_node = Object::cast_to<node::IsometricPositionable>(
+                map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
+        );
+
+        current_preview_node->set_modulate(Color(1, 1, 1, 0.5));
+
+        map->add_child(current_preview_node);
+        current_preview_node->set_local_position_3d(position);
+
+        return commands;
+    }
 
     Ref<editor::commands::AddPositionableCommand> add_command;
     add_command.instance();
@@ -69,6 +72,14 @@ void PaintingCommandEmitter::set_map(node::IsometricMap* p_map) {
 }
 
 PaintingCommandEmitter::PaintingCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo), map(nullptr),
-                                                                      last_event_position(), was_last_event_intercepted(false) {
+    current_preview_node(nullptr) {
 
+}
+
+PaintingCommandEmitter::~PaintingCommandEmitter() {
+    if (current_preview_node) {
+        map->remove_child(current_preview_node);
+        memdelete(current_preview_node);
+        current_preview_node = nullptr;
+    }
 }
