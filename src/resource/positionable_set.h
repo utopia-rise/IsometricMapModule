@@ -23,6 +23,8 @@ namespace resource {
         String get_positionable_scene_path_for_id(int id) const;
         Ref<PackedScene> get_positionable_scene_for_id(int id) const;
 
+        static constexpr int NONE_POSITIONABLE_ID = -1;
+
 #ifdef TOOLS_ENABLED
         const PoolStringArray& get_categories() const;
         void set_categories(const PoolStringArray& p_categories);
@@ -40,7 +42,6 @@ namespace resource {
 
         Vector<resource::PositionableSet::RemovedElement> get_removed_elements() const;
 
-        static constexpr int NONE_VALUE = -1;
 #endif
 
         PositionableSet();

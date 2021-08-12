@@ -21,14 +21,14 @@ void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& se
 #ifdef TOOLS_ENABLED
 
 void IsometricMap::add_positionable_if_nothing_present(const Vector3& position, int id) {
-    if (get_positionable_id_at(position) != containers::Grid3D<int, resource::PositionableSet::NONE_VALUE>::get_default_value()) return;
+    if (get_positionable_id_at(position) != containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value()) return;
 
     grid_3d.set_data(position, id);
     add_positionable_as_child(id, position);
 }
 
 void IsometricMap::remove_positionable(const Vector3& position) {
-    grid_3d.set_data(position, containers::Grid3D<int, resource::PositionableSet::NONE_VALUE>::get_default_value());
+    grid_3d.set_data(position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
 }
 
 int IsometricMap::get_positionable_id_at(const Vector3& p_position) {
@@ -85,7 +85,7 @@ void IsometricMap::_set_grid_3d(const Array& array) {
 }
 
 void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3& position) {
-    if (positionable_id == resource::PositionableSet::NONE_VALUE) return;
+    if (positionable_id == resource::PositionableSet::NONE_POSITIONABLE_ID) return;
     if (auto* positionable{
             Object::cast_to<IsometricPositionable>(
                     positionable_set->get_positionable_scene_for_id(positionable_id)->instance()

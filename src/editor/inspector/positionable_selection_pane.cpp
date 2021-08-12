@@ -17,12 +17,12 @@ void PositionableSelectionPane::set_positionable_set(const Ref<resource::Positio
 int PositionableSelectionPane::get_selected_positionable_id() const {
     const Vector<int>& selected_items{item_list->get_selected_items()};
     if (selected_items.empty()) {
-        return resource::PositionableSet::NONE_VALUE;
+        return resource::PositionableSet::NONE_POSITIONABLE_ID;
     }
     if (auto* metadata{Object::cast_to<PositionableItemListMetadata>(item_list->get_item_metadata(selected_items[0]))}) {
         return metadata->positionable_id;
     }
-    return resource::PositionableSet::NONE_VALUE;
+    return resource::PositionableSet::NONE_POSITIONABLE_ID;
 }
 
 void PositionableSelectionPane::refresh_path_selector() {

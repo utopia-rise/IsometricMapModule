@@ -1,3 +1,5 @@
+#ifdef TOOLS_ENABLED
+
 #include <core/os/input.h>
 #include <modules/isometric_maps/src/utils/isometric_maths.h>
 #include <modules/isometric_maps/src/isometric_server.h>
@@ -32,7 +34,7 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
         editor::IsometricEditorPlugin::get_instance()->get_selection_pane()->get_selected_positionable_id()
     };
 
-    if (selected_tile_id == resource::PositionableSet::NONE_VALUE) {
+    if (selected_tile_id == resource::PositionableSet::NONE_POSITIONABLE_ID) {
         return commands;
     }
 
@@ -40,7 +42,7 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
         return commands;
     }
 
-    if (map->get_positionable_id_at(position) != resource::PositionableSet::NONE_VALUE) {
+    if (map->get_positionable_id_at(position) != resource::PositionableSet::NONE_POSITIONABLE_ID) {
         return commands;
     }
 
@@ -63,7 +65,6 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
     add_command->set_position(position);
     add_command->set_positionable_id(selected_tile_id);
     commands.push_back(add_command);
-    print_line(position);
     return commands;
 }
 
@@ -83,3 +84,5 @@ PaintingCommandEmitter::~PaintingCommandEmitter() {
         current_preview_node = nullptr;
     }
 }
+
+#endif

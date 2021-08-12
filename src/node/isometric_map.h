@@ -12,7 +12,7 @@ namespace node {
 
     private:
         bool draw_tiles;
-        containers::Grid3D<int, resource::PositionableSet::NONE_VALUE> grid_3d;
+        containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID> grid_3d;
         Ref<resource::PositionableSet> positionable_set;
 
         void _on_enter_tree();
