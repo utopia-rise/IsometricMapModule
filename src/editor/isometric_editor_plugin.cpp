@@ -8,16 +8,27 @@ using namespace editor;
 
 const char* POSITIONABLE_PANE_BUTTON_TITLE{"Isometric positionables"};
 
+const char* NONE_EDITION_LABEL{"None"};
+const char* SELECT_EDITION_LABEL{"Select"};
+const char* PAINT_EDITION_LABEL{"Paint"};
+
+editor::inspector::PositionableSelectionPane* IsometricEditorPlugin::get_selection_pane() const {
+    return positionable_selection_pane;
+}
+
 IsometricEditorPlugin::IsometricEditorPlugin() :
         undo_redo{EditorNode::get_undo_redo()},
         toolbar{nullptr},
         positionable_selection_pane{nullptr},
         positionable_pane_button{nullptr},
+        edition_mode_button(memnew(OptionButton)),
         debug_button{nullptr},
         selected_map{nullptr},
         show_debug(false),
+        current_mode(Mode::NONE),
         edition_grid_drawer(),
-        should_clear_buffer_on_next_frame() {
+        should_clear_buffer_on_next_frame(),
+        painting_command_emitter(EditorNode::get_undo_redo()) {
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
@@ -49,6 +60,13 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         toolbar->hide();
         add_control_to_container(CustomControlContainer::CONTAINER_CANVAS_EDITOR_MENU, toolbar);
 
+        edition_mode_button->add_item(NONE_EDITION_LABEL);
+        edition_mode_button->add_item(SELECT_EDITION_LABEL);
+        edition_mode_button->add_item(PAINT_EDITION_LABEL);
+        edition_mode_button->set_flat(true);
+        edition_mode_button->connect("item_selected", this, "_on_edition_mode_changed");
+        toolbar->add_child(edition_mode_button);
+
         debug_button = memnew(Button);
         debug_button->set_flat(true);
         debug_button->connect("toggled", this, "set_debug_mode");
@@ -68,6 +86,9 @@ void IsometricEditorPlugin::_notification(int p_notification) {
 
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
+
+    painting_command_emitter.set_map(selected_map);
+
     if (!selected_map->is_connected("draw", this, "refresh")) {
         selected_map->connect("draw", this, "refresh");
     }
@@ -107,7 +128,19 @@ void IsometricEditorPlugin::clear() {
 }
 
 bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_event) {
-    return false;
+    if (!selected_map) {
+        return false;
+    }
+
+    switch (current_mode) {
+        case NONE:
+            return false;
+        case SELECT:
+            break;
+        case PAINT:
+            painting_command_emitter._on_gui_input(p_event);
+    }
+    return true;
 }
 
 void IsometricEditorPlugin::make_visible(bool b) {
@@ -150,10 +183,22 @@ void IsometricEditorPlugin::_on_frame_post_draw() {
     }
 }
 
+void IsometricEditorPlugin::_on_edition_mode_changed(int selected_index) {
+    const String& selected_label{edition_mode_button->get_item_text(selected_index)};
+    if (selected_label == NONE_EDITION_LABEL) {
+        current_mode = Mode::NONE;
+    } else if (selected_label == SELECT_EDITION_LABEL) {
+        current_mode = Mode::SELECT;
+    } else if (selected_label == PAINT_EDITION_LABEL) {
+        current_mode = Mode::PAINT;
+    }
+}
+
 void IsometricEditorPlugin::_bind_methods() {
     ClassDB::bind_method("set_debug_mode", &IsometricEditorPlugin::set_debug_mode);
     ClassDB::bind_method("refresh", &IsometricEditorPlugin::refresh);
     ClassDB::bind_method("_on_frame_post_draw", &IsometricEditorPlugin::_on_frame_post_draw);
+    ClassDB::bind_method("_on_edition_mode_changed", &IsometricEditorPlugin::_on_edition_mode_changed);
 }
 
 #endif
