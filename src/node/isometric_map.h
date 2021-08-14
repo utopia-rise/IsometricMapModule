@@ -13,6 +13,7 @@ namespace node {
     private:
         bool draw_tiles;
         containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID> grid_3d;
+        containers::Grid3D<IsometricPositionable*, nullptr> instances_grid_3d;
         Ref<resource::PositionableSet> positionable_set;
 
         void _on_enter_tree();
@@ -33,7 +34,7 @@ namespace node {
 
         void remove_positionable(const Vector3& position);
 
-        int get_positionable_id_at(const Vector3& p_position);
+        Object* get_positionable_at(const Vector3& position);
 
         bool is_position_in_map(const Vector3& p_position) const;
 

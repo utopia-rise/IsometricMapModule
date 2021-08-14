@@ -3,7 +3,7 @@
 using namespace node;
 
 IsometricMap::IsometricMap() :
-        IsometricPositionable(), draw_tiles(true), grid_3d(), positionable_set() {
+        IsometricPositionable(), draw_tiles(true), grid_3d(), instances_grid_3d(), positionable_set() {
 }
 
 Ref<resource::PositionableSet> IsometricMap::get_positionable_set() const {
@@ -21,7 +21,7 @@ void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& se
 #ifdef TOOLS_ENABLED
 
 void IsometricMap::add_positionable_if_nothing_present(const Vector3& position, int id) {
-    if (get_positionable_id_at(position) != containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value()) return;
+    if (get_positionable_at(position)) return;
 
     grid_3d.set_data(position, id);
     add_positionable_as_child(id, position);
@@ -31,8 +31,8 @@ void IsometricMap::remove_positionable(const Vector3& position) {
     grid_3d.set_data(position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
 }
 
-int IsometricMap::get_positionable_id_at(const Vector3& p_position) {
-    return grid_3d.get_data(p_position);
+Object* IsometricMap::get_positionable_at(const Vector3& position) {
+    return instances_grid_3d.get_data(position);
 }
 
 bool IsometricMap::is_position_in_map(const Vector3& p_position) const {
@@ -94,6 +94,8 @@ void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3&
     ) {
         add_child(positionable);
         positionable->set_local_position_3d(position);
+
+        instances_grid_3d.insert_box({position, positionable->get_size()}, positionable);
     }
 }
 

@@ -42,7 +42,7 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
         return commands;
     }
 
-    if (map->get_positionable_id_at(position) != resource::PositionableSet::NONE_POSITIONABLE_ID) {
+    if (map->get_positionable_at(position)) {
         return commands;
     }
 
