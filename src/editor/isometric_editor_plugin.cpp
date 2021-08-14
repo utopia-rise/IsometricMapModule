@@ -123,8 +123,10 @@ bool IsometricEditorPlugin::handles(Object* p_object) const {
 }
 
 void IsometricEditorPlugin::clear() {
-    selected_map->set_debug(false);
-    selected_map = nullptr;
+    if (selected_map) {
+        selected_map->set_debug(false);
+        selected_map = nullptr;
+    }
 }
 
 bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_event) {
