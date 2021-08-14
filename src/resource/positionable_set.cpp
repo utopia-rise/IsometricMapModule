@@ -186,14 +186,6 @@ void PositionableSet::insert_positionable_if_not_present(const String& category,
     _insert_positionable_for_category_and_id(category_hash, resource_path, ++last_id);
 }
 
-void PositionableSet::_load_positionable_scene(int id, const String& scene_path) {
-    Ref<PackedScene> loaded{ResourceLoader::load(scene_path)};
-    if (!loaded.is_valid()) {
-        LOG_ERROR(vformat("Element %s from tileset is not valid.", scene_path))
-    }
-    identifier_to_loaded_scene[id] = loaded;
-}
-
 void PositionableSet::_insert_positionable_for_category_and_id(const StringName& category, const String &resource_path,
                                                                int id) {
     Vector<int>& identifiers{categories_to_identifiers[category]};
@@ -250,6 +242,14 @@ void PositionableSet::_set_last_id(int p_last_id) {
 }
 
 #endif
+
+void PositionableSet::_load_positionable_scene(int id, const String& scene_path) {
+    Ref<PackedScene> loaded{ResourceLoader::load(scene_path)};
+    if (!loaded.is_valid()) {
+        LOG_ERROR(vformat("Element %s from tileset is not valid.", scene_path))
+    }
+    identifier_to_loaded_scene[id] = loaded;
+}
 
 Dictionary PositionableSet::_get_identifier_to_scene_path() const {
     Dictionary converted;

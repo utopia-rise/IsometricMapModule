@@ -38,11 +38,26 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
         return commands;
     }
 
-    if (!map->is_position_in_map(position)) {
+    Vector3 size;
+    if (auto* positionable{
+            Object::cast_to<node::IsometricPositionable>(
+                    map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
+            )
+        }
+    ) {
+        size = positionable->get_size();
+        memdelete(positionable);
+    } else {
         return commands;
     }
 
-    if (map->get_positionable_at(position)) {
+    AABB aabb{position, size};
+
+    if (!map->is_aabb_in_map(aabb)) {
+        return commands;
+    }
+
+    if (map->is_overlapping(aabb)) {
         return commands;
     }
 
@@ -62,7 +77,7 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
     Ref<editor::commands::AddPositionableCommand> add_command;
     add_command.instance();
     add_command->set_map(map);
-    add_command->set_position(position);
+    add_command->set_aabb(aabb);
     add_command->set_positionable_id(selected_tile_id);
     commands.push_back(add_command);
     return commands;

@@ -20,28 +20,35 @@ void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& se
 
 #ifdef TOOLS_ENABLED
 
-void IsometricMap::add_positionable_if_nothing_present(const Vector3& position, int id) {
-    if (get_positionable_at(position)) return;
+void IsometricMap::add_positionable_if_nothing_present(const AABB& aabb, int id) {
+    if (instances_grid_3d.is_overlapping(aabb)) return;
 
+    const Vector3& position{aabb.position};
     grid_3d.set_data(position, id);
     add_positionable_as_child(id, position);
 }
 
-void IsometricMap::remove_positionable(const Vector3& position) {
-    grid_3d.set_data(position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
+void IsometricMap::remove_positionable(const AABB& aabb) {
+    grid_3d.set_data(aabb.position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
+    instances_grid_3d.insert_box(aabb, nullptr, true);
 }
 
 Object* IsometricMap::get_positionable_at(const Vector3& position) {
     return instances_grid_3d.get_data(position);
 }
 
-bool IsometricMap::is_position_in_map(const Vector3& p_position) const {
-    int pos_x{static_cast<int>(p_position.x)};
-    int pos_y{static_cast<int>(p_position.y)};
-    int pos_z{static_cast<int>(p_position.z)};
+bool IsometricMap::is_aabb_in_map(const AABB& aabb) const {
+    const Vector3& position{aabb.position};
+    const Vector3& size{aabb.size};
+    int pos_x{static_cast<int>(position.x)};
+    int pos_y{static_cast<int>(position.y)};
+    int pos_z{static_cast<int>(position.z)};
+    int max_x{pos_x + static_cast<int>(size.x) - 1};
+    int max_y{pos_y + static_cast<int>(size.y) - 1};
+    int max_z{pos_z + static_cast<int>(size.z) - 1};
 
     if (pos_x < 0 || pos_y < 0 || pos_z < 0 ||
-        pos_x >= grid_3d.get_width() || pos_y >= grid_3d.get_depth() || pos_z >= grid_3d.get_height()) {
+        max_x >= grid_3d.get_width() || max_y >= grid_3d.get_depth() || max_z >= grid_3d.get_height()) {
         return false;
     }
     return true;
@@ -50,6 +57,11 @@ bool IsometricMap::is_position_in_map(const Vector3& p_position) const {
 void IsometricMap::set_size(Vector3 p_size) {
     IsometricPositionable::set_size(p_size);
     grid_3d.update_array_size(p_size);
+    instances_grid_3d.update_array_size(p_size);
+}
+
+bool IsometricMap::is_overlapping(const AABB& aabb) const {
+    return instances_grid_3d.is_overlapping(aabb);
 }
 
 #endif

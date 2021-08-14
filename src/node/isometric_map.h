@@ -30,15 +30,17 @@ namespace node {
         void set_positionable_set(const Ref<resource::PositionableSet>& set);
 
 #ifdef TOOLS_ENABLED
-        void add_positionable_if_nothing_present(const Vector3& position, int id);
+        void add_positionable_if_nothing_present(const AABB& aabb, int id);
 
-        void remove_positionable(const Vector3& position);
+        void remove_positionable(const AABB& aabb);
 
         Object* get_positionable_at(const Vector3& position);
 
-        bool is_position_in_map(const Vector3& p_position) const;
+        bool is_aabb_in_map(const AABB& aabb) const;
 
         void set_size(Vector3 p_size) override;
+
+        bool is_overlapping(const AABB& aabb) const;
 #endif
 
         IsometricMap();

@@ -15,7 +15,7 @@ namespace editor {
             friend class Command<AddPositionableCommand>;
 
         public:
-            void set_position(const Vector3& p_position);
+            void set_aabb(const AABB& p_aabb);
             void set_positionable_id(int id);
             void set_map(node::IsometricMap* p_map);
 
@@ -23,7 +23,7 @@ namespace editor {
             ~AddPositionableCommand() override = default;
 
         private:
-            Vector3 position;
+            AABB aabb;
             int positionable_id;
             node::IsometricMap* map;
 
