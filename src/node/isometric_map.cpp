@@ -29,8 +29,10 @@ void IsometricMap::add_positionable_if_nothing_present(const AABB& aabb, int id)
 }
 
 void IsometricMap::remove_positionable(const AABB& aabb) {
+    IsometricPositionable* element_to_remove{instances_grid_3d.get_data(aabb.position)};
     grid_3d.set_data(aabb.position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
     instances_grid_3d.insert_box(aabb, nullptr, true);
+    remove_child(element_to_remove);
 }
 
 Object* IsometricMap::get_positionable_at(const Vector3& position) {

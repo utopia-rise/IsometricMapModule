@@ -10,7 +10,7 @@
 namespace editor {
     namespace commands {
         class AddPositionableCommand : public Command<AddPositionableCommand> {
-            GDCLASS(AddPositionableCommand, Reference)
+            GDCLASS(AddPositionableCommand, Resource)
 
             friend class Command<AddPositionableCommand>;
 
