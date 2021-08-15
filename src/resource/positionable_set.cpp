@@ -18,12 +18,7 @@ void PositionableSet::preload_scenes() {
 
     Map<int, String>::Element* current{identifier_to_scene_path.front()};
     while (current) {
-        const String& element_path{current->value()};
-        Ref<PackedScene> loaded{ResourceLoader::load(element_path)};
-        if (!loaded.is_valid()) {
-            LOG_ERROR(vformat("Element %s from tileset is not valid.", element_path))
-        }
-        identifier_to_loaded_scene[current->key()] = loaded;
+        _load_positionable_scene(current->key(), current->value());
         current = current->next();
     }
 
@@ -132,6 +127,11 @@ bool PositionableSet::add_or_update_positionable(int id, const String& path) {
         current = current->next();
     }
     identifier_to_scene_path[id] = path;
+
+    if (is_loaded) {
+        _load_positionable_scene(id, path);
+    }
+
     return true;
 }
 
@@ -186,12 +186,15 @@ void PositionableSet::insert_positionable_if_not_present(const String& category,
     _insert_positionable_for_category_and_id(category_hash, resource_path, ++last_id);
 }
 
-
 void PositionableSet::_insert_positionable_for_category_and_id(const StringName& category, const String &resource_path,
                                                                int id) {
     Vector<int>& identifiers{categories_to_identifiers[category]};
     identifiers.push_back(id);
     identifier_to_scene_path[id] = resource_path;
+
+    if (is_loaded) {
+        _load_positionable_scene(id, resource_path);
+    }
 }
 
 Dictionary PositionableSet::_get_categories_to_identifiers() const {
@@ -239,6 +242,14 @@ void PositionableSet::_set_last_id(int p_last_id) {
 }
 
 #endif
+
+void PositionableSet::_load_positionable_scene(int id, const String& scene_path) {
+    Ref<PackedScene> loaded{ResourceLoader::load(scene_path)};
+    if (!loaded.is_valid()) {
+        LOG_ERROR(vformat("Element %s from tileset is not valid.", scene_path))
+    }
+    identifier_to_loaded_scene[id] = loaded;
+}
 
 Dictionary PositionableSet::_get_identifier_to_scene_path() const {
     Dictionary converted;

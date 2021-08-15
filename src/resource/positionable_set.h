@@ -55,6 +55,7 @@ namespace resource {
         Map<int, Ref<PackedScene>> identifier_to_loaded_scene;
         bool is_loaded;
 
+        void _load_positionable_scene(int id, const String& scene_path);
         Dictionary _get_identifier_to_scene_path() const;
         void _set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path);
 

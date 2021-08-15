@@ -3,6 +3,7 @@
 #include "isometric_editor_plugin.h"
 #include "positionable_scenes_cache_manager.h"
 #include <scene/main/viewport.h>
+#include <core/os/keyboard.h>
 
 using namespace editor;
 
@@ -123,13 +124,43 @@ bool IsometricEditorPlugin::handles(Object* p_object) const {
 }
 
 void IsometricEditorPlugin::clear() {
-    selected_map->set_debug(false);
-    selected_map = nullptr;
+    if (selected_map) {
+        selected_map->set_debug(false);
+        selected_map = nullptr;
+    }
 }
 
 bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_event) {
     if (!selected_map) {
         return false;
+    }
+
+    Ref<InputEventKey> keyboard_event{p_event};
+    if (keyboard_event.is_valid() && keyboard_event->is_pressed()) {
+        bool is_ctrl{
+#ifdef APPLE_STYLE_KEYS
+            keyboard_event->get_command()
+#else
+            keyboard_event->get_control()
+#endif
+        };
+        if (is_ctrl) {
+            uint32_t key_pressed{keyboard_event->get_scancode()};
+            switch (key_pressed) {
+                case KEY_Z:
+                    if (keyboard_event->get_shift()) {
+                        EditorNode::get_undo_redo()->redo();
+                    } else {
+                        EditorNode::get_undo_redo()->undo();
+                    }
+                    return true;
+                case KEY_Y:
+                    EditorNode::get_undo_redo()->redo();
+                    return true;
+                default:
+                    break;
+            }
+        }
     }
 
     switch (current_mode) {
