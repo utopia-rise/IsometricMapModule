@@ -138,7 +138,7 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
     Ref<InputEventKey> keyboard_event{p_event};
     if (keyboard_event.is_valid() && keyboard_event->is_pressed()) {
         bool is_ctrl{
-#ifdef __APPLE__
+#ifdef APPLE_STYLE_KEYS
             keyboard_event->get_command()
 #else
             keyboard_event->get_control()
