@@ -12,19 +12,19 @@ namespace editor {
     public:
         static PositionableSelectorManager& get_instance();
 
-        void select_positionable(node::IsometricMap* map, node::IsometricPositionable* positionable);
+        void select_positionable_at(node::IsometricMap* map, node::IsometricPositionable* positionable);
         void deselect_positionable_at(node::IsometricMap* map, const Vector3& position);
         void deselect_all(node::IsometricMap* map);
 
-        const containers::Grid3D<node::IsometricPositionable*, nullptr>& get_selected_for_map(node::IsometricMap* map);
+        const Vector<Vector3>& get_selected_for_map(node::IsometricMap* map);
         void set_selected_for_map(node::IsometricMap* map,
-                                  const containers::Grid3D<node::IsometricPositionable*, nullptr>& selected);
+                                  const Vector<Vector3>& selected);
 
         PositionableSelectorManager(const PositionableSelectorManager&) = delete;
         PositionableSelectorManager& operator=(const PositionableSelectorManager&) = delete;
 
     private:
-        Map<node::IsometricMap*, containers::Grid3D<node::IsometricPositionable*, nullptr>> map_to_selected_positionables;
+        Map<node::IsometricMap*, Vector<Vector3>> map_to_selected_positions;
 
         static void show_outline(node::IsometricPositionable* positionable);
 

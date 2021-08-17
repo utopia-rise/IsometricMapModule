@@ -26,7 +26,7 @@ namespace editor {
             Vector3 position;
             bool should_deselect_first;
 
-            containers::Grid3D<node::IsometricPositionable*, nullptr> selected_cache;
+            Vector<Vector3> selected_cache;
 
         public:
             static void _bind_methods_impl();

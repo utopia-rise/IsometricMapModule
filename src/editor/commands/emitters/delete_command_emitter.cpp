@@ -22,21 +22,20 @@ DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event)
         return commands;
     }
 
-    const containers::Grid3D<node::IsometricPositionable*, nullptr>& selected_elements{
+    const Vector<Vector3>& selected_positions{
         editor::PositionableSelectorManager::get_instance().get_selected_for_map(map)
     };
 
-    const Vector<node::IsometricPositionable*>& internal_array{selected_elements.get_internal_array()};
-
-    for (int i = 0; i < internal_array.size(); ++i) {
-        if (node::IsometricPositionable* current{internal_array[i]}) {
+    for (int i = 0; i < selected_positions.size(); ++i) {
+        const Vector3& position{selected_positions[i]};
+        if (node::IsometricPositionable* current{map->get_positionable_at(position)}) {
             const Vector3& local_position{current->get_local_position_3d()};
 
             Ref<SelectPositionableCommand> select_command;
             select_command.instance();
             select_command->set_should_deselect_first(false);
             select_command->set_map(map);
-            select_command->set_position(selected_elements.get_position_3d_from_index(i));
+            select_command->set_position(position);
 
             Ref<RevertCommand> deselect_command;
             deselect_command.instance();

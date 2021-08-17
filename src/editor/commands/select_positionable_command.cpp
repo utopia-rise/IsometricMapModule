@@ -11,7 +11,7 @@ void SelectPositionableCommand::redo() {
         editor::PositionableSelectorManager::get_instance().deselect_all(map);
     }
     node::IsometricPositionable* positionable{map->get_positionable_at(position)};
-    editor::PositionableSelectorManager::get_instance().select_positionable(map, positionable);
+    editor::PositionableSelectorManager::get_instance().select_positionable_at(map, positionable);
 }
 
 void SelectPositionableCommand::undo() {

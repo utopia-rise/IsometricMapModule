@@ -10,54 +10,42 @@ PositionableSelectorManager& PositionableSelectorManager::get_instance() {
 }
 
 void
-PositionableSelectorManager::select_positionable(node::IsometricMap* map, node::IsometricPositionable* positionable) {
-    if (!map_to_selected_positionables.has(map)) {
-        map_to_selected_positionables[map] = containers::Grid3D<node::IsometricPositionable*, nullptr>();
+PositionableSelectorManager::select_positionable_at(node::IsometricMap* map, node::IsometricPositionable* positionable) {
+    if (!map_to_selected_positions.has(map)) {
+        map_to_selected_positions[map] = Vector<Vector3>();
     }
-    map_to_selected_positionables[map].update_array_size(map->get_size());
     show_outline(positionable);
-    map_to_selected_positionables[map].insert_box(
-            {positionable->get_local_position_3d(), positionable->get_size()},
-            positionable
-    );
+    map_to_selected_positions[map].push_back(positionable->get_local_position_3d());
 }
 
 void PositionableSelectorManager::deselect_positionable_at(node::IsometricMap* map, const Vector3& position) {
-    containers::Grid3D<node::IsometricPositionable*, nullptr>& selected_positionables{
-        map_to_selected_positionables[map]
-    };
-    node::IsometricPositionable* selected{selected_positionables.get_data(position)};
+    Vector<Vector3>& selected_positions{map_to_selected_positions[map]};
+    node::IsometricPositionable* selected{map->get_positionable_at(position)};
     if (!selected) {
         return;
     }
     selected->show_outline(false);
-    selected_positionables.insert_box({position, selected->get_size()}, nullptr, true);
+    selected_positions.erase(position);
 }
 
 void PositionableSelectorManager::deselect_all(node::IsometricMap* map) {
-    containers::Grid3D<node::IsometricPositionable*, nullptr>& selected_positionables{
-        map_to_selected_positionables[map]
-    };
-    const Vector<node::IsometricPositionable*>& positionables{selected_positionables.get_internal_array()};
-    for (int i = 0; i < positionables.size(); ++i) {
-        if (node::IsometricPositionable* positionable{positionables[i]}) {
+    Vector<Vector3>& selected_positions{map_to_selected_positions[map]};
+    for (int i = 0; i < selected_positions.size(); ++i) {
+        if (node::IsometricPositionable* positionable{map->get_positionable_at(selected_positions[i])}) {
             positionable->show_outline(false);
         }
     }
-    selected_positionables.update_array_size(selected_positionables.get_dimensions(), true);
+    selected_positions.clear();
 }
 
-const containers::Grid3D<node::IsometricPositionable*, nullptr>&
-PositionableSelectorManager::get_selected_for_map(node::IsometricMap* map) {
-    return map_to_selected_positionables[map];
+const Vector<Vector3>& PositionableSelectorManager::get_selected_for_map(node::IsometricMap* map) {
+    return map_to_selected_positions[map];
 }
 
-void PositionableSelectorManager::set_selected_for_map(node::IsometricMap* map,
-                                                       const containers::Grid3D<node::IsometricPositionable*, nullptr>& selected) {
-    map_to_selected_positionables[map] = selected;
-    const Vector<node::IsometricPositionable*>& selected_array{selected.get_internal_array()};
-    for (int i = 0; i < selected_array.size(); ++i) {
-        node::IsometricPositionable* positionable{selected_array[i]};
+void PositionableSelectorManager::set_selected_for_map(node::IsometricMap* map, const Vector<Vector3>& selected) {
+    map_to_selected_positions[map] = selected;
+    for (int i = 0; i < selected.size(); ++i) {
+        node::IsometricPositionable* positionable{map->get_positionable_at(selected[i])};
         if (!positionable) {
             continue;
         }
@@ -70,7 +58,7 @@ void PositionableSelectorManager::show_outline(node::IsometricPositionable* posi
     positionable->show_outline(true);
 }
 
-PositionableSelectorManager::PositionableSelectorManager() : map_to_selected_positionables() {
+PositionableSelectorManager::PositionableSelectorManager() : map_to_selected_positions() {
 
 }
 
