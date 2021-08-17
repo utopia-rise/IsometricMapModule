@@ -29,7 +29,9 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         current_mode(Mode::NONE),
         edition_grid_drawer(),
         should_clear_buffer_on_next_frame(),
-        painting_command_emitter(EditorNode::get_undo_redo()) {
+        painting_command_emitter(EditorNode::get_undo_redo()),
+        select_command_emitter(EditorNode::get_undo_redo()),
+        delete_command_emitter(EditorNode::get_undo_redo()) {
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
@@ -43,7 +45,7 @@ IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
 
 void IsometricEditorPlugin::set_debug_mode(bool b) {
     show_debug = b;
-    selected_map->set_debug(b);
+    selected_map->show_outline(b);
 }
 
 void IsometricEditorPlugin::set_should_clear_buffer_on_next_frame(bool should) {
@@ -89,6 +91,8 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
 
     painting_command_emitter.set_map(selected_map);
+    select_command_emitter.set_map(selected_map);
+    delete_command_emitter.set_map(selected_map);
 
     if (!selected_map->is_connected("draw", this, "refresh")) {
         selected_map->connect("draw", this, "refresh");
@@ -104,13 +108,13 @@ void IsometricEditorPlugin::edit(Object* p_object) {
         const Vector3& map_size{selected_map->get_size()};
         handling_data_map[index] = MapHandlingData({0, EditorAxes::Z, {map_size.x, map_size.y}});
     }
-    selected_map->set_debug(show_debug);
+    selected_map->show_outline(show_debug);
     edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
 }
 
 void IsometricEditorPlugin::drop() {
     if (selected_map) {
-        selected_map->set_debug(false);
+        selected_map->show_outline(false);
         if (selected_map->is_connected("draw", this, "refresh")) {
             selected_map->disconnect("draw", this, "refresh");
         }
@@ -125,7 +129,7 @@ bool IsometricEditorPlugin::handles(Object* p_object) const {
 
 void IsometricEditorPlugin::clear() {
     if (selected_map) {
-        selected_map->set_debug(false);
+        selected_map->show_outline(false);
         selected_map = nullptr;
     }
 }
@@ -167,9 +171,12 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
         case NONE:
             return false;
         case SELECT:
+            select_command_emitter.on_gui_input(p_event);
+            delete_command_emitter.on_gui_input(p_event);
             break;
         case PAINT:
-            painting_command_emitter._on_gui_input(p_event);
+            painting_command_emitter.on_gui_input(p_event);
+            break;
     }
     return true;
 }

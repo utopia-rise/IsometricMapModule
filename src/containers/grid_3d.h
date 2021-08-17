@@ -35,6 +35,8 @@ namespace containers {
 
         void update_array_size(const Vector3 &size, bool reset = false);
 
+        Vector3 get_dimensions();
+
         void reset();
 
         T get_data(const Vector3 &position);
@@ -106,6 +108,11 @@ namespace containers {
                 set_data({static_cast<real_t>(x), static_cast<real_t>(y), static_cast<real_t>(z)}, value);
             }
         }
+    }
+
+    template<class T, T default_value>
+    Vector3 Grid3D<T, default_value>::get_dimensions() {
+        return {static_cast<float>(width), static_cast<float>(depth), static_cast<float>(height)};
     }
 
     template<class T, T default_value>
@@ -285,6 +292,7 @@ namespace containers {
     Grid3D<T, default_value>::Grid3D() {
         update_array_size(Vector3(1, 1, 1));
     }
+
 } // namespace containers
 
 #endif //ISOMETRIC_MAPS_GRID_3D_H

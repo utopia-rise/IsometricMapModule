@@ -73,7 +73,7 @@ void IsometricPositionable::update_position() {
     set_outline_drawer(Color(1., 0., 0.), 3);
 }
 
-void IsometricPositionable::set_outline_drawer(Color color, real_t line_size) {
+void IsometricPositionable::set_outline_drawer(Color color, real_t line_size, bool should_draw_polygons) {
     prepare_points();
     if (!outline_drawer) {
         outline_drawer = memnew(editor::OutlineDrawer());
@@ -82,9 +82,10 @@ void IsometricPositionable::set_outline_drawer(Color color, real_t line_size) {
     }
     update();
 
-    outline_drawer->setPoints(&up_points, &down_points);
-    outline_drawer->setColor(color);
-    outline_drawer->setLineSize(line_size);
+    outline_drawer->set_points(&up_points, &down_points);
+    outline_drawer->set_color(color);
+    outline_drawer->set_line_size(line_size);
+    outline_drawer->set_should_draw_polygons(should_draw_polygons);
     outline_drawer->update();
 }
 
@@ -215,7 +216,7 @@ void IsometricPositionable::_bind_methods() {
     //    BIND_ENUM_CONSTANT(BACKWARD);
 }
 
-void IsometricPositionable::set_debug(bool b) {
+void IsometricPositionable::show_outline(bool b) {
     if (outline_drawer) {
         outline_drawer->set_visible(b);
         outline_drawer->update();

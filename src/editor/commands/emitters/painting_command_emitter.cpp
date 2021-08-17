@@ -8,9 +8,9 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::AddPositionableCommand>>
+Vector<Ref<editor::commands::Command>>
 PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event) { // NOLINT(performance-unnecessary-value-param)
-    Vector<Ref<editor::commands::AddPositionableCommand>> commands;
+    Vector<Ref<Command>> commands;
 
     if (current_preview_node) {
         map->remove_child(current_preview_node);

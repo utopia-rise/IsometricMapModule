@@ -33,10 +33,15 @@ void IsometricMap::remove_positionable(const AABB& aabb) {
     grid_3d.set_data(aabb.position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
     instances_grid_3d.insert_box(aabb, nullptr, true);
     remove_child(element_to_remove);
+    element_to_remove->queue_delete();
 }
 
-Object* IsometricMap::get_positionable_at(const Vector3& position) {
+IsometricPositionable* IsometricMap::get_positionable_at(const Vector3& position) {
     return instances_grid_3d.get_data(position);
+}
+
+int IsometricMap::get_positionable_id_for_position(const Vector3& position) {
+    return grid_3d.get_data(position);
 }
 
 bool IsometricMap::is_aabb_in_map(const AABB& aabb) const {

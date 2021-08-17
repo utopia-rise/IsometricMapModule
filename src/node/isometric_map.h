@@ -34,7 +34,9 @@ namespace node {
 
         void remove_positionable(const AABB& aabb);
 
-        Object* get_positionable_at(const Vector3& position);
+        IsometricPositionable* get_positionable_at(const Vector3& position);
+
+        int get_positionable_id_for_position(const Vector3& position);
 
         bool is_aabb_in_map(const AABB& aabb) const;
 

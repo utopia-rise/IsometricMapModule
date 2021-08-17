@@ -56,9 +56,9 @@ namespace node {
 
         ~IsometricPositionable() override = default;
 
-        void set_outline_drawer(Color color, real_t line_size);
+        void set_outline_drawer(Color color, real_t line_size, bool should_draw_polygons = true);
 
-        void set_debug(bool b);
+        void show_outline(bool b);
 
         Vector3 get_local_position_3d() const;
 
