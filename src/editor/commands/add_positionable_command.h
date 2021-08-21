@@ -9,12 +9,12 @@
 
 namespace editor {
     namespace commands {
-        class AddPositionableCommand : public Command<AddPositionableCommand> {
-            GDCLASS(AddPositionableCommand, Resource)
-
-            friend class Command<AddPositionableCommand>;
+        class AddPositionableCommand : public Command {
 
         public:
+            void redo() override;
+            void undo() override;
+
             void set_aabb(const AABB& p_aabb);
             void set_positionable_id(int id);
             void set_map(node::IsometricMap* p_map);
@@ -26,9 +26,6 @@ namespace editor {
             AABB aabb;
             int positionable_id;
             node::IsometricMap* map;
-
-            void redo_implementation();
-            void undo_implementation();
 
         public:
             static void _bind_methods_impl();

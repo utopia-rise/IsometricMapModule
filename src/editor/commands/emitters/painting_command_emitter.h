@@ -10,9 +10,9 @@
 namespace editor {
     namespace commands {
         namespace emitters {
-            class PaintingCommandEmitter : public CommandEmitter<PaintingCommandEmitter, AddPositionableCommand, InputEventMouse>{
+            class PaintingCommandEmitter : public CommandEmitter<PaintingCommandEmitter, InputEventMouse>{
 
-                friend class CommandEmitter<PaintingCommandEmitter, AddPositionableCommand, InputEventMouse>;
+                friend class CommandEmitter<PaintingCommandEmitter, InputEventMouse>;
 
             public:
                 void set_map(node::IsometricMap* p_map);
@@ -25,8 +25,7 @@ namespace editor {
                 node::IsometricMap* map;
                 node::IsometricPositionable* current_preview_node;
 
-                Vector<Ref<editor::commands::AddPositionableCommand>>
-                from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
+                Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
 
             };
         }

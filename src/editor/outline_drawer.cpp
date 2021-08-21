@@ -3,7 +3,7 @@
 using namespace editor;
 
 OutlineDrawer::OutlineDrawer() :
-        Node2D(), up_points(nullptr), down_points(nullptr), line_size(1) {
+        Node2D(), up_points(nullptr), down_points(nullptr), line_size(1), should_draw_polygons(true) {
     set_z_index(4096);
 }
 
@@ -49,9 +49,11 @@ void OutlineDrawer::_draw() {
     rightColor.push_back(color3);
     rightColor.push_back(color3);
 
-    draw_polygon(upPoints, upColor);
-    draw_polygon(leftPoints, leftColor);
-    draw_polygon(rightPoints, rightColor);
+    if (should_draw_polygons) {
+        draw_polygon(upPoints, upColor);
+        draw_polygon(leftPoints, leftColor);
+        draw_polygon(rightPoints, rightColor);
+    }
 
     //    Upper Lines
     draw_line(up_p[0], up_p[1], color, line_size);
@@ -74,13 +76,13 @@ void OutlineDrawer::_draw() {
 
 }
 
-void OutlineDrawer::setPoints(Vector<Vector2>* up, Vector<Vector2>* down) {
+void OutlineDrawer::set_points(Vector<Vector2>* up, Vector<Vector2>* down) {
     up_points = up;
     down_points = down;
     update();
 }
 
-void OutlineDrawer::setColor(const Color &c) {
+void OutlineDrawer::set_color(const Color &c) {
     color = c;
 }
 
@@ -88,12 +90,16 @@ const Color &OutlineDrawer::get_color() const {
     return color;
 }
 
-void OutlineDrawer::setLineSize(real_t size) {
+void OutlineDrawer::set_line_size(real_t size) {
     line_size = size;
 }
 
 real_t OutlineDrawer::get_line_size() const {
     return line_size;
+}
+
+void OutlineDrawer::set_should_draw_polygons(bool should) {
+    should_draw_polygons = should;
 }
 
 void OutlineDrawer::_notification(int notif) {

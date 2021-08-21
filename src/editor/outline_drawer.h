@@ -12,6 +12,7 @@ namespace editor {
         Vector<Vector2>* down_points;
         Color color;
         real_t line_size;
+        bool should_draw_polygons;
 
     public:
         OutlineDrawer();
@@ -20,15 +21,17 @@ namespace editor {
 
         void _draw();
 
-        void setPoints(Vector<Vector2>* up, Vector<Vector2>* down);
+        void set_points(Vector<Vector2>* up, Vector<Vector2>* down);
 
-        void setColor(const Color &c);
+        void set_color(const Color &c);
 
         const Color &get_color() const;
 
-        void setLineSize(real_t size);
+        void set_line_size(real_t size);
 
         real_t get_line_size() const;
+
+        void set_should_draw_polygons(bool should);
 
     protected:
         static void _bind_methods();

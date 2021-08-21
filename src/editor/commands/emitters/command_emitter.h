@@ -5,17 +5,15 @@
 
 #include <core/undo_redo.h>
 #include <core/os/input_event.h>
-#include "painting_command_emitter.h"
-
 
 namespace editor {
     namespace commands {
         namespace emitters {
 
-            template<class Derived, class Command, class Evt>
+            template<class Derived, class Evt>
             class CommandEmitter {
             public:
-                void _on_gui_input(const Ref<InputEvent>& p_event);
+                void on_gui_input(const Ref<InputEvent>& p_event);
 
                 CommandEmitter() = delete;
                 explicit CommandEmitter(UndoRedo* p_undo_redo);
@@ -27,8 +25,8 @@ namespace editor {
                 Vector<Ref<Command>> from_gui_input_to_command(Ref<Evt> p_event);
             };
 
-            template<class Derived, class Command, class Evt>
-            void CommandEmitter<Derived, Command, Evt>::_on_gui_input(const Ref<InputEvent>& p_event) {
+            template<class Derived, class Evt>
+            void CommandEmitter<Derived, Evt>::on_gui_input(const Ref<InputEvent>& p_event) {
                 Ref<Evt> event{p_event};
                 if (!event.is_null()) {
                     Vector<Ref<Command>> commands{from_gui_input_to_command(event)};
@@ -50,13 +48,13 @@ namespace editor {
                 }
             }
 
-            template<class Derived, class Command, class Evt>
-            Vector<Ref<Command>> CommandEmitter<Derived, Command, Evt>::from_gui_input_to_command(Ref<Evt> p_event) {
+            template<class Derived, class Evt>
+            Vector<Ref<Command>> CommandEmitter<Derived, Evt>::from_gui_input_to_command(Ref<Evt> p_event) {
                 return reinterpret_cast<Derived*>(this)->from_gui_input_to_command_impl(p_event);
             }
 
-            template<class Derived, class Command, class Evt>
-            CommandEmitter<Derived, Command, Evt>::CommandEmitter(UndoRedo* p_undo_redo) : undo_redo(p_undo_redo) {
+            template<class Derived, class Evt>
+            CommandEmitter<Derived, Evt>::CommandEmitter(UndoRedo* p_undo_redo) : undo_redo(p_undo_redo) {
 
             }
         }

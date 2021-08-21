@@ -11,46 +11,22 @@
 namespace editor {
     namespace commands {
 
-        template<class Derived>
         class Command : public Resource { //Forced to set as Resource because Undo redo is not expecting a Reference in
                                           //current godot version, this is will be fixed in 4.0 version of Godot.
+            GDCLASS(Command, Resource)
 
         protected:
             static void _bind_methods();
 
         public:
-            void redo();
-            void undo();
+            virtual void redo() = 0;
+            virtual void undo() = 0;
 
             void append_to_undoredo(UndoRedo* undo_redo);
 
             Command() = default;
             ~Command() override = default;
         };
-
-        template<class Derived>
-        void Command<Derived>::redo() {
-            reinterpret_cast<Derived*>(this)->redo_implementation();
-        }
-
-        template<class Derived>
-        void Command<Derived>::undo() {
-            reinterpret_cast<Derived*>(this)->undo_implementation();
-        }
-
-        template<class Derived>
-        void Command<Derived>::append_to_undoredo(UndoRedo* undo_redo) {
-            undo_redo->add_do_method(this, "redo");
-            undo_redo->add_undo_method(this, "undo");
-        }
-
-        template<class Derived>
-        void Command<Derived>::_bind_methods() {
-            ClassDB::bind_method(D_METHOD("redo"), &Derived::redo);
-            ClassDB::bind_method(D_METHOD("undo"), &Derived::undo);
-
-            Derived::_bind_methods_impl();
-        }
     }
 }
 
