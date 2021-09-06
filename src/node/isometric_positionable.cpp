@@ -217,7 +217,7 @@ void IsometricPositionable::_bind_methods() {
 }
 
 void IsometricPositionable::show_outline(bool b) {
-    if (outline_drawer) {
+    if (outline_drawer && !outline_drawer->is_queued_for_deletion()) {
         outline_drawer->set_visible(b);
         outline_drawer->update();
     }
