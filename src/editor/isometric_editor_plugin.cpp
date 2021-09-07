@@ -113,7 +113,7 @@ void IsometricEditorPlugin::edit(Object* p_object) {
 }
 
 void IsometricEditorPlugin::drop() {
-    if (selected_map && !selected_map->is_queued_for_deletion()) {
+    if (selected_map && ObjectDB::instance_validate(selected_map)) {
         selected_map->show_outline(false);
         if (selected_map->is_connected("draw", this, "refresh")) {
             selected_map->disconnect("draw", this, "refresh");
