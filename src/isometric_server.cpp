@@ -10,6 +10,11 @@ IsometricServer::IsometricServer() : thread_exited(false), exit_thread(false), t
     thread.start(&IsometricServer::iteration, this);
 }
 
+IsometricServer::~IsometricServer() {
+    exit_thread = true;
+    thread.wait_to_finish();
+}
+
 IsometricServer* IsometricServer::get_instance() {
     static IsometricServer instance;
     return &instance;

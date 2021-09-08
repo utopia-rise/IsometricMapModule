@@ -113,7 +113,7 @@ void IsometricEditorPlugin::edit(Object* p_object) {
 }
 
 void IsometricEditorPlugin::drop() {
-    if (selected_map) {
+    if (selected_map && ObjectDB::instance_validate(selected_map)) {
         selected_map->show_outline(false);
         if (selected_map->is_connected("draw", this, "refresh")) {
             selected_map->disconnect("draw", this, "refresh");
@@ -121,6 +121,7 @@ void IsometricEditorPlugin::drop() {
         auto index{reinterpret_cast<uint64_t>(selected_map)};
         edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
     }
+    selected_map = nullptr;
 }
 
 bool IsometricEditorPlugin::handles(Object* p_object) const {

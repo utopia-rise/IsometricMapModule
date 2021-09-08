@@ -23,7 +23,7 @@ private:
 public:
     IsometricServer();
 
-    ~IsometricServer() = default;
+    ~IsometricServer() override;
 
     IsometricServer(const IsometricServer &) = delete;
 
