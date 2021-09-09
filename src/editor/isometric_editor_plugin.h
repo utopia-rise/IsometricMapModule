@@ -9,6 +9,7 @@
 #include <modules/isometric_maps/src/editor/commands/emitters/painting_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/select_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/delete_command_emitter.h>
+#include <modules/isometric_maps/src/editor/commands/emitters/drag_and_drop_command_emitter.h>
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
 #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
@@ -22,7 +23,8 @@ namespace editor {
         enum Mode {
             NONE,
             SELECT,
-            PAINT
+            PAINT,
+            DRAG_AND_DROP
         };
 
         editor::inspector::PositionableSelectionPane* get_selection_pane() const;
@@ -84,6 +86,7 @@ namespace editor {
         commands::emitters::PaintingCommandEmitter painting_command_emitter;
         commands::emitters::SelectCommandEmitter select_command_emitter;
         commands::emitters::DeleteCommandEmitter delete_command_emitter;
+        commands::emitters::DragAndDropCommandEmitter drag_and_drop_command_emitter;
 
         void _on_frame_post_draw();
 

@@ -26,7 +26,7 @@ namespace editor {
                 node::IsometricPositionable* current_preview_node;
 
                 Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
-
+                void _clear_current_preview_node();
             };
         }
     }

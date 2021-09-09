@@ -12,11 +12,7 @@ Vector<Ref<editor::commands::Command>>
 PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event) { // NOLINT(performance-unnecessary-value-param)
     Vector<Ref<Command>> commands;
 
-    if (current_preview_node) {
-        map->remove_child(current_preview_node);
-        memdelete(current_preview_node);
-        current_preview_node = nullptr;
-    }
+    _clear_current_preview_node();
 
     const data::IsometricParameters* parameters{
         IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
@@ -87,17 +83,21 @@ void PaintingCommandEmitter::set_map(node::IsometricMap* p_map) {
     map = p_map;
 }
 
+void PaintingCommandEmitter::_clear_current_preview_node() {
+    if (current_preview_node) {
+        map->remove_child(current_preview_node);
+        memdelete(current_preview_node);
+        current_preview_node = nullptr;
+    }
+}
+
 PaintingCommandEmitter::PaintingCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo), map(nullptr),
     current_preview_node(nullptr) {
 
 }
 
 PaintingCommandEmitter::~PaintingCommandEmitter() {
-    if (current_preview_node) {
-        map->remove_child(current_preview_node);
-        memdelete(current_preview_node);
-        current_preview_node = nullptr;
-    }
+    _clear_current_preview_node();
 }
 
 #endif
