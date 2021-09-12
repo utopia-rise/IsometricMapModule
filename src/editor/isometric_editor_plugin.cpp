@@ -12,6 +12,7 @@ const char* POSITIONABLE_PANE_BUTTON_TITLE{"Isometric positionables"};
 const char* NONE_EDITION_LABEL{"None"};
 const char* SELECT_EDITION_LABEL{"Select"};
 const char* PAINT_EDITION_LABEL{"Paint"};
+const char* DRAG_AND_DROP_EDITION_LABEL{"Drag & Drop"};
 
 editor::inspector::PositionableSelectionPane* IsometricEditorPlugin::get_selection_pane() const {
     return positionable_selection_pane;
@@ -31,7 +32,8 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         should_clear_buffer_on_next_frame(),
         painting_command_emitter(EditorNode::get_undo_redo()),
         select_command_emitter(EditorNode::get_undo_redo()),
-        delete_command_emitter(EditorNode::get_undo_redo()) {
+        delete_command_emitter(EditorNode::get_undo_redo()),
+        drag_and_drop_command_emitter(EditorNode::get_undo_redo()) {
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
@@ -66,6 +68,7 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         edition_mode_button->add_item(NONE_EDITION_LABEL);
         edition_mode_button->add_item(SELECT_EDITION_LABEL);
         edition_mode_button->add_item(PAINT_EDITION_LABEL);
+        edition_mode_button->add_item(DRAG_AND_DROP_EDITION_LABEL);
         edition_mode_button->set_flat(true);
         edition_mode_button->connect("item_selected", this, "_on_edition_mode_changed");
         toolbar->add_child(edition_mode_button);
@@ -93,6 +96,7 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     painting_command_emitter.set_map(selected_map);
     select_command_emitter.set_map(selected_map);
     delete_command_emitter.set_map(selected_map);
+    drag_and_drop_command_emitter.set_map(selected_map);
 
     if (!selected_map->is_connected("draw", this, "refresh")) {
         selected_map->connect("draw", this, "refresh");
@@ -178,6 +182,9 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
         case PAINT:
             painting_command_emitter.on_gui_input(p_event);
             break;
+        case DRAG_AND_DROP:
+            drag_and_drop_command_emitter.on_gui_input(p_event);
+            break;
     }
     return true;
 }
@@ -230,6 +237,8 @@ void IsometricEditorPlugin::_on_edition_mode_changed(int selected_index) {
         current_mode = Mode::SELECT;
     } else if (selected_label == PAINT_EDITION_LABEL) {
         current_mode = Mode::PAINT;
+    } else if (selected_label == DRAG_AND_DROP_EDITION_LABEL) {
+        current_mode = Mode::DRAG_AND_DROP;
     }
 }
 
