@@ -71,7 +71,8 @@ void IsometricServer::delete_space(const RID &rid) {
     worlds_owner.free(rid);
 }
 
-RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canvas_item, bool p_is_dynamic) {
+RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canvas_item, bool p_is_dynamic,
+                                                const AABB& aabb) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
         WARN_PRINT(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()))
@@ -82,6 +83,7 @@ RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canva
     isometric_element->visual_rid = p_canvas_item;
     isometric_element->is_dynamic = p_is_dynamic;
     isometric_element->world = space_rid;
+    isometric_element->aabb = aabb;
     isometric_element->z_size = 1;
 
     if (!p_is_dynamic) {

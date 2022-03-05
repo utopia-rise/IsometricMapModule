@@ -26,7 +26,7 @@ void IsometricPositionable::_enter_tree() {
                 world = positionable->world;
                 world_owner = false;
                 self = IsometricServer::get_instance()->register_isometric_element(world, this->get_canvas_item(),
-                                                                                   is_dynamic);
+                                                                                   is_dynamic, {get_global_position_3d(), size});
                 update_position();
                 return;
             }
@@ -38,7 +38,7 @@ void IsometricPositionable::_enter_tree() {
 
 
     self = IsometricServer::get_instance()->register_isometric_element(world, this->get_canvas_item(),
-                                                                       is_dynamic);
+                                                                       is_dynamic, {get_global_position_3d(), size});
     update_position();
 }
 
@@ -95,10 +95,12 @@ Vector3 IsometricPositionable::get_local_position_3d() const {
 
 void IsometricPositionable::set_local_position_3d(Vector3 p_local) {
     local_position = p_local;
-
-    IsometricServer::get_instance()->set_isometric_element_position(self, get_global_position_3d());
-
-    update_position();
+    if(self.is_valid()) {
+        IsometricServer::get_instance()->set_isometric_element_position(self, get_global_position_3d());
+    }
+    if (world.is_valid()) {
+        update_position();
+    }
 }
 
 Vector3 IsometricPositionable::get_global_position_3d() const {
@@ -117,7 +119,9 @@ Vector3 IsometricPositionable::get_size() const {
 
 void IsometricPositionable::set_size(Vector3 s) {
     size = s;
-    IsometricServer::get_instance()->set_isometric_element_size(self, size);
+    if(self.is_valid()) {
+        IsometricServer::get_instance()->set_isometric_element_size(self, size);
+    }
     set_outline_drawer(Color(1., 0., 0.), 3);
 }
 

@@ -42,7 +42,7 @@ public:
 
     const data::IsometricParameters* get_space_configuration_from_element(const RID element_rid);
 
-    RID register_isometric_element(const RID space_rid, RID p_canvas_item, bool p_is_dynamic);
+    RID register_isometric_element(const RID space_rid, RID p_canvas_item, bool p_is_dynamic, const AABB& aabb);
 
     void unregister_isometric_element(const RID space_rid, const RID rid);
 

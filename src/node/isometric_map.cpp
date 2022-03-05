@@ -111,8 +111,8 @@ void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3&
             )
         }
     ) {
-        add_child(positionable);
         positionable->set_local_position_3d(position);
+        add_child(positionable);
 
         instances_grid_3d.insert_box({position, positionable->get_size()}, positionable);
     }
