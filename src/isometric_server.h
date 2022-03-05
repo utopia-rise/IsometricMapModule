@@ -19,6 +19,7 @@ private:
 
     void render_isometric_element(data::IsometricElement* data);
     static void iteration(void* p_udata);
+    static uint64_t get_ms_delay();
 
 public:
     IsometricServer();

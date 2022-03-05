@@ -21,7 +21,7 @@ IsometricServer* IsometricServer::get_instance() {
 }
 
 void IsometricServer::iteration(void* p_udata) {
-    uint64_t msdelay = 3000;
+    static uint64_t msdelay{get_ms_delay()};
 
     auto* server{reinterpret_cast<IsometricServer*>(p_udata)};
 
@@ -49,8 +49,13 @@ void IsometricServer::iteration(void* p_udata) {
 
         OS::get_singleton()->delay_usec(msdelay * 1000);
     }
+}
 
-
+uint64_t IsometricServer::get_ms_delay() {
+    if (Engine::get_singleton()->is_editor_hint()) {
+        return 33;
+    }
+    return 3000;
 }
 
 RID IsometricServer::create_space() {
