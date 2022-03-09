@@ -3,7 +3,12 @@
 using namespace node;
 
 IsometricMap::IsometricMap() :
-        IsometricPositionable(), draw_tiles(true), grid_3d(), instances_grid_3d(), positionable_set() {
+        IsometricPositionable(),
+        draw_tiles(true),
+        grid_3d(),
+        instances_grid_3d(),
+        positionable_set(),
+        child_positionable_initialized(false) {
 }
 
 Ref<resource::PositionableSet> IsometricMap::get_positionable_set() const {
@@ -80,10 +85,14 @@ void IsometricMap::_notification(int notif) {
 }
 
 void IsometricMap::_on_enter_tree() {
+    if (child_positionable_initialized) {
+        return;
+    }
     const Vector<int>& id_vector{grid_3d.get_internal_array()};
     for (int i = 0; i < id_vector.size(); ++i) {
         add_positionable_as_child(id_vector[i], grid_3d.get_position_3d_from_index(i));
     }
+    child_positionable_initialized = true;
 }
 
 Array IsometricMap::_get_grid_3d() const {
