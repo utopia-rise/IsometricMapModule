@@ -12,7 +12,7 @@ Ref<resource::PositionableSet> IsometricMap::get_positionable_set() const {
 
 void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& set) {
     positionable_set = set;
-    if (!positionable_set->is_set_loaded()) {
+    if (positionable_set.is_valid() && !positionable_set->is_set_loaded()) {
         positionable_set->preload_scenes();
     }
     emit_signal("positional_set_changed", positionable_set);
