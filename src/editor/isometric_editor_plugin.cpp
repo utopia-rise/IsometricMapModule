@@ -33,7 +33,8 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         painting_command_emitter(EditorNode::get_undo_redo()),
         select_command_emitter(EditorNode::get_undo_redo()),
         delete_command_emitter(EditorNode::get_undo_redo()),
-        drag_and_drop_command_emitter(EditorNode::get_undo_redo()) {
+        drag_and_drop_command_emitter(EditorNode::get_undo_redo()),
+        move_editor_plane_command_emitter(EditorNode::get_undo_redo()) {
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
@@ -41,7 +42,10 @@ IsometricEditorPlugin::~IsometricEditorPlugin() {
 }
 
 IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
-    static IsometricEditorPlugin* instance{memnew(IsometricEditorPlugin)};
+    static IsometricEditorPlugin* instance{nullptr};
+    if (unlikely(!instance && ObjectDB::instance_validate(EditorNode::get_undo_redo()))) {
+        instance = memnew(IsometricEditorPlugin);
+    }
     return instance;
 }
 
@@ -93,11 +97,6 @@ void IsometricEditorPlugin::_notification(int p_notification) {
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
 
-    painting_command_emitter.set_map(selected_map);
-    select_command_emitter.set_map(selected_map);
-    delete_command_emitter.set_map(selected_map);
-    drag_and_drop_command_emitter.set_map(selected_map);
-
     if (!selected_map->is_connected("draw", this, "refresh")) {
         selected_map->connect("draw", this, "refresh");
     }
@@ -105,7 +104,6 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     if (!selected_map->is_connected("positional_set_changed", positionable_selection_pane, "set_positionable_set")) {
         selected_map->connect("positional_set_changed", positionable_selection_pane, "set_positionable_set");
     }
-
 
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     if (!handling_data_map.has(index)) {
@@ -186,6 +184,7 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
             drag_and_drop_command_emitter.on_gui_input(p_event);
             break;
     }
+    move_editor_plane_command_emitter.on_gui_input(p_event);
     return true;
 }
 
@@ -203,6 +202,14 @@ void IsometricEditorPlugin::refresh() const {
         return;
     }
     edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
+}
+
+node::IsometricMap* IsometricEditorPlugin::get_selected_map() const {
+    return selected_map;
+}
+
+EditorPlane& IsometricEditorPlugin::get_editor_plane_for_selected_map() {
+    return handling_data_map[reinterpret_cast<uint64_t>(selected_map)].edition_grid_plane;
 }
 
 IsometricEditorPlugin::MapHandlingData::MapHandlingData() : edition_grid_plane{0, EditorAxes::NONE, Vector2()} {

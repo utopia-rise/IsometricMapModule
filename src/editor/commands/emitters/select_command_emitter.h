@@ -14,15 +14,11 @@ namespace editor {
                 friend class CommandEmitter<SelectCommandEmitter, InputEventMouse>;
 
             public:
-                void set_map(node::IsometricMap* p_map);
-
                 SelectCommandEmitter() = delete;
                 explicit SelectCommandEmitter(UndoRedo* undo_redo);
                 ~SelectCommandEmitter() = default;
 
             private:
-                node::IsometricMap* map;
-
                 Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
             };
         }

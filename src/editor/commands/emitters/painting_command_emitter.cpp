@@ -14,6 +14,9 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
 
     _clear_current_preview_node();
 
+    IsometricEditorPlugin* isometric_editor_plugin{IsometricEditorPlugin::get_instance()};
+    node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
+
     const data::IsometricParameters* parameters{
         IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
     };
@@ -22,12 +25,12 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
             utils::from_screen_to_3D(
                     *parameters,
                     map->get_local_mouse_position(),
-                    0
+                    static_cast<float>(isometric_editor_plugin->get_editor_plane_for_selected_map().get_position())
             )
     };
 
     int selected_tile_id{
-        editor::IsometricEditorPlugin::get_instance()->get_selection_pane()->get_selected_positionable_id()
+        isometric_editor_plugin->get_selection_pane()->get_selected_positionable_id()
     };
 
     if (selected_tile_id == resource::PositionableSet::NONE_POSITIONABLE_ID) {
@@ -72,26 +75,20 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
 
     Ref<editor::commands::AddPositionableCommand> add_command;
     add_command.instance();
-    add_command->set_map(map);
     add_command->set_aabb(aabb);
     add_command->set_positionable_id(selected_tile_id);
     commands.push_back(add_command);
     return commands;
 }
 
-void PaintingCommandEmitter::set_map(node::IsometricMap* p_map) {
-    map = p_map;
-}
-
 void PaintingCommandEmitter::_clear_current_preview_node() {
     if (current_preview_node) {
-        map->remove_child(current_preview_node);
         memdelete(current_preview_node);
         current_preview_node = nullptr;
     }
 }
 
-PaintingCommandEmitter::PaintingCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo), map(nullptr),
+PaintingCommandEmitter::PaintingCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo),
     current_preview_node(nullptr) {
 
 }

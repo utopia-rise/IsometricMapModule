@@ -14,7 +14,6 @@ namespace editor {
             void redo() override;
             void undo() override;
 
-            void set_map(node::IsometricMap* p_map);
             void set_position(const Vector3& p_position);
             void set_should_deselect_first(bool p_should);
 
@@ -22,7 +21,6 @@ namespace editor {
             ~SelectPositionableCommand() override = default;
 
         private:
-            node::IsometricMap* map;
             Vector3 position;
             bool should_deselect_first;
 

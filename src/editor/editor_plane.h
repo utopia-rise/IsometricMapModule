@@ -13,6 +13,7 @@ namespace editor {
 
     public:
         int get_position() const;
+        void set_position(int p_position);
         EditorAxes get_axes() const;
         RID get_rid() const;
         const Vector2& get_size() const;
