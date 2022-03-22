@@ -16,6 +16,10 @@ int EditorPlane::get_position() const {
     return position;
 }
 
+void EditorPlane::set_position(int p_position) {
+    position = p_position;
+}
+
 EditorAxes EditorPlane::get_axes() const {
     return axes;
 }

@@ -10,6 +10,7 @@
 #include <modules/isometric_maps/src/editor/commands/emitters/select_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/delete_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/drag_and_drop_command_emitter.h>
+#include <modules/isometric_maps/src/editor/commands/emitters/move_editor_plane_command_emitter.h>
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
 #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
@@ -40,6 +41,10 @@ namespace editor {
         void set_should_clear_buffer_on_next_frame(bool should);
 
         void refresh_positionable_selection_pane();
+        void refresh() const;
+
+        node::IsometricMap* get_selected_map() const;
+        EditorPlane& get_editor_plane_for_selected_map();
 
     protected:
         void _notification(int p_notification);
@@ -55,8 +60,6 @@ namespace editor {
         void clear() override;
 
         void make_visible(bool b) override;
-
-        void refresh() const;
 
     private:
         struct MapHandlingData {
@@ -87,6 +90,7 @@ namespace editor {
         commands::emitters::SelectCommandEmitter select_command_emitter;
         commands::emitters::DeleteCommandEmitter delete_command_emitter;
         commands::emitters::DragAndDropCommandEmitter drag_and_drop_command_emitter;
+        commands::emitters::MoveEditorPlaneCommandEmitter move_editor_plane_command_emitter;
 
         void _on_frame_post_draw();
 

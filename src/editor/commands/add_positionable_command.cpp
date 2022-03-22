@@ -1,15 +1,16 @@
 #ifdef TOOLS_ENABLED
 
+#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 #include "add_positionable_command.h"
 
 using namespace editor::commands;
 
 void AddPositionableCommand::redo() {
-    map->add_positionable_if_nothing_present(aabb, positionable_id);
+    IsometricEditorPlugin::get_instance()->get_selected_map()->add_positionable_if_nothing_present(aabb, positionable_id);
 }
 
 void AddPositionableCommand::undo() {
-    map->remove_positionable(aabb);
+    IsometricEditorPlugin::get_instance()->get_selected_map()->remove_positionable(aabb);
 }
 
 void AddPositionableCommand::set_aabb(const AABB& p_aabb) {
@@ -20,18 +21,13 @@ void AddPositionableCommand::set_positionable_id(int id) {
     positionable_id = id;
 }
 
-void AddPositionableCommand::set_map(node::IsometricMap* p_map) {
-    map = p_map;
-}
-
 void AddPositionableCommand::_bind_methods_impl() {
 
 }
 
 AddPositionableCommand::AddPositionableCommand() : Command(),
                                                    aabb(),
-                                                   positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID),
-                                                   map(nullptr) {
+                                                   positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID) {
 
 }
 

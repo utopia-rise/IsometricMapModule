@@ -7,6 +7,7 @@
 #include <modules/isometric_maps/src/editor/commands/add_positionable_command.h>
 #include <modules/isometric_maps/src/editor/commands/select_positionable_command.h>
 #include <modules/isometric_maps/src/editor/commands/composite_command.h>
+#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 
 using namespace editor::commands::emitters;
 
@@ -22,6 +23,8 @@ DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event)
         return commands;
     }
 
+    node::IsometricMap* map{IsometricEditorPlugin::get_instance()->get_selected_map()};
+
     const Vector<Vector3>& selected_positions{
         editor::PositionableSelectorManager::get_instance().get_selected_for_map(map)
     };
@@ -34,7 +37,6 @@ DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event)
             Ref<SelectPositionableCommand> select_command;
             select_command.instance();
             select_command->set_should_deselect_first(false);
-            select_command->set_map(map);
             select_command->set_position(position);
 
             Ref<RevertCommand> deselect_command;
@@ -43,7 +45,6 @@ DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event)
 
             Ref<AddPositionableCommand> add_command;
             add_command.instance();
-            add_command->set_map(map);
             add_command->set_aabb({local_position, current->get_size()});
             add_command->set_positionable_id(map->get_positionable_id_for_position(local_position));
 
@@ -63,11 +64,7 @@ DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event)
     return commands;
 }
 
-void DeleteCommandEmitter::set_map(node::IsometricMap* p_map) {
-    map = p_map;
-}
-
-DeleteCommandEmitter::DeleteCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo), map(nullptr) {
+DeleteCommandEmitter::DeleteCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {
 
 }
 

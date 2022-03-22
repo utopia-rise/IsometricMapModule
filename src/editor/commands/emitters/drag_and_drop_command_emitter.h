@@ -15,14 +15,11 @@ namespace editor {
                 friend class CommandEmitter<DragAndDropCommandEmitter, InputEventMouse>;
 
             public:
-                void set_map(node::IsometricMap* p_map);
-
                 DragAndDropCommandEmitter() = delete;
                 explicit DragAndDropCommandEmitter(UndoRedo* undo_redo);
                 ~DragAndDropCommandEmitter();
 
             private:
-                node::IsometricMap* map;
                 Vector<node::IsometricPositionable*> current_preview_nodes;
 
                 Vector3 initial_position;

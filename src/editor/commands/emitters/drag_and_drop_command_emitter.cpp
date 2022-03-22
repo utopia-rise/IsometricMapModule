@@ -22,6 +22,9 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
         return commands;
     }
 
+    IsometricEditorPlugin* isometric_editor_plugin{IsometricEditorPlugin::get_instance()};
+    node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
+
     const data::IsometricParameters* parameters{
         IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
     };
@@ -30,15 +33,15 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
         utils::from_screen_to_3D(
                 *parameters,
                 map->get_local_mouse_position(),
-                0
-                )
+                static_cast<float>(isometric_editor_plugin->get_editor_plane_for_selected_map().get_position())
+        )
     };
 
     Vector3 positionable_size;
     if (auto* positionable{
         Object::cast_to<node::IsometricPositionable>(
                 map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
-                )
+        )
     }
     ) {
         positionable_size = positionable->get_size();
@@ -90,7 +93,6 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
         for (int i = 0; i < all_positions.size(); ++i) {
             Ref<editor::commands::AddPositionableCommand> add_command;
             add_command.instance();
-            add_command->set_map(map);
             add_command->set_aabb({all_positions[i], positionable_size});
             add_command->set_positionable_id(selected_tile_id);
             commands.push_back(add_command);
@@ -104,13 +106,16 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
 }
 
 void DragAndDropCommandEmitter::_clear_current_preview_nodes() {
-    for (int i = 0; i < current_preview_nodes.size(); ++i) {
-        if (node::IsometricPositionable* current_preview_node{current_preview_nodes[i]}) {
-            map->remove_child(current_preview_node);
-            memdelete(current_preview_node);
+    if (IsometricEditorPlugin* isometric_editor_plugin{IsometricEditorPlugin::get_instance()}) {
+        node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
+        for (int i = 0; i < current_preview_nodes.size(); ++i) {
+            if (node::IsometricPositionable* current_preview_node{current_preview_nodes[i]}) {
+                map->remove_child(current_preview_node);
+                memdelete(current_preview_node);
+            }
         }
+        current_preview_nodes.resize(0);
     }
-    current_preview_nodes.resize(0);
 }
 
 AABB DragAndDropCommandEmitter::_calculate_real_aabb(const Vector3& initial_position, const Vector3& limit_position,
@@ -159,12 +164,7 @@ Vector<Vector3> DragAndDropCommandEmitter::_calculate_positionables_positions(co
     return r_ret;
 }
 
-void DragAndDropCommandEmitter::set_map(node::IsometricMap* p_map) {
-    map = p_map;
-}
-
 DragAndDropCommandEmitter::DragAndDropCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo),
-                                                                            map(nullptr),
                                                                             current_preview_nodes(),
                                                                             initial_position(-1, -1, -1),
                                                                             limit_position(-1, -1, -1) {
