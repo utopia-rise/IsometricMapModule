@@ -38,7 +38,7 @@ SelectCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_even
     Ref<editor::commands::SelectPositionableCommand> command;
     command.instance();
     command->set_position(position);
-    command->set_should_deselect_first(!p_event->get_control());
+    command->set_should_deselect_first(!p_event->get_control() && !p_event->get_command());
 
     commands.push_back(command);
 

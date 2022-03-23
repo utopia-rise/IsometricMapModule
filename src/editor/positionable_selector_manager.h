@@ -19,6 +19,8 @@ namespace editor {
         const Vector<Vector3>& get_selected_for_map(node::IsometricMap* map);
         void set_selected_for_map(node::IsometricMap* map,
                                   const Vector<Vector3>& selected);
+        bool is_position_selected_for_map(node::IsometricMap* map, const Vector3& p_position);
+        void refresh_outline_for_selected(node::IsometricMap* map);
 
         PositionableSelectorManager(const PositionableSelectorManager&) = delete;
         PositionableSelectorManager& operator=(const PositionableSelectorManager&) = delete;

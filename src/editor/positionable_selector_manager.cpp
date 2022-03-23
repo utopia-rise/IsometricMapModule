@@ -53,6 +53,19 @@ void PositionableSelectorManager::set_selected_for_map(node::IsometricMap* map, 
     }
 }
 
+bool PositionableSelectorManager::is_position_selected_for_map(node::IsometricMap* map, const Vector3& p_position) {
+    return map_to_selected_positions[map].find(p_position) > -1;
+}
+
+void PositionableSelectorManager::refresh_outline_for_selected(node::IsometricMap* map) {
+    const Vector<Vector3>& selected{map_to_selected_positions[map]};
+    for (int i = 0; i < selected.size(); ++i) {
+        if (node::IsometricPositionable* positionable{map->get_positionable_at(selected[i])}) {
+            show_outline(positionable);
+        }
+    }
+}
+
 void PositionableSelectorManager::show_outline(node::IsometricPositionable* positionable) {
     positionable->set_outline_drawer(Color(1, 0, 0, 1), 10, false);
     positionable->show_outline(true);

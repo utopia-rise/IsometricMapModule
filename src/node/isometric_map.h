@@ -15,6 +15,7 @@ namespace node {
         containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID> grid_3d;
         containers::Grid3D<IsometricPositionable*, nullptr> instances_grid_3d;
         Ref<resource::PositionableSet> positionable_set;
+        bool child_positionable_initialized;
 
         void _on_enter_tree();
         Array _get_grid_3d() const;

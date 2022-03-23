@@ -10,6 +10,7 @@
 #include <modules/isometric_maps/src/editor/commands/emitters/select_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/delete_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/drag_and_drop_command_emitter.h>
+#include <modules/isometric_maps/src/editor/commands/emitters/select_all_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/move_editor_plane_command_emitter.h>
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
@@ -88,6 +89,7 @@ namespace editor {
 
         commands::emitters::PaintingCommandEmitter painting_command_emitter;
         commands::emitters::SelectCommandEmitter select_command_emitter;
+        commands::emitters::SelectAllCommandEmitter select_all_command_emitter;
         commands::emitters::DeleteCommandEmitter delete_command_emitter;
         commands::emitters::DragAndDropCommandEmitter drag_and_drop_command_emitter;
         commands::emitters::MoveEditorPlaneCommandEmitter move_editor_plane_command_emitter;

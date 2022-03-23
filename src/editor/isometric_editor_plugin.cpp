@@ -2,6 +2,7 @@
 
 #include "isometric_editor_plugin.h"
 #include "positionable_scenes_cache_manager.h"
+#include "positionable_selector_manager.h"
 #include <scene/main/viewport.h>
 #include <core/os/keyboard.h>
 
@@ -32,6 +33,7 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         should_clear_buffer_on_next_frame(),
         painting_command_emitter(EditorNode::get_undo_redo()),
         select_command_emitter(EditorNode::get_undo_redo()),
+        select_all_command_emitter(EditorNode::get_undo_redo()),
         delete_command_emitter(EditorNode::get_undo_redo()),
         drag_and_drop_command_emitter(EditorNode::get_undo_redo()),
         move_editor_plane_command_emitter(EditorNode::get_undo_redo()) {
@@ -112,6 +114,8 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     }
     selected_map->show_outline(show_debug);
     edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
+
+    editor::PositionableSelectorManager::get_instance().refresh_outline_for_selected(selected_map);
 }
 
 void IsometricEditorPlugin::drop() {
@@ -175,6 +179,7 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
             return false;
         case SELECT:
             select_command_emitter.on_gui_input(p_event);
+            select_all_command_emitter.on_gui_input(p_event);
             delete_command_emitter.on_gui_input(p_event);
             break;
         case PAINT:
