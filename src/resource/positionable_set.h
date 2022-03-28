@@ -48,7 +48,7 @@ namespace resource {
         ~PositionableSet() override = default;
 
     private:
-        // exported, not visible in editor
+        // exported, not is_visible in editor
         Map<int, String> identifier_to_scene_path;
 
         // Store loaded scenes
@@ -60,10 +60,10 @@ namespace resource {
         void _set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path);
 
 #ifdef TOOLS_ENABLED
-        // exported and visible in editor
+        // exported and is_visible in editor
         PoolStringArray categories;
 
-        // exported, not visible in editor, here for set inspection purpose
+        // exported, not is_visible in editor, here for set inspection purpose
         HashMap<StringName, Vector<int>> categories_to_identifiers;
 
         int last_id;

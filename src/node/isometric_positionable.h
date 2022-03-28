@@ -1,9 +1,9 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H
 #define ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H
 
-#include <modules/isometric_maps/src/editor/outline_drawer.h>
 #include <scene/2d/node_2d.h>
 #include <core/method_bind.h>
+#include <modules/isometric_maps/src/editor/outline_data.h>
 
 namespace node {
 
@@ -30,9 +30,11 @@ namespace node {
         RID self;
         bool is_dynamic;
 
-    protected:
-        editor::OutlineDrawer* outline_drawer;
+#ifdef TOOLS_ENABLED
+        editor::OutlineData outline_data;
+#endif
 
+    protected:
         RID world;
         bool world_owner;
 
@@ -49,10 +51,6 @@ namespace node {
 
         ~IsometricPositionable() override = default;
 
-        void set_outline_drawer(Color color, real_t line_size, bool should_draw_polygons = true);
-
-        void show_outline(bool b);
-
         Vector3 get_local_position_3d() const;
 
         void set_local_position_3d(Vector3 p_local);
@@ -68,6 +66,12 @@ namespace node {
         void set_z_order_size(int size);
 
         RID get_space_RID() const;
+
+        SlopeType get_slope_type() const;
+
+#ifdef TOOLS_ENABLED
+        editor::OutlineData& get_outline_data();
+#endif
 
     protected:
         static void _bind_methods();

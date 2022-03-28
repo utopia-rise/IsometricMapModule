@@ -3,6 +3,7 @@
 #include "isometric_editor_plugin.h"
 #include "positionable_scenes_cache_manager.h"
 #include "positionable_selector_manager.h"
+#include "outline_drawer.h"
 #include <scene/main/viewport.h>
 #include <core/os/keyboard.h>
 
@@ -51,8 +52,10 @@ IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
 }
 
 void IsometricEditorPlugin::set_debug_mode(bool b) {
+#ifdef TOOLS_ENABLED
     show_debug = b;
-    selected_map->show_outline(b);
+    editor::OutlineDrawer::set_outline_visible(selected_map, b);
+#endif
 }
 
 void IsometricEditorPlugin::set_should_clear_buffer_on_next_frame(bool should) {
@@ -111,7 +114,9 @@ void IsometricEditorPlugin::edit(Object* p_object) {
         const Vector3& map_size{selected_map->get_size()};
         handling_data_map[index] = MapHandlingData({0, EditorAxes::Z, {map_size.x, map_size.y}});
     }
-    selected_map->show_outline(show_debug);
+#ifdef TOOLS_ENABLED
+    editor::OutlineDrawer::set_outline_visible(selected_map, show_debug);
+#endif
     EditionGridDrawer::draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
 
     editor::PositionableSelectorManager::get_instance().refresh_outline_for_selected(selected_map);
@@ -119,7 +124,9 @@ void IsometricEditorPlugin::edit(Object* p_object) {
 
 void IsometricEditorPlugin::drop() {
     if (selected_map && ObjectDB::instance_validate(selected_map)) {
-        selected_map->show_outline(false);
+#ifdef TOOLS_ENABLED
+        editor::OutlineDrawer::set_outline_visible(selected_map, false);
+#endif
         if (selected_map->is_connected("draw", this, "refresh")) {
             selected_map->disconnect("draw", this, "refresh");
         }
@@ -135,7 +142,9 @@ bool IsometricEditorPlugin::handles(Object* p_object) const {
 
 void IsometricEditorPlugin::clear() {
     if (selected_map) {
-        selected_map->show_outline(false);
+#ifdef TOOLS_ENABLED
+        editor::OutlineDrawer::set_outline_visible(selected_map, false);
+#endif
         selected_map = nullptr;
     }
 }

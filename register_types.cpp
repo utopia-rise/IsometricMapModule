@@ -32,8 +32,6 @@ void register_isometric_maps_types() {
     ClassDB::register_class<node::IsometricPositionable>();
     ClassDB::register_class<node::IsometricMap>();
 
-    ClassDB::register_class<editor::OutlineDrawer>();
-
     ClassDB::register_class<resource::PositionableSet>();
 
     #ifdef TOOLS_ENABLED

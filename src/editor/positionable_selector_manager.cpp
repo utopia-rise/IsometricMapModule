@@ -1,6 +1,7 @@
 #ifdef TOOLS_ENABLED
 
 #include "positionable_selector_manager.h"
+#include "outline_drawer.h"
 
 using namespace editor;
 
@@ -20,21 +21,25 @@ PositionableSelectorManager::select_positionable_at(node::IsometricMap* map, nod
 
 void PositionableSelectorManager::deselect_positionable_at(node::IsometricMap* map, const Vector3& position) {
     Vector<Vector3>& selected_positions{map_to_selected_positions[map]};
+#ifdef TOOLS_ENABLED
     node::IsometricPositionable* selected{map->get_positionable_at(position)};
     if (!selected) {
         return;
     }
-    selected->show_outline(false);
+    editor::OutlineDrawer::set_outline_visible(selected, false);
+#endif
     selected_positions.erase(position);
 }
 
 void PositionableSelectorManager::deselect_all(node::IsometricMap* map) {
     Vector<Vector3>& selected_positions{map_to_selected_positions[map]};
+#ifdef TOOLS_ENABLED
     for (int i = 0; i < selected_positions.size(); ++i) {
         if (node::IsometricPositionable* positionable{map->get_positionable_at(selected_positions[i])}) {
-            positionable->show_outline(false);
+            editor::OutlineDrawer::set_outline_visible(positionable, false);
         }
     }
+#endif
     selected_positions.clear();
 }
 
@@ -67,8 +72,8 @@ void PositionableSelectorManager::refresh_outline_for_selected(node::IsometricMa
 }
 
 void PositionableSelectorManager::show_outline(node::IsometricPositionable* positionable) {
-    positionable->set_outline_drawer(Color(1, 0, 0, 1), 10, false);
-    positionable->show_outline(true);
+    editor::OutlineDrawer::draw_outline(positionable, false, Color(1, 0, 0, 1), 10);
+    editor::OutlineDrawer::set_outline_visible(positionable, true);
 }
 
 PositionableSelectorManager::PositionableSelectorManager() : map_to_selected_positions() {
