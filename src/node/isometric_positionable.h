@@ -5,8 +5,6 @@
 #include <scene/2d/node_2d.h>
 #include <core/method_bind.h>
 
-#define ISO_GROUP "positionables"
-
 namespace node {
 
     class IsometricPositionable : public Node2D {
@@ -35,13 +33,8 @@ namespace node {
     protected:
         editor::OutlineDrawer* outline_drawer;
 
-        Vector<Vector2> up_points;
-        Vector<Vector2> down_points;
-
         RID world;
         bool world_owner;
-
-        void prepare_points();
 
         void update_position();
 

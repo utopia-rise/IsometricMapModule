@@ -16,7 +16,6 @@ void OutlineDrawer::_draw() {
     Color color2 = Color(0.7, 0.3, 0.3);
     Color color3 = Color(0.6, 0.3, 0.3);
 
-    auto upPoints = up_p;
     auto leftPoints = Vector<Vector2>();
     auto rightPoints = Vector<Vector2>();
 
@@ -50,7 +49,7 @@ void OutlineDrawer::_draw() {
     rightColor.push_back(color3);
 
     if (should_draw_polygons) {
-        draw_polygon(upPoints, upColor);
+        draw_polygon(up_p, upColor);
         draw_polygon(leftPoints, leftColor);
         draw_polygon(rightPoints, rightColor);
     }

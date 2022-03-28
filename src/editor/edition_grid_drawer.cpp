@@ -4,7 +4,7 @@
 #include "editor_plane.h"
 #include "../isometric_server.h"
 
-void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const node::IsometricMap& map) const {
+void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const node::IsometricMap& map) {
     RID rid{editor_plane.get_rid()};
     VisualServer::get_singleton()->canvas_item_clear(rid);
     VisualServer::get_singleton()->canvas_item_set_parent(rid, map.get_canvas_item());
@@ -54,7 +54,7 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
     }
 }
 
-void editor::EditionGridDrawer::clear_grid(const editor::EditorPlane& editor_plane) const {
+void editor::EditionGridDrawer::clear_grid(const editor::EditorPlane& editor_plane) {
     RID rid{editor_plane.get_rid()};
     VisualServer::get_singleton()->canvas_item_clear(rid);
 }
