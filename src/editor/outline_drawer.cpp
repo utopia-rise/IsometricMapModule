@@ -7,8 +7,7 @@
 using namespace editor;
 
 void
-OutlineDrawer::draw_outline(node::IsometricPositionable* positionable, bool should_draw_polygon, const Color& color,
-                            real_t line_size) {
+OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
     const OutlineData& outline_data{positionable->get_outline_data()};
     RID outline_rid{outline_data.rid};
     VisualServer::get_singleton()->canvas_item_clear(outline_rid);
@@ -97,11 +96,14 @@ OutlineDrawer::draw_outline(node::IsometricPositionable* positionable, bool shou
         rightColor.push_back(color3);
         rightColor.push_back(color3);
 
-        if (should_draw_polygon) {
+        if (outline_data.should_draw_polygons) {
             VisualServer::get_singleton()->canvas_item_add_polygon(outline_rid, up_points, upColor);
             VisualServer::get_singleton()->canvas_item_add_polygon(outline_rid, leftPoints, leftColor);
             VisualServer::get_singleton()->canvas_item_add_polygon(outline_rid, rightPoints, rightColor);
         }
+
+        const Color& color{outline_data.color};
+        real_t line_size{outline_data.line_size};
 
         //    Upper Lines
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[0], up_points[1], color, line_size);

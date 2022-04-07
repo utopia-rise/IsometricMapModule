@@ -10,6 +10,9 @@ namespace editor {
     struct OutlineData {
         RID rid;
         bool is_visible;
+        Color color;
+        real_t line_size;
+        bool should_draw_polygons;
 
         OutlineData();
         ~OutlineData() = default;

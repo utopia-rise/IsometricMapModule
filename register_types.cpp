@@ -9,6 +9,7 @@
 #include <editor/editor_node.h>
 #include <modules/isometric_maps/src/resource/positionable_set.h>
 #include <modules/isometric_maps/src/editor/positionable_set_editor_plugin.h>
+#include <modules/isometric_maps/src/editor/isometric_tile_editor_plugin.h>
 
 #endif
 
@@ -20,6 +21,10 @@ static EditorPlugin* isometric_editor_plugin_creator_func(EditorNode* editor_nod
 
 static EditorPlugin* positionable_set_editor_plugin_creator_func(EditorNode* editor_node) {
     return editor::PositionableSetEditorPlugin::get_instance();
+}
+
+static EditorPlugin* isometric_tile_editor_plugin_creator_func(EditorNode* editor_node) {
+    return editor::IsometricTileEditorPlugin::get_instance();
 }
 #endif
 
@@ -37,8 +42,10 @@ void register_isometric_maps_types() {
     #ifdef TOOLS_ENABLED
         ClassDB::register_class<editor::IsometricEditorPlugin>();
         ClassDB::register_class<editor::PositionableSetEditorPlugin>();
+        ClassDB::register_class<editor::IsometricTileEditorPlugin>();
         EditorPlugins::add_create_func(isometric_editor_plugin_creator_func);
         EditorPlugins::add_create_func(positionable_set_editor_plugin_creator_func);
+        EditorPlugins::add_create_func(isometric_tile_editor_plugin_creator_func);
         ClassDB::register_class<editor::inspector::PositionableSelectionPane>();
         ClassDB::register_class<editor::inspector::PositionableSetEditor>();
     #endif

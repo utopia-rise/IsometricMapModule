@@ -72,7 +72,10 @@ void PositionableSelectorManager::refresh_outline_for_selected(node::IsometricMa
 }
 
 void PositionableSelectorManager::show_outline(node::IsometricPositionable* positionable) {
-    editor::OutlineDrawer::draw_outline(positionable, false, Color(1, 0, 0, 1), 10);
+    OutlineData& outline_data{positionable->get_outline_data()};
+    outline_data.color = {1, 0, 0, 1};
+    outline_data.line_size = 10;
+    editor::OutlineDrawer::draw_outline(positionable);
     editor::OutlineDrawer::set_outline_visible(positionable, true);
 }
 

@@ -72,7 +72,7 @@ void IsometricPositionable::update_position() {
     set_transform(transform);
 
 #ifdef TOOLS_ENABLED
-    editor::OutlineDrawer::draw_outline(this, true, Color(1., 0., 0.), 3);
+    editor::OutlineDrawer::draw_outline(this);
 #endif
 }
 
@@ -110,7 +110,7 @@ void IsometricPositionable::set_size(Vector3 s) {
         IsometricServer::get_instance()->set_isometric_element_size(self, size);
     }
 #ifdef TOOLS_ENABLED
-    editor::OutlineDrawer::draw_outline(this, true, Color(1., 0., 0.), 3);
+    editor::OutlineDrawer::draw_outline(this);
 #endif
 }
 
