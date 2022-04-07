@@ -22,7 +22,6 @@ void SelectPositionableCommand::redo() {
 
 void SelectPositionableCommand::undo() {
     node::IsometricMap* map{IsometricEditorPlugin::get_instance()->get_selected_map()};
-    editor::PositionableSelectorManager::get_instance().deselect_positionable_at(map, position);
     if (editor::PositionableSelectorManager::get_instance().is_position_selected_for_map(map, position)) {
         editor::PositionableSelectorManager::get_instance().deselect_positionable_at(map, position);
     } else {
