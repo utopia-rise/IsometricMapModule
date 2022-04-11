@@ -3,6 +3,7 @@
 #include "isometric_editor_plugin.h"
 #include "positionable_scenes_cache_manager.h"
 #include "positionable_selector_manager.h"
+#include "outline_drawer.h"
 #include <scene/main/viewport.h>
 #include <core/os/keyboard.h>
 
@@ -29,7 +30,6 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         selected_map{nullptr},
         show_debug(false),
         current_mode(Mode::NONE),
-        edition_grid_drawer(),
         should_clear_buffer_on_next_frame(),
         painting_command_emitter(EditorNode::get_undo_redo()),
         select_command_emitter(EditorNode::get_undo_redo()),
@@ -53,7 +53,7 @@ IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
 
 void IsometricEditorPlugin::set_debug_mode(bool b) {
     show_debug = b;
-    selected_map->show_outline(b);
+    editor::OutlineDrawer::set_outline_visible(selected_map, b);
 }
 
 void IsometricEditorPlugin::set_should_clear_buffer_on_next_frame(bool should) {
@@ -112,20 +112,20 @@ void IsometricEditorPlugin::edit(Object* p_object) {
         const Vector3& map_size{selected_map->get_size()};
         handling_data_map[index] = MapHandlingData({0, EditorAxes::Z, {map_size.x, map_size.y}});
     }
-    selected_map->show_outline(show_debug);
-    edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
+    editor::OutlineDrawer::set_outline_visible(selected_map, show_debug);
+    EditionGridDrawer::draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
 
     editor::PositionableSelectorManager::get_instance().refresh_outline_for_selected(selected_map);
 }
 
 void IsometricEditorPlugin::drop() {
     if (selected_map && ObjectDB::instance_validate(selected_map)) {
-        selected_map->show_outline(false);
+        editor::OutlineDrawer::set_outline_visible(selected_map, false);
         if (selected_map->is_connected("draw", this, "refresh")) {
             selected_map->disconnect("draw", this, "refresh");
         }
         auto index{reinterpret_cast<uint64_t>(selected_map)};
-        edition_grid_drawer.clear_grid(handling_data_map[index].edition_grid_plane);
+        EditionGridDrawer::clear_grid(handling_data_map[index].edition_grid_plane);
     }
     selected_map = nullptr;
 }
@@ -136,7 +136,7 @@ bool IsometricEditorPlugin::handles(Object* p_object) const {
 
 void IsometricEditorPlugin::clear() {
     if (selected_map) {
-        selected_map->show_outline(false);
+        editor::OutlineDrawer::set_outline_visible(selected_map, false);
         selected_map = nullptr;
     }
 }
@@ -206,7 +206,7 @@ void IsometricEditorPlugin::refresh() const {
     if (!handling_data_map.has(index)) {
         return;
     }
-    edition_grid_drawer.draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
+    EditionGridDrawer::draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
 }
 
 node::IsometricMap* IsometricEditorPlugin::get_selected_map() const {

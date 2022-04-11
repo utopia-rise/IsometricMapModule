@@ -12,8 +12,8 @@ namespace editor {
     class EditionGridDrawer {
 
     public:
-        void draw_grid(const EditorPlane &editor_plane, const node::IsometricMap& map) const;
-        void clear_grid(const EditorPlane &editor_plane) const;
+        static void draw_grid(const EditorPlane &editor_plane, const node::IsometricMap& map) ;
+        static void clear_grid(const EditorPlane &editor_plane) ;
     };
 }
 

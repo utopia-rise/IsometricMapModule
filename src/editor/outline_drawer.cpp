@@ -1,117 +1,137 @@
+#ifdef TOOLS_ENABLED
+
+#include <modules/isometric_maps/src/isometric_server.h>
+#include <modules/isometric_maps/src/utils/isometric_maths.h>
 #include "outline_drawer.h"
 
 using namespace editor;
 
-OutlineDrawer::OutlineDrawer() :
-        Node2D(), up_points(nullptr), down_points(nullptr), line_size(1), should_draw_polygons(true) {
-    set_z_index(4096);
-}
+void
+OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
+    const OutlineData& outline_data{positionable->get_outline_data()};
+    RID outline_rid{outline_data.rid};
+    VisualServer::get_singleton()->canvas_item_clear(outline_rid);
+    VisualServer::get_singleton()->canvas_item_set_parent(outline_rid, positionable->get_canvas_item());
+    VisualServer::get_singleton()->canvas_item_set_z_index(outline_rid, VisualServer::CANVAS_ITEM_Z_MAX);
 
-void OutlineDrawer::_draw() {
+    if (const data::IsometricParameters* space_configuration{
+            IsometricServer::get_instance()->get_space_configuration(positionable->get_space_RID())
+    }) {
+        PoolVector2Array points{utils::get_bounding_box(*space_configuration, positionable->get_size())};
 
-    Vector<Vector2> up_p = *up_points;
-    Vector<Vector2> down_p = *down_points;
+        int no_slope{0};
+        int left_slope{0};
+        int right_slope{0};
+        int forward_slope{0};
+        int backward_slope{0};
 
-    Color color1 = Color(0.8, 0.3, 0.3);
-    Color color2 = Color(0.7, 0.3, 0.3);
-    Color color3 = Color(0.6, 0.3, 0.3);
+        switch (positionable->get_slope_type()) {
+            case node::IsometricPositionable::SlopeType::NONE:
+                no_slope = 1;
+                break;
+            case node::IsometricPositionable::SlopeType::LEFT:
+                left_slope = 1;
+                break;
+            case node::IsometricPositionable::SlopeType::RIGHT:
+                right_slope = 1;
+                break;
+            case node::IsometricPositionable::SlopeType::FORWARD:
+                forward_slope = 1;
+                break;
+            case node::IsometricPositionable::SlopeType::BACKWARD:
+                backward_slope = 1;
+                break;
+            case node::IsometricPositionable::SlopeType::SLOPE_TYPE_MAX:
+                break;
+        }
 
-    auto upPoints = up_p;
-    auto leftPoints = Vector<Vector2>();
-    auto rightPoints = Vector<Vector2>();
+        Vector<Vector2> up_points;
+        Vector<Vector2> down_points;
 
-    rightPoints.push_back(up_p[1]);
-    rightPoints.push_back(down_p[1]);
-    rightPoints.push_back(down_p[2]);
-    rightPoints.push_back(up_p[2]);
+        up_points.resize(0);
+        up_points.push_back((no_slope + left_slope + forward_slope) * points[4] + (right_slope + backward_slope) * points[0]);
+        up_points.push_back((no_slope + right_slope + forward_slope) * points[5] + (left_slope + backward_slope) * points[1]);
+        up_points.push_back((no_slope + right_slope + backward_slope) * points[6] + (left_slope + forward_slope) * points[2]);
+        up_points.push_back((no_slope + left_slope + backward_slope) * points[7] + (right_slope + forward_slope) * points[3]);
 
-    leftPoints.push_back(up_p[2]);
-    leftPoints.push_back(down_p[2]);
-    leftPoints.push_back(down_p[3]);
-    leftPoints.push_back(up_p[3]);
+        down_points.resize(0);
+        down_points.push_back(points[0]);
+        down_points.push_back(points[1]);
+        down_points.push_back(points[2]);
+        down_points.push_back(points[3]);
 
-    auto upColor = Vector<Color>();
-    auto leftColor = Vector<Color>();
-    auto rightColor = Vector<Color>();
+        Color color1 = Color(0.8, 0.3, 0.3);
+        Color color2 = Color(0.7, 0.3, 0.3);
+        Color color3 = Color(0.6, 0.3, 0.3);
 
-    upColor.push_back(color1);
-    upColor.push_back(color1);
-    upColor.push_back(color1);
-    upColor.push_back(color1);
+        auto leftPoints = Vector<Vector2>();
+        auto rightPoints = Vector<Vector2>();
 
-    leftColor.push_back(color2);
-    leftColor.push_back(color2);
-    leftColor.push_back(color2);
-    leftColor.push_back(color2);
+        rightPoints.push_back(up_points[1]);
+        rightPoints.push_back(down_points[1]);
+        rightPoints.push_back(down_points[2]);
+        rightPoints.push_back(up_points[2]);
 
-    rightColor.push_back(color3);
-    rightColor.push_back(color3);
-    rightColor.push_back(color3);
-    rightColor.push_back(color3);
+        leftPoints.push_back(up_points[2]);
+        leftPoints.push_back(down_points[2]);
+        leftPoints.push_back(down_points[3]);
+        leftPoints.push_back(up_points[3]);
 
-    if (should_draw_polygons) {
-        draw_polygon(upPoints, upColor);
-        draw_polygon(leftPoints, leftColor);
-        draw_polygon(rightPoints, rightColor);
+        auto upColor = Vector<Color>();
+        auto leftColor = Vector<Color>();
+        auto rightColor = Vector<Color>();
+
+        upColor.push_back(color1);
+        upColor.push_back(color1);
+        upColor.push_back(color1);
+        upColor.push_back(color1);
+
+        leftColor.push_back(color2);
+        leftColor.push_back(color2);
+        leftColor.push_back(color2);
+        leftColor.push_back(color2);
+
+        rightColor.push_back(color3);
+        rightColor.push_back(color3);
+        rightColor.push_back(color3);
+        rightColor.push_back(color3);
+
+        if (outline_data.should_draw_polygons) {
+            VisualServer::get_singleton()->canvas_item_add_polygon(outline_rid, up_points, upColor);
+            VisualServer::get_singleton()->canvas_item_add_polygon(outline_rid, leftPoints, leftColor);
+            VisualServer::get_singleton()->canvas_item_add_polygon(outline_rid, rightPoints, rightColor);
+        }
+
+        const Color& color{outline_data.color};
+        real_t line_size{outline_data.line_size};
+
+        //    Upper Lines
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[0], up_points[1], color, line_size);
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[1], up_points[2], color, line_size);
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[2], up_points[3], color, line_size);
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[3], up_points[0], color, line_size);
+
+        //    Vertical Lines
+
+        //draw_line(up_p[0], down_p[0], color, line_size);
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[1], down_points[1], color, line_size);
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[2], down_points[2], color, line_size);
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[3], down_points[3], color, line_size);
+
+        //    Lower Lines
+        //draw_line(down_p[0], down_p[1], color, line_size);
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, down_points[1], down_points[2], color, line_size);
+        VisualServer::get_singleton()->canvas_item_add_line(outline_rid, down_points[2], down_points[3], color, line_size);
+        //draw_line(down_p[3], down_p[0], color, line_size);
+
+        VisualServer::get_singleton()->canvas_item_set_visible(outline_rid, outline_data.is_visible);
     }
-
-    //    Upper Lines
-    draw_line(up_p[0], up_p[1], color, line_size);
-    draw_line(up_p[1], up_p[2], color, line_size);
-    draw_line(up_p[2], up_p[3], color, line_size);
-    draw_line(up_p[3], up_p[0], color, line_size);
-
-    //    Vertical Lines
-
-    //draw_line(up_p[0], down_p[0], color, line_size);
-    draw_line(up_p[1], down_p[1], color, line_size);
-    draw_line(up_p[2], down_p[2], color, line_size);
-    draw_line(up_p[3], down_p[3], color, line_size);
-
-    //    Lower Lines
-    //draw_line(down_p[0], down_p[1], color, line_size);
-    draw_line(down_p[1], down_p[2], color, line_size);
-    draw_line(down_p[2], down_p[3], color, line_size);
-    //draw_line(down_p[3], down_p[0], color, line_size);
-
 }
 
-void OutlineDrawer::set_points(Vector<Vector2>* up, Vector<Vector2>* down) {
-    up_points = up;
-    down_points = down;
-    update();
+void OutlineDrawer::set_outline_visible(node::IsometricPositionable* positionable, bool visible) {
+    OutlineData& outline_data{positionable->get_outline_data()};
+    outline_data.is_visible = visible;
+    VisualServer::get_singleton()->canvas_item_set_visible(outline_data.rid, visible);
 }
 
-void OutlineDrawer::set_color(const Color &c) {
-    color = c;
-}
-
-const Color &OutlineDrawer::get_color() const {
-    return color;
-}
-
-void OutlineDrawer::set_line_size(real_t size) {
-    line_size = size;
-}
-
-real_t OutlineDrawer::get_line_size() const {
-    return line_size;
-}
-
-void OutlineDrawer::set_should_draw_polygons(bool should) {
-    should_draw_polygons = should;
-}
-
-void OutlineDrawer::_notification(int notif) {
-    switch (notif) {
-        case NOTIFICATION_DRAW:
-            _draw();
-            break;
-        default:
-            break;
-    }
-}
-
-void OutlineDrawer::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_draw"), &OutlineDrawer::_draw);
-}
+#endif

@@ -1,12 +1,17 @@
 #include "isometric_positionable.h"
 #include <modules/isometric_maps/src/isometric_server.h>
 #include <modules/isometric_maps/src/utils/isometric_maths.h>
+#include <modules/isometric_maps/src/editor/outline_drawer.h>
 
 using namespace node;
 
 IsometricPositionable::IsometricPositionable() :
-        Node2D(), size({1, 1, 1}), z_order_size(0), is_dynamic(false), outline_drawer(nullptr),
-        world(RID()), world_owner(false), self(RID()) {
+        Node2D(), size({1, 1, 1}), z_order_size(0), is_dynamic(false),
+        world(RID()), world_owner(false), self(RID())
+#ifdef TOOLS_ENABLED
+        , outline_data()
+#endif
+        {
 }
 
 void IsometricPositionable::_enter_tree() {
@@ -55,10 +60,6 @@ void IsometricPositionable::_exit_tree() {
         }
         world = RID();
     }
-    if (outline_drawer) {
-        memdelete(outline_drawer);
-        outline_drawer = nullptr;
-    }
 }
 
 void IsometricPositionable::update_position() {
@@ -70,23 +71,9 @@ void IsometricPositionable::update_position() {
 
     set_transform(transform);
 
-    set_outline_drawer(Color(1., 0., 0.), 3);
-}
-
-void IsometricPositionable::set_outline_drawer(Color color, real_t line_size, bool should_draw_polygons) {
-    prepare_points();
-    if (!outline_drawer) {
-        outline_drawer = memnew(editor::OutlineDrawer());
-        outline_drawer->set_visible(false);
-        add_child(outline_drawer);
-    }
-    update();
-
-    outline_drawer->set_points(&up_points, &down_points);
-    outline_drawer->set_color(color);
-    outline_drawer->set_line_size(line_size);
-    outline_drawer->set_should_draw_polygons(should_draw_polygons);
-    outline_drawer->update();
+#ifdef TOOLS_ENABLED
+    editor::OutlineDrawer::draw_outline(this);
+#endif
 }
 
 Vector3 IsometricPositionable::get_local_position_3d() const {
@@ -106,7 +93,7 @@ void IsometricPositionable::set_local_position_3d(Vector3 p_local) {
 Vector3 IsometricPositionable::get_global_position_3d() const {
     Vector3 global_position = local_position;
 
-    IsometricPositionable* parent = Object::cast_to<IsometricPositionable>(get_parent());
+    auto* parent = Object::cast_to<IsometricPositionable>(get_parent());
     if(parent){
         global_position += parent->get_global_position_3d();
     }
@@ -122,7 +109,9 @@ void IsometricPositionable::set_size(Vector3 s) {
     if(self.is_valid()) {
         IsometricServer::get_instance()->set_isometric_element_size(self, size);
     }
-    set_outline_drawer(Color(1., 0., 0.), 3);
+#ifdef TOOLS_ENABLED
+    editor::OutlineDrawer::draw_outline(this);
+#endif
 }
 
 int IsometricPositionable::get_z_order_size() const {
@@ -131,54 +120,6 @@ int IsometricPositionable::get_z_order_size() const {
 
 void IsometricPositionable::set_z_order_size(int size) {
     z_order_size = size;
-}
-
-
-void IsometricPositionable::prepare_points() {
-
-    Vector2 grid_slope_offset;
-
-    int no_slope{0};
-    int left_slope{0};
-    int right_slope{0};
-    int forward_slope{0};
-    int backward_slope{0};
-
-    switch (slope_type) {
-        case SlopeType::NONE:
-            no_slope = 1;
-            break;
-        case SlopeType::LEFT:
-            left_slope = 1;
-            break;
-        case SlopeType::RIGHT:
-            right_slope = 1;
-            break;
-        case SlopeType::FORWARD:
-            forward_slope = 1;
-            break;
-        case SlopeType::BACKWARD:
-            backward_slope = 1;
-            break;
-    }
-
-    if (const data::IsometricParameters* space_configuration{
-        IsometricServer::get_instance()->get_space_configuration(world)
-    }) {
-        PoolVector2Array points{utils::get_bounding_box(*space_configuration,size)};
-
-        up_points.resize(0);
-        up_points.push_back((no_slope + left_slope + forward_slope) * points[4] + (right_slope + backward_slope) * points[0]);
-        up_points.push_back((no_slope + right_slope + forward_slope) * points[5] + (left_slope + backward_slope) * points[1]);
-        up_points.push_back((no_slope + right_slope + backward_slope) * points[6] + (left_slope + forward_slope) * points[2]);
-        up_points.push_back((no_slope + left_slope + backward_slope) * points[7] + (right_slope + forward_slope) * points[3]);
-
-        down_points.resize(0);
-        down_points.push_back(points[0]);
-        down_points.push_back(points[1]);
-        down_points.push_back(points[2]);
-        down_points.push_back(points[3]);
-    }
 }
 
 void IsometricPositionable::_notification(int notif) {
@@ -220,13 +161,18 @@ void IsometricPositionable::_bind_methods() {
     //    BIND_ENUM_CONSTANT(BACKWARD);
 }
 
-void IsometricPositionable::show_outline(bool b) {
-    if (outline_drawer && ObjectDB::instance_validate(outline_drawer)) {
-        outline_drawer->set_visible(b);
-        outline_drawer->update();
-    }
-}
-
 RID IsometricPositionable::get_space_RID() const{
     return world;
 }
+
+IsometricPositionable::SlopeType IsometricPositionable::get_slope_type() const {
+    return slope_type;
+}
+
+#ifdef TOOLS_ENABLED
+
+editor::OutlineData& IsometricPositionable::get_outline_data() {
+    return outline_data;
+}
+
+#endif

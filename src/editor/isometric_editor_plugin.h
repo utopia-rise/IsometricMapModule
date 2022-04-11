@@ -83,8 +83,6 @@ namespace editor {
         bool show_debug;
         Mode current_mode;
 
-        EditionGridDrawer edition_grid_drawer;
-
         bool should_clear_buffer_on_next_frame;
 
         commands::emitters::PaintingCommandEmitter painting_command_emitter;
