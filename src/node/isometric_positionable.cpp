@@ -6,7 +6,7 @@
 using namespace node;
 
 IsometricPositionable::IsometricPositionable() :
-        Node2D(), size({1, 1, 1}), z_order_size(0), is_dynamic(false),
+        Node2D(), size({1, 1, 1}), z_order_size(0), is_dynamic(false), has_moved(false),
         world(RID()), world_owner(false), self(RID())
 #ifdef TOOLS_ENABLED
         , outline_data()
@@ -88,6 +88,7 @@ void IsometricPositionable::set_local_position_3d(Vector3 p_local) {
     if (world.is_valid()) {
         update_position();
     }
+    has_moved = true;
 }
 
 Vector3 IsometricPositionable::get_global_position_3d() const {
@@ -112,6 +113,7 @@ void IsometricPositionable::set_size(Vector3 s) {
 #ifdef TOOLS_ENABLED
     editor::OutlineDrawer::draw_outline(this);
 #endif
+    has_moved = true;
 }
 
 int IsometricPositionable::get_z_order_size() const {
@@ -153,6 +155,9 @@ void IsometricPositionable::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::INT, "z_order_size"), "set_z_order_size", "get_z_order_size");
     ADD_PROPERTY_DEFAULT("z_order_size", 1);
 
+    ClassDB::bind_method(D_METHOD("set_has_moved", "p_has_moved"), &IsometricPositionable::set_has_moved);
+    ClassDB::bind_method(D_METHOD("get_has_moved"), &IsometricPositionable::get_has_moved);
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "has_moved", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_has_moved", "get_has_moved");
 
     //    BIND_ENUM_CONSTANT(NONE);
     //    BIND_ENUM_CONSTANT(LEFT);
@@ -167,6 +172,14 @@ RID IsometricPositionable::get_space_RID() const{
 
 IsometricPositionable::SlopeType IsometricPositionable::get_slope_type() const {
     return slope_type;
+}
+
+bool IsometricPositionable::get_has_moved() const {
+    return has_moved;
+}
+
+void IsometricPositionable::set_has_moved(bool p_has_moved) {
+    has_moved = p_has_moved;
 }
 
 #ifdef TOOLS_ENABLED

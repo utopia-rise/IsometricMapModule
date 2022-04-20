@@ -29,6 +29,7 @@ namespace node {
 
         RID self;
         bool is_dynamic;
+        bool has_moved;
 
 #ifdef TOOLS_ENABLED
         editor::OutlineData outline_data;
@@ -68,6 +69,9 @@ namespace node {
         RID get_space_RID() const;
 
         SlopeType get_slope_type() const;
+
+        bool get_has_moved() const;
+        void set_has_moved(bool p_has_moved);
 
 #ifdef TOOLS_ENABLED
         editor::OutlineData& get_outline_data();
