@@ -13,6 +13,7 @@ module_env.add_source_files(module_env.modules_sources, "src/editor/commands/*.c
 module_env.add_source_files(module_env.modules_sources, "src/editor/commands/emitters/*.cpp")
 module_env.add_source_files(module_env.modules_sources, "src/editor/inspector/*.cpp")
 module_env.add_source_files(module_env.modules_sources, "src/node/*.cpp")
+module_env.add_source_files(module_env.modules_sources, "src/node/physics/*.cpp")
 module_env.add_source_files(module_env.modules_sources, "src/resource/*.cpp")
 module_env.add_source_files(module_env.modules_sources, "src/utils/*.cpp")
 

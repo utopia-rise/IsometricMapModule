@@ -57,6 +57,7 @@ namespace node {
         void set_local_position_3d(Vector3 p_local);
 
         Vector3 get_global_position_3d() const;
+        void set_global_position_3d(const Vector3& p_position);
 
         virtual Vector3 get_size() const;
 

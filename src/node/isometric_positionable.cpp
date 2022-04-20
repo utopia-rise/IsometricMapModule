@@ -101,6 +101,11 @@ Vector3 IsometricPositionable::get_global_position_3d() const {
     return global_position;
 }
 
+void IsometricPositionable::set_global_position_3d(const Vector3& p_position) {
+    const Vector3& offset{p_position - get_global_position_3d()};
+    set_local_position_3d(local_position + offset);
+}
+
 Vector3 IsometricPositionable::get_size() const {
     return size;
 }
