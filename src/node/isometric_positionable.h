@@ -71,6 +71,9 @@ namespace node {
 
         SlopeType get_slope_type() const;
 
+        bool get_is_dynamic() const;
+        void set_is_dynamic(bool p_is_dynamic);
+
         bool get_has_moved() const;
         void set_has_moved(bool p_has_moved);
 

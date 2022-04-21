@@ -145,38 +145,20 @@ void IsometricPositionable::_notification(int notif) {
     }
 }
 
-void IsometricPositionable::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_local_position_3d", "p_local"), &IsometricPositionable::set_local_position_3d);
-    ClassDB::bind_method(D_METHOD("get_local_position_3d"), &IsometricPositionable::get_local_position_3d);
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "local_position_3d"), "set_local_position_3d", "get_local_position_3d");
-
-    ClassDB::bind_method(D_METHOD("set_size", "s"), &IsometricPositionable::set_size);
-    ClassDB::bind_method(D_METHOD("get_size"), &IsometricPositionable::get_size);
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "size"), "set_size", "get_size");
-    ADD_PROPERTY_DEFAULT("size", Vector3(1, 1, 1));
-
-    ClassDB::bind_method(D_METHOD("set_z_order_size", "size"), &IsometricPositionable::set_z_order_size);
-    ClassDB::bind_method(D_METHOD("get_z_order_size"), &IsometricPositionable::get_z_order_size);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "z_order_size"), "set_z_order_size", "get_z_order_size");
-    ADD_PROPERTY_DEFAULT("z_order_size", 1);
-
-    ClassDB::bind_method(D_METHOD("set_has_moved", "p_has_moved"), &IsometricPositionable::set_has_moved);
-    ClassDB::bind_method(D_METHOD("get_has_moved"), &IsometricPositionable::get_has_moved);
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "has_moved", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_has_moved", "get_has_moved");
-
-    //    BIND_ENUM_CONSTANT(NONE);
-    //    BIND_ENUM_CONSTANT(LEFT);
-    //    BIND_ENUM_CONSTANT(RIGHT);
-    //    BIND_ENUM_CONSTANT(FORWARD);
-    //    BIND_ENUM_CONSTANT(BACKWARD);
-}
-
 RID IsometricPositionable::get_space_RID() const{
     return world;
 }
 
 IsometricPositionable::SlopeType IsometricPositionable::get_slope_type() const {
     return slope_type;
+}
+
+bool IsometricPositionable::get_is_dynamic() const {
+    return is_dynamic;
+}
+
+void IsometricPositionable::set_is_dynamic(bool p_is_dynamic) {
+    is_dynamic = p_is_dynamic;
 }
 
 bool IsometricPositionable::get_has_moved() const {
@@ -194,3 +176,33 @@ editor::OutlineData& IsometricPositionable::get_outline_data() {
 }
 
 #endif
+
+void IsometricPositionable::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("set_local_position_3d", "p_local"), &IsometricPositionable::set_local_position_3d);
+    ClassDB::bind_method(D_METHOD("get_local_position_3d"), &IsometricPositionable::get_local_position_3d);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "local_position_3d"), "set_local_position_3d", "get_local_position_3d");
+
+    ClassDB::bind_method(D_METHOD("set_size", "s"), &IsometricPositionable::set_size);
+    ClassDB::bind_method(D_METHOD("get_size"), &IsometricPositionable::get_size);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "size"), "set_size", "get_size");
+    ADD_PROPERTY_DEFAULT("size", Vector3(1, 1, 1));
+
+    ClassDB::bind_method(D_METHOD("set_z_order_size", "size"), &IsometricPositionable::set_z_order_size);
+    ClassDB::bind_method(D_METHOD("get_z_order_size"), &IsometricPositionable::get_z_order_size);
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "z_order_size"), "set_z_order_size", "get_z_order_size");
+    ADD_PROPERTY_DEFAULT("z_order_size", 1);
+
+    ClassDB::bind_method(D_METHOD("set_is_dynamic", "p_is_dynamic"), &IsometricPositionable::set_is_dynamic);
+    ClassDB::bind_method(D_METHOD("get_is_dynamic"), &IsometricPositionable::get_is_dynamic);
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_dynamic"), "set_is_dynamic", "get_is_dynamic");
+
+    ClassDB::bind_method(D_METHOD("set_has_moved", "p_has_moved"), &IsometricPositionable::set_has_moved);
+    ClassDB::bind_method(D_METHOD("get_has_moved"), &IsometricPositionable::get_has_moved);
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "has_moved", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_has_moved", "get_has_moved");
+
+    //    BIND_ENUM_CONSTANT(NONE);
+    //    BIND_ENUM_CONSTANT(LEFT);
+    //    BIND_ENUM_CONSTANT(RIGHT);
+    //    BIND_ENUM_CONSTANT(FORWARD);
+    //    BIND_ENUM_CONSTANT(BACKWARD);
+}

@@ -3,6 +3,9 @@
 #include <modules/isometric_maps/src/isometric_server.h>
 #include <modules/isometric_maps/src/node/isometric_map.h>
 #include <modules/isometric_maps/src/resource/isometric_configuration.h>
+#include <modules/isometric_maps/src/node/physics/isometric_kinematic_body.h>
+#include <modules/isometric_maps/src/node/physics/isometric_static_body.h>
+#include <modules/isometric_maps/src/node/physics/isometric_rigid_body.h>
 
 #ifdef TOOLS_ENABLED
 #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
@@ -10,10 +13,6 @@
 #include <modules/isometric_maps/src/resource/positionable_set.h>
 #include <modules/isometric_maps/src/editor/positionable_set_editor_plugin.h>
 #include <modules/isometric_maps/src/editor/isometric_tile_editor_plugin.h>
-#include <modules/isometric_maps/src/node/physics/isometric_kinematic_body.h>
-#include <modules/isometric_maps/src/node/physics/isometric_static_body.h>
-#include <modules/isometric_maps/src/node/physics/isometric_rigid_body.h>
-
 #endif
 
 #ifdef TOOLS_ENABLED
