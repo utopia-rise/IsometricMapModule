@@ -3,9 +3,6 @@
 #include <modules/isometric_maps/src/isometric_server.h>
 #include <modules/isometric_maps/src/node/isometric_map.h>
 #include <modules/isometric_maps/src/resource/isometric_configuration.h>
-#include <modules/isometric_maps/src/node/physics/isometric_kinematic_body.h>
-#include <modules/isometric_maps/src/node/physics/isometric_static_body.h>
-#include <modules/isometric_maps/src/node/physics/isometric_rigid_body.h>
 
 #ifdef TOOLS_ENABLED
 #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
@@ -38,9 +35,6 @@ void register_isometric_maps_types() {
 
     ClassDB::register_class<node::IsometricPositionable>();
     ClassDB::register_class<node::IsometricMap>();
-    ClassDB::register_class<node::physics::IsometricKinematicBody>();
-    ClassDB::register_class<node::physics::IsometricStaticBody>();
-    ClassDB::register_class<node::physics::IsometricRigidBody>();
 
     ClassDB::register_class<resource::PositionableSet>();
 
