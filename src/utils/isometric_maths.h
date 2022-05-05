@@ -68,9 +68,9 @@ namespace utils {
         Hexagone hex1 = get_hexagone_points(params, data1);
         Hexagone hex2 = get_hexagone_points(params, data2);
 
-        return !(hex1.minX >= hex2.maxX || hex2.minX >= hex1.maxX) &&
-               !(hex1.minY >= hex2.maxY || hex2.minY >= hex1.maxY) &&
-               !(hex1.minH >= hex2.maxH || hex2.minH >= hex1.maxH);
+        return !(params.topological_margin >= hex2.maxX - hex1.minX || params.topological_margin >= hex1.maxX - hex2.minX) &&
+               !(params.topological_margin >= hex2.maxY - hex1.minY || params.topological_margin >= hex1.maxY - hex2.minY) &&
+               !(params.topological_margin >= hex2.maxH - hex1.minH || params.topological_margin >= hex1.maxH - hex2.minH);
     }
 
     static bool is_box_in_front(const data::IsometricParameters &params, const AABB &box, const AABB &other) {

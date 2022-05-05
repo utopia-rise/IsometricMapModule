@@ -4,6 +4,7 @@
 #include <scene/2d/node_2d.h>
 #include <core/method_bind.h>
 #include <modules/isometric_maps/src/editor/outline_data.h>
+#include <scene/3d/collision_object.h>
 
 namespace node {
 
@@ -23,12 +24,16 @@ namespace node {
     private:
         Vector3 size;
         Vector3 local_position;
-        int z_order_size;
 
         SlopeType slope_type =  SlopeType::NONE;
 
         RID self;
         bool is_dynamic;
+        NodePath collision_object_node_path;
+        CollisionObject* collision_object;
+
+        void set_global_position_3d(const Vector3& p_position);
+        void _rebind_collision_object_position() const;
 
 #ifdef TOOLS_ENABLED
         editor::OutlineData outline_data;
@@ -61,13 +66,15 @@ namespace node {
 
         virtual void set_size(Vector3 p_size);
 
-        int get_z_order_size() const;
-
-        void set_z_order_size(int size);
-
         RID get_space_RID() const;
 
         SlopeType get_slope_type() const;
+
+        bool get_is_dynamic() const;
+        void set_is_dynamic(bool p_is_dynamic);
+
+        const NodePath& get_collision_object_node_path() const;
+        void set_collision_object_node_path(const NodePath& p_node_path);
 
 #ifdef TOOLS_ENABLED
         editor::OutlineData& get_outline_data();

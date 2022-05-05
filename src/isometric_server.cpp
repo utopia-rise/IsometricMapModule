@@ -53,9 +53,9 @@ void IsometricServer::iteration(void* p_udata) {
 
 uint64_t IsometricServer::get_ms_delay() {
     if (Engine::get_singleton()->is_editor_hint()) {
-        return 33;
+        return 16;
     }
-    return 3000;
+    return 33;
 }
 
 RID IsometricServer::create_space() {
@@ -165,13 +165,13 @@ void IsometricServer::generate_topological_render_graph(data::IsometricSpace* p_
             }
 
             for (int j = 0; j < p_isometric_space->static_elements.size(); ++j) {
-                if (IsometricElement* positionable = p_isometric_space->dynamic_elements[i]) {
+                if (IsometricElement* positionable = p_isometric_space->static_elements[j]) {
                     if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamicPositionable,
                                                         positionable)) {
 
                         if (utils::is_box_in_front(p_isometric_space->configuration, dynamicPositionable->aabb,
                                                    positionable->aabb)) {
-                            dynamicPositionable->behind_dynamics.push_back(positionable);
+                            dynamicPositionable->behind_statics.push_back(positionable);
                         } else {
                             positionable->behind_dynamics.push_back(dynamicPositionable);
                         }

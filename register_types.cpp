@@ -10,7 +10,6 @@
 #include <modules/isometric_maps/src/resource/positionable_set.h>
 #include <modules/isometric_maps/src/editor/positionable_set_editor_plugin.h>
 #include <modules/isometric_maps/src/editor/isometric_tile_editor_plugin.h>
-
 #endif
 
 #ifdef TOOLS_ENABLED
