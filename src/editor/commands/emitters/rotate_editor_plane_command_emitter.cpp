@@ -7,9 +7,6 @@
 
 using namespace editor::commands::emitters;
 
-const int MIN_AXIS_INDEX = 0;
-const int MAX_AXIS_INDEX = 2;
-
 Vector<Ref<editor::commands::Command>>
 RotateEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
     Vector<Ref<Command>> commands;
@@ -26,19 +23,16 @@ RotateEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKe
     switch (p_event->get_scancode()) {
         case KeyList::KEY_LEFT:
             new_axis = current_axis - 1;
-            if (new_axis < MIN_AXIS_INDEX) {
-                new_axis = MAX_AXIS_INDEX;
-            }
             break;
         case KeyList::KEY_RIGHT:
             new_axis = current_axis + 1;
-            if (new_axis > MAX_AXIS_INDEX) {
-                new_axis = MIN_AXIS_INDEX;
-            }
             break;
         default:
             return commands;
     }
+
+    const int axis_count = 3;
+    new_axis = Math::posmod(new_axis, axis_count);
 
     rotate_command.instance();
     rotate_command->set_former_axis(current_axis);
