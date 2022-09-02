@@ -21,11 +21,13 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
         IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
     };
 
+    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map();
     const Vector3& position{
             utils::from_screen_to_3D(
                     *parameters,
                     map->get_local_mouse_position(),
-                    static_cast<float>(isometric_editor_plugin->get_editor_plane_for_selected_map().get_position())
+                    editor_plane.get_axis(),
+                    static_cast<float>(editor_plane.get_position())
             )
     };
 

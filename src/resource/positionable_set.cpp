@@ -246,7 +246,7 @@ void PositionableSet::_set_last_id(int p_last_id) {
 void PositionableSet::_load_positionable_scene(int id, const String& scene_path) {
     Ref<PackedScene> loaded{ResourceLoader::load(scene_path)};
     if (!loaded.is_valid()) {
-        LOG_ERROR(vformat("Element %s from tileset is not valid.", scene_path))
+        LOG_ERROR(vformat("Element %s from tileset is not valid.", scene_path));
     }
     identifier_to_loaded_scene[id] = loaded;
 }

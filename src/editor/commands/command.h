@@ -6,6 +6,7 @@
 #include <core/class_db.h>
 #include <core/reference.h>
 #include <core/undo_redo.h>
+#include <core/resource.h>
 
 
 namespace editor {
