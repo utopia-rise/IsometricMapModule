@@ -25,13 +25,38 @@ namespace utils {
         };
     }
 
-    static Vector3 from_screen_to_3D(const data::IsometricParameters &params, const Vector2 &pos, real_t orth_z) {
-        real_t iso_x{pos.x};
-        real_t iso_y{pos.y};
-        auto tile_width_float = static_cast<real_t>(params.diamond_width);
-        auto tile_height_float = static_cast<real_t>(params.diamond_height);
-        real_t orth_x{iso_x / tile_width_float + (iso_y + orth_z * params.z_length) / tile_height_float};
-        real_t orth_y{(iso_y + orth_z * params.z_length) / tile_height_float - iso_x / tile_width_float};
+    static Vector3 from_screen_to_3D(
+            const data::IsometricParameters &params,
+            const Vector2 &pos,
+            Vector3::Axis known_axis,
+            real_t orth_known_axis
+        ) {
+        real_t screen_x{pos.x};
+        real_t screen_y{pos.y};
+        auto diamond_width = static_cast<real_t>(params.diamond_width);
+        auto diamond_height = static_cast<real_t>(params.diamond_height);
+
+        real_t orth_x;
+        real_t orth_y;
+        real_t orth_z;
+        switch (known_axis) {
+            case Vector3::AXIS_X:
+                orth_x = orth_known_axis;
+                orth_y = orth_x - 2 * screen_x / diamond_width;
+                orth_z = (diamond_height * (orth_x - screen_x / diamond_width) - screen_y) / params.z_length;
+                break;
+            case Vector3::AXIS_Y:
+                orth_y = orth_known_axis;
+                orth_x = orth_y + 2 * screen_x / diamond_width;
+                orth_z = (diamond_height * (orth_y + screen_x / diamond_width) - screen_y) / params.z_length;
+                break;
+            case Vector3::AXIS_Z:
+                orth_z = orth_known_axis;
+                orth_x = screen_x / diamond_width + (screen_y + orth_z * params.z_length) / diamond_height;
+                orth_y = (screen_y + orth_z * params.z_length) / diamond_height - screen_x / diamond_width;
+                break;
+        }
+
         return {
                 ::roundf(orth_x),
                 ::roundf(orth_y),

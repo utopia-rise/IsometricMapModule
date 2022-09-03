@@ -36,7 +36,8 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         select_all_command_emitter(EditorNode::get_undo_redo()),
         delete_command_emitter(EditorNode::get_undo_redo()),
         drag_and_drop_command_emitter(EditorNode::get_undo_redo()),
-        move_editor_plane_command_emitter(EditorNode::get_undo_redo()) {
+        move_editor_plane_command_emitter(EditorNode::get_undo_redo()),
+        rotate_editor_plane_command_emitter(EditorNode::get_undo_redo()) {
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
@@ -110,7 +111,7 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     if (!handling_data_map.has(index)) {
         const Vector3& map_size{selected_map->get_size()};
-        handling_data_map[index] = MapHandlingData({0, EditorAxes::Z, {map_size.x, map_size.y}});
+        handling_data_map[index] = MapHandlingData({0, Vector3::Axis::AXIS_Z, {map_size.x, map_size.y}});
     }
     editor::OutlineDrawer::set_outline_visible(selected_map, show_debug);
     EditionGridDrawer::draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
@@ -190,6 +191,7 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
             break;
     }
     move_editor_plane_command_emitter.on_gui_input(p_event);
+    rotate_editor_plane_command_emitter.on_gui_input(p_event);
     return true;
 }
 
@@ -217,7 +219,7 @@ EditorPlane& IsometricEditorPlugin::get_editor_plane_for_selected_map() {
     return handling_data_map[reinterpret_cast<uint64_t>(selected_map)].edition_grid_plane;
 }
 
-IsometricEditorPlugin::MapHandlingData::MapHandlingData() : edition_grid_plane{0, EditorAxes::NONE, Vector2()} {
+IsometricEditorPlugin::MapHandlingData::MapHandlingData() : edition_grid_plane{0, Vector3::Axis::AXIS_Z, Vector2()} {
 
 }
 

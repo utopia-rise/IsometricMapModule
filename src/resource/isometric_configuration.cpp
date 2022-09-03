@@ -1,4 +1,5 @@
 #include <modules/isometric_maps/src/data/isometric_parameters.h>
+#include <modules/isometric_maps/src/logging.h>
 #include "isometric_configuration.h"
 
 using namespace resource;
@@ -45,7 +46,7 @@ RID IsometricConfiguration::get_rid() const {
 IsometricConfiguration* IsometricConfiguration::get_instance(const RID rid) {
     IsometricConfiguration* conf{configurations_owner.getornull(rid)};
     if (!conf) {
-        WARN_PRINT("This is not a valid isometric configuration RID.")
+        LOG_WARNING("This is not a valid isometric configuration RID.");
         return nullptr;
     }
     return conf;

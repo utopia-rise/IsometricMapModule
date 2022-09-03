@@ -2,10 +2,10 @@
 #define ISOMETRIC_MAPS_LOGGING_H
 
 #define LOG_VERBOSE(message) \
-    print_verbose(vformat("Godotopia/Isometric-Maps: %s", message));
+    print_verbose(vformat("Godotopia/Isometric-Maps: %s", message))
 
 #define LOG_INFO(message) \
-    print_line(vformat("Godotopia/Isometric-Maps: %s", message));
+    print_line(vformat("Godotopia/Isometric-Maps: %s", message))
 
 #define LOG_WARNING(message) \
     WARN_PRINT(vformat("Godotopia/Isometric-Maps: %s", message))

@@ -29,11 +29,14 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
         IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
     };
 
+    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map();
+    Vector3::Axis editor_plane_axis = editor_plane.get_axis();
     const Vector3& mouse_position{
         utils::from_screen_to_3D(
                 *parameters,
                 map->get_local_mouse_position(),
-                static_cast<float>(isometric_editor_plugin->get_editor_plane_for_selected_map().get_position())
+                editor_plane_axis,
+                static_cast<float>(editor_plane.get_position())
         )
     };
 
@@ -138,7 +141,24 @@ AABB DragAndDropCommandEmitter::_calculate_real_aabb(const Vector3& initial_posi
         y_size = Math::floor(position_delta.y / positionable_y_size) * positionable_y_size + 1;
     }
 
-    return {initial_position, {x_size, y_size, positionable_size.z}};
+    float z_size{position_delta.z};
+    float positionable_z_size{positionable_size.z};
+    if (z_size < positionable_z_size) {
+        z_size = positionable_z_size;
+    } else {
+        z_size = Math::floor(position_delta.z / positionable_z_size) * positionable_z_size + 1;
+    }
+
+    switch (IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map().get_axis()) {
+        case Vector3::AXIS_X:
+            return {initial_position, {positionable_x_size, y_size, z_size}};
+        case Vector3::AXIS_Y:
+            return {initial_position, {x_size, positionable_y_size, z_size}};
+        case Vector3::AXIS_Z:
+            return {initial_position, {x_size, y_size, positionable_z_size}};
+    }
+
+    return {};
 }
 
 Vector<Vector3> DragAndDropCommandEmitter::_calculate_positionables_positions(const Vector3& initial_position,
@@ -148,16 +168,20 @@ Vector<Vector3> DragAndDropCommandEmitter::_calculate_positionables_positions(co
 
     int elements_count_on_x{static_cast<int>(real_aabb.size.x / positionable_size.x)};
     int elements_count_on_y{static_cast<int>(real_aabb.size.y / positionable_size.y)};
+    int elements_count_on_z{static_cast<int>(real_aabb.size.z / positionable_size.z)};
 
     Vector<Vector3> r_ret;
 
     for (int i = 0; i < elements_count_on_x; ++i) {
         for (int j = 0; j < elements_count_on_y; ++j) {
-            r_ret.push_back(
-                    initial_position +
-                    Vector3(1, 0, 0) * static_cast<float>(i) * positionable_size.x +
-                    Vector3(0, 1, 0) * static_cast<float>(j) * positionable_size.y
-            );
+            for (int k = 0; k < elements_count_on_z; ++k) {
+                r_ret.push_back(
+                        initial_position +
+                        Vector3(1, 0, 0) * static_cast<float>(i) * positionable_size.x +
+                        Vector3(0, 1, 0) * static_cast<float>(j) * positionable_size.y +
+                        Vector3(0, 0, 1) * static_cast<float>(k) * positionable_size.z
+                );
+            }
         }
     }
 

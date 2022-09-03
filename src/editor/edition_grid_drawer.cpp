@@ -16,41 +16,113 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
         static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(space_rid))
     };
     float diamond_width{
-            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(space_rid))
+        static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(space_rid))
     };
-
-    //TODO: Put that in the Transform2D above
-    Vector2 offset{0, static_cast<float>(-diamond_height) * 0.5f};
-    Vector2 height_offset{
-            0,
-            IsometricServer::get_instance()->get_isometric_space_z_length(space_rid) *
-            static_cast<float>(editor_plane.get_position())
-    };
-    VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated( offset - height_offset));
+    float tile_z_length{IsometricServer::get_instance()->get_isometric_space_z_length(space_rid)};
 
     Vector3 map_size{map.get_size()};
 
-    for (int i = 0; i < static_cast<int>(map_size.y) + 1; i++) {
-        auto index = static_cast<float>(i);
+    Vector2 global_offset{0, static_cast<float>(-diamond_height) * 0.5f};
+    float editor_plane_position = static_cast<float>(editor_plane.get_position());
 
-        Vector2 from{
-                -diamond_width * 0.5f * index, diamond_height * 0.5f * index
-        };
-        Vector2 to{
-                diamond_width * 0.5f * (map_size.x - index), diamond_height * 0.5f * (index + map_size.x)
-        };
-        VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
-    }
-    for (int i = 0; i < map.get_size().x + 1; i++) {
-        auto index = static_cast<float>(i);
+    switch (editor_plane.get_axis()) {
+        case Vector3::AXIS_X:
+            {
+                Vector2 offset{
+                        -diamond_width * 0.5f * editor_plane_position,
+                        -diamond_height * 0.5f * editor_plane_position
+                };
+                VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
+            }
 
-        Vector2 from{
-                diamond_width * 0.5f * index, diamond_height * 0.5f * index
-        };
-        Vector2 to{
-                diamond_width * 0.5f * (index - map_size.y), diamond_height * 0.5f * (map_size.y + index)
-        };
-        VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+            for (int i = 0; i < static_cast<int>(map_size.y) + 1; i++) {
+                auto index = static_cast<float>(i);
+
+                Vector2 from{
+                        -diamond_width * 0.5f * index, diamond_height * 0.5f * index
+                };
+                Vector2 to{
+                        -diamond_width * 0.5f * index, diamond_height * 0.5f * index - tile_z_length * map_size.z
+                };
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+            }
+            for (int i = 0; i < static_cast<int>(map_size.z) + 1; i++) {
+                auto index = static_cast<float>(i);
+
+                Vector2 from{
+                        0, -tile_z_length * index
+                };
+                Vector2 to{
+                        -diamond_width * 0.5f * map_size.y, diamond_height * 0.5f * map_size.y - tile_z_length * index
+                };
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+            }
+            break;
+        case Vector3::AXIS_Y:
+            {
+                Vector2 offset{
+                        diamond_width * 0.5f * editor_plane_position,
+                        -diamond_height * 0.5f * editor_plane_position
+                };
+                VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
+            }
+
+            for (int i = 0; i < static_cast<int>(map_size.z) + 1; i++) {
+                auto index = static_cast<float>(i);
+
+                Vector2 from{
+                        0, -tile_z_length * index
+                };
+                Vector2 to{
+                        diamond_width * 0.5f * (map_size.x), diamond_height * 0.5f * map_size.x - tile_z_length * index
+                };
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+            }
+            for (int i = 0; i < static_cast<int>(map_size.x) + 1; i++) {
+                auto index = static_cast<float>(i);
+
+                Vector2 from{
+                        diamond_width * 0.5f * index, diamond_height * 0.5f * index
+                };
+                Vector2 to{
+                        diamond_width * 0.5f * index, diamond_height * 0.5f * index - tile_z_length * map_size.z
+                };
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+            }
+            break;
+        case Vector3::AXIS_Z:
+            {
+                Vector2 offset{
+                        0,
+                        IsometricServer::get_instance()->get_isometric_space_z_length(space_rid) *
+                        editor_plane_position
+                };
+                VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
+            }
+
+            for (int i = 0; i < static_cast<int>(map_size.y) + 1; i++) {
+                auto index = static_cast<float>(i);
+
+                Vector2 from{
+                        -diamond_width * 0.5f * index, diamond_height * 0.5f * index
+                };
+                Vector2 to{
+                        diamond_width * 0.5f * (map_size.x - index), diamond_height * 0.5f * (index + map_size.x)
+                };
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+            }
+            for (int i = 0; i < static_cast<int>(map_size.x) + 1; i++) {
+                auto index = static_cast<float>(i);
+
+                Vector2 from{
+                        diamond_width * 0.5f * index, diamond_height * 0.5f * index
+                };
+                Vector2 to{
+                        diamond_width * 0.5f * (index - map_size.y), diamond_height * 0.5f * (map_size.y + index)
+                };
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+            }
+            break;
     }
 }
 

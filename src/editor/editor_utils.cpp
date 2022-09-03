@@ -5,9 +5,9 @@
 #include <core/variant.h>
 #include <core/resource.h>
 #include <scene/resources/packed_scene.h>
-#include <core/io/resource_loader.h>
 #include <modules/isometric_maps/src/node/isometric_positionable.h>
 #include <modules/isometric_maps/src/resource/positionable_set.h>
+#include <modules/isometric_maps/src/logging.h>
 #include "editor_utils.h"
 #include "positionable_scenes_cache_manager.h"
 #include "positionable_set_editor_plugin.h"
@@ -21,7 +21,7 @@ Error EditorUtils::find_all_positionables_in_path(const String &path, List<Strin
     if (error != OK) {
         FileAccess* file_access{FileAccess::open(path, FileAccess::READ, &error)};
         if (error != OK) {
-            WARN_PRINT(vformat("%s cannot be opened", path))
+            LOG_WARNING(vformat("%s cannot be opened", path));
             return Error::ERR_CANT_RESOLVE;
         }
         if (path.ends_with(".tscn")) {

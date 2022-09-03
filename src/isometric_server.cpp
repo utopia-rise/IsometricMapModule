@@ -1,5 +1,6 @@
 #include "isometric_server.h"
-#include "core/os/os.h"
+#include <core/os/os.h>
+#include "logging.h"
 #include <scene/2d/canvas_item.h>
 #include <modules/isometric_maps/src/resource/isometric_configuration.h>
 #include <modules/isometric_maps/src/utils/isometric_maths.h>
@@ -67,7 +68,7 @@ RID IsometricServer::create_space() {
 void IsometricServer::delete_space(const RID &rid) {
     data::IsometricSpace* data{worlds_owner.getornull(rid)};
     if (!data) {
-        WARN_PRINT(vformat("This is not a valid isometric space RID: %s", rid.get_id()))
+        WARN_PRINT(vformat("This is not a valid isometric space RID: %s", rid.get_id()));
         return;
     }
 
@@ -80,7 +81,7 @@ RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canva
                                                 const AABB& aabb) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()));
         return {};
     }
 
@@ -118,13 +119,13 @@ RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canva
 void IsometricServer::unregister_isometric_element(const RID space_rid, const RID rid) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()));
         return;
     }
 
     IsometricElement* isometric_element{elements_owner.getornull(rid)};
     if (!isometric_element) {
-        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", rid.get_id()));
         return;
     }
 
@@ -229,7 +230,7 @@ void IsometricServer::render_isometric_element(IsometricElement* data) {
 void IsometricServer::update_space_configuration(const RID space_rid, const RID conf_rid) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT(vformat("This is not a valid space RID: %s", space_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid space RID: %s", space_rid.get_id()));
         return;
     }
     resource::IsometricConfiguration* conf = resource::IsometricConfiguration::get_instance(conf_rid);
@@ -240,7 +241,7 @@ void IsometricServer::update_space_configuration(const RID space_rid, const RID 
 const data::IsometricParameters* IsometricServer::get_space_configuration(const RID world_rid) {
     IsometricSpace* world{worlds_owner.getornull(world_rid)};
     if (!world) {
-        WARN_PRINT(vformat("This is not a valid space RID: %s", world_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid space RID: %s", world_rid.get_id()));
         return nullptr;
     }
     return &world->configuration;
@@ -249,7 +250,7 @@ const data::IsometricParameters* IsometricServer::get_space_configuration(const 
 const data::IsometricParameters* IsometricServer::get_space_configuration_from_element(const RID element_rid) {
     IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
     if (!isometric_element) {
-        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()));
         return nullptr;
     }
     return &(worlds_owner.get(isometric_element->world)->configuration);
@@ -269,7 +270,7 @@ void IsometricServer::_bind_methods() {
 void IsometricServer::set_isometric_element_position(const RID element_rid, const Vector3 global_position) {
     IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
     if (!isometric_element) {
-        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()));
         return;
     }
 
@@ -279,7 +280,7 @@ void IsometricServer::set_isometric_element_position(const RID element_rid, cons
 void IsometricServer::set_isometric_element_size(const RID element_rid, const Vector3 size) {
     IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
     if (!isometric_element) {
-        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()));
         return;
     }
 
@@ -289,7 +290,7 @@ void IsometricServer::set_isometric_element_size(const RID element_rid, const Ve
 uint64_t IsometricServer::get_isometric_z_index(const RID element_rid) {
     IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
     if (!isometric_element) {
-        WARN_PRINT(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()));
         return 0;
     }
 
@@ -299,7 +300,7 @@ uint64_t IsometricServer::get_isometric_z_index(const RID element_rid) {
 int IsometricServer::get_isometric_space_diamond_width(const RID space_rid) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT(vformat("This is not a valid space RID: %s", space_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid space RID: %s", space_rid.get_id()));
         return 0;
     }
 
@@ -309,7 +310,7 @@ int IsometricServer::get_isometric_space_diamond_width(const RID space_rid) {
 int IsometricServer::get_isometric_space_diamond_height(const RID space_rid) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT(vformat("This is not a valid space RID: %s", space_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid space RID: %s", space_rid.get_id()));
         return 0;
     }
 
@@ -319,7 +320,7 @@ int IsometricServer::get_isometric_space_diamond_height(const RID space_rid) {
 float IsometricServer::get_isometric_space_z_length(const RID space_rid) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
-        WARN_PRINT(vformat("This is not a valid space RID: %s", space_rid.get_id()))
+        LOG_WARNING(vformat("This is not a valid space RID: %s", space_rid.get_id()));
         return 0;
     }
 
