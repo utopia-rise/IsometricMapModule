@@ -15,14 +15,16 @@ namespace editor {
             void undo() override;
 
             void set_is_forward(bool p_is_forward);
+            void set_plane_type(EditorPlane::PlaneType p_plane_type);
 
             MoveEditorPlaneCommand();
             ~MoveEditorPlaneCommand() override = default;
 
         private:
-            static void act(bool p_is_forward);
+            void act(bool p_is_forward);
 
             bool is_forward;
+            EditorPlane::PlaneType plane_type;
         };
     }
 }

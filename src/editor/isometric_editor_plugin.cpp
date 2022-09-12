@@ -9,12 +9,12 @@
 
 using namespace editor;
 
-const char* POSITIONABLE_PANE_BUTTON_TITLE{"Isometric positionables"};
+static constexpr const char* POSITIONABLE_PANE_BUTTON_TITLE{"Isometric positionables"};
 
-const char* NONE_EDITION_LABEL{"None"};
-const char* SELECT_EDITION_LABEL{"Select"};
-const char* PAINT_EDITION_LABEL{"Paint"};
-const char* DRAG_AND_DROP_EDITION_LABEL{"Drag & Drop"};
+static constexpr const char* NONE_EDITION_LABEL{"None"};
+static constexpr const char* SELECT_EDITION_LABEL{"Select"};
+static constexpr const char* PAINT_EDITION_LABEL{"Paint"};
+static constexpr const char* DRAG_AND_DROP_EDITION_LABEL{"Drag & Drop"};
 
 editor::inspector::PositionableSelectionPane* IsometricEditorPlugin::get_selection_pane() const {
     return positionable_selection_pane;
@@ -36,8 +36,14 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         select_all_command_emitter(EditorNode::get_undo_redo()),
         delete_command_emitter(EditorNode::get_undo_redo()),
         drag_and_drop_command_emitter(EditorNode::get_undo_redo()),
-        move_editor_plane_command_emitter(EditorNode::get_undo_redo()),
-        rotate_editor_plane_command_emitter(EditorNode::get_undo_redo()) {
+        move_editor_drawer_command_emitter(EditorNode::get_undo_redo()),
+        rotate_editor_plane_command_emitter(EditorNode::get_undo_redo()),
+        x_min_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::X_MIN_VIEW_LIMITER),
+        x_max_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::X_MAX_VIEW_LIMITER),
+        y_min_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER),
+        y_max_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER),
+        z_min_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER),
+        z_max_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER) {
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
@@ -110,11 +116,11 @@ void IsometricEditorPlugin::edit(Object* p_object) {
 
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     if (!handling_data_map.has(index)) {
-        const Vector3& map_size{selected_map->get_size()};
-        handling_data_map[index] = MapHandlingData({0, Vector3::Axis::AXIS_Z, {map_size.x, map_size.y}});
+        handling_data_map[index] = MapHandlingData(selected_map->get_size());
     }
     editor::OutlineDrawer::set_outline_visible(selected_map, show_debug);
-    EditionGridDrawer::draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
+    
+    _draw_grids_and_planes();
 
     editor::PositionableSelectorManager::get_instance().refresh_outline_for_selected(selected_map);
 }
@@ -126,7 +132,12 @@ void IsometricEditorPlugin::drop() {
             selected_map->disconnect("draw", this, "refresh");
         }
         auto index{reinterpret_cast<uint64_t>(selected_map)};
-        EditionGridDrawer::clear_grid(handling_data_map[index].edition_grid_plane);
+
+        const MapHandlingData& map_handling_data = handling_data_map[index];
+
+        for (int i = EditorPlane::PlaneType::EDITOR_DRAWER; i < EditorPlane::PlaneType::SIZE; ++i) {
+            EditionGridDrawer::clear_for_editor_plane(map_handling_data.editor_planes[i]);
+        }
     }
     selected_map = nullptr;
 }
@@ -190,8 +201,15 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
             drag_and_drop_command_emitter.on_gui_input(p_event);
             break;
     }
-    move_editor_plane_command_emitter.on_gui_input(p_event);
+    move_editor_drawer_command_emitter.on_gui_input(p_event);
     rotate_editor_plane_command_emitter.on_gui_input(p_event);
+
+    x_min_plane_view_limiter_command_emitter.on_gui_input(p_event);
+    x_max_plane_view_limiter_command_emitter.on_gui_input(p_event);
+    y_min_plane_view_limiter_command_emitter.on_gui_input(p_event);
+    y_max_plane_view_limiter_command_emitter.on_gui_input(p_event);
+    z_min_plane_view_limiter_command_emitter.on_gui_input(p_event);
+    z_max_plane_view_limiter_command_emitter.on_gui_input(p_event);
     return true;
 }
 
@@ -208,23 +226,41 @@ void IsometricEditorPlugin::refresh() const {
     if (!handling_data_map.has(index)) {
         return;
     }
-    EditionGridDrawer::draw_grid(handling_data_map[index].edition_grid_plane, *selected_map);
+    
+    _draw_grids_and_planes();
 }
 
 node::IsometricMap* IsometricEditorPlugin::get_selected_map() const {
     return selected_map;
 }
 
-EditorPlane& IsometricEditorPlugin::get_editor_plane_for_selected_map() {
-    return handling_data_map[reinterpret_cast<uint64_t>(selected_map)].edition_grid_plane;
+EditorPlane& IsometricEditorPlugin::get_editor_plane_for_selected_map(EditorPlane::PlaneType p_plane_type) {
+    return handling_data_map[reinterpret_cast<uint64_t>(selected_map)].editor_planes[p_plane_type];
 }
 
-IsometricEditorPlugin::MapHandlingData::MapHandlingData() : edition_grid_plane{0, Vector3::Axis::AXIS_Z, Vector2()} {
+IsometricEditorPlugin::MapHandlingData::MapHandlingData() :
+        editor_planes{
+                {0,  Vector3::Axis::AXIS_Z, Vector2()},
+                {-1, Vector3::Axis::AXIS_X, Vector2()},
+                {-1, Vector3::Axis::AXIS_X, Vector2()},
+                {-1, Vector3::Axis::AXIS_Y, Vector2()},
+                {-1, Vector3::Axis::AXIS_Y, Vector2()},
+                {-1, Vector3::Axis::AXIS_Z, Vector2()},
+                {-1, Vector3::Axis::AXIS_Z, Vector2()}
+        } {
 
 }
 
-IsometricEditorPlugin::MapHandlingData::MapHandlingData(EditorPlane p_editor_plane) : edition_grid_plane(
-        p_editor_plane) {
+IsometricEditorPlugin::MapHandlingData::MapHandlingData(const Vector3& p_map_size) :
+        editor_planes{
+                {0, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}},
+                {0, Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
+                {static_cast<int>(p_map_size.x), Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
+                {0, Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
+                {static_cast<int>(p_map_size.y), Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
+                {0, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}},
+                {static_cast<int>(p_map_size.z), Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}}
+        } {
 
 }
 
@@ -253,6 +289,38 @@ void IsometricEditorPlugin::_on_edition_mode_changed(int selected_index) {
         current_mode = Mode::PAINT;
     } else if (selected_label == DRAG_AND_DROP_EDITION_LABEL) {
         current_mode = Mode::DRAG_AND_DROP;
+    }
+}
+
+void IsometricEditorPlugin::_draw_grids_and_planes() const {
+    auto index{reinterpret_cast<uint64_t>(selected_map)};
+    const MapHandlingData& map_handling_data{handling_data_map[index]};
+    EditionGridDrawer::draw_grid(map_handling_data.editor_planes[EditorPlane::PlaneType::EDITOR_DRAWER], *selected_map);
+    const Vector3& map_size{selected_map->get_size()};
+
+    for (int i = EditorPlane::PlaneType::X_MAX_VIEW_LIMITER; i <= EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER; ++i) {
+        const EditorPlane& plane{map_handling_data.editor_planes[i]};
+        switch (plane.get_axis()) {
+            case Vector3::AXIS_X:
+                if ((plane.get_position() >= map_size.x && i == EditorPlane::PlaneType::X_MAX_VIEW_LIMITER) || (plane.get_position() <= 0 && i == EditorPlane::PlaneType::X_MIN_VIEW_LIMITER)) {
+                    EditionGridDrawer::clear_for_editor_plane(plane);
+                    continue;
+                }
+                break;
+            case Vector3::AXIS_Y:
+                if ((plane.get_position() >= map_size.y && i == EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER) || (plane.get_position() <= 0 && i == EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER)) {
+                    EditionGridDrawer::clear_for_editor_plane(plane);
+                    continue;
+                }
+                break;
+            case Vector3::AXIS_Z:
+                if ((plane.get_position() >= map_size.z && i == EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER) || (plane.get_position() <= 0 && i == EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER)) {
+                    EditionGridDrawer::clear_for_editor_plane(plane);
+                    continue;
+                }
+                break;
+        }
+        EditionGridDrawer::draw_plane(plane, *selected_map);
     }
 }
 

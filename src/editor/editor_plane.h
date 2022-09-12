@@ -12,6 +12,17 @@ namespace editor {
     class EditorPlane {
 
     public:
+        enum PlaneType {
+            EDITOR_DRAWER,
+            X_MIN_VIEW_LIMITER,
+            X_MAX_VIEW_LIMITER,
+            Y_MIN_VIEW_LIMITER,
+            Y_MAX_VIEW_LIMITER,
+            Z_MIN_VIEW_LIMITER,
+            Z_MAX_VIEW_LIMITER,
+            SIZE
+        };
+
         int get_position() const;
         void set_position(int p_position);
         Vector3::Axis get_axis() const;

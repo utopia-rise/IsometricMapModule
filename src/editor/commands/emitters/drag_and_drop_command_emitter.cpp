@@ -29,7 +29,7 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
         IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
     };
 
-    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map();
+    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
     Vector3::Axis editor_plane_axis = editor_plane.get_axis();
     const Vector3& mouse_position{
         utils::from_screen_to_3D(
@@ -149,7 +149,7 @@ AABB DragAndDropCommandEmitter::_calculate_real_aabb(const Vector3& initial_posi
         z_size = Math::floor(position_delta.z / positionable_z_size) * positionable_z_size + 1;
     }
 
-    switch (IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map().get_axis()) {
+    switch (IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER).get_axis()) {
         case Vector3::AXIS_X:
             return {initial_position, {positionable_x_size, y_size, z_size}};
         case Vector3::AXIS_Y:

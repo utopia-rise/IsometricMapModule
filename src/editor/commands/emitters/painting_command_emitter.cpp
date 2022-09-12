@@ -21,7 +21,7 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
         IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
     };
 
-    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map();
+    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
     const Vector3& position{
             utils::from_screen_to_3D(
                     *parameters,

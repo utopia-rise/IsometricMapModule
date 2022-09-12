@@ -11,11 +11,12 @@
 #include <modules/isometric_maps/src/editor/commands/emitters/delete_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/drag_and_drop_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/select_all_command_emitter.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/move_editor_plane_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/rotate_editor_plane_command_emitter.h>
+#include <modules/isometric_maps/src/editor/commands/emitters/move_editor_grid_command_emitter.h>
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
 #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
+#include "modules/isometric_maps/src/editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
 
 namespace editor {
 
@@ -46,7 +47,7 @@ namespace editor {
         void refresh() const;
 
         node::IsometricMap* get_selected_map() const;
-        EditorPlane& get_editor_plane_for_selected_map();
+        EditorPlane& get_editor_plane_for_selected_map(EditorPlane::PlaneType p_plane_type);
 
     protected:
         void _notification(int p_notification);
@@ -65,10 +66,10 @@ namespace editor {
 
     private:
         struct MapHandlingData {
-            EditorPlane edition_grid_plane;
+            EditorPlane editor_planes[EditorPlane::PlaneType::SIZE];
 
             MapHandlingData();
-            explicit MapHandlingData(EditorPlane p_editor_plane);
+            explicit MapHandlingData(const Vector3& p_map_size);
         };
 
         editor::inspector::PositionableSelectionPane* positionable_selection_pane;
@@ -91,12 +92,20 @@ namespace editor {
         commands::emitters::SelectAllCommandEmitter select_all_command_emitter;
         commands::emitters::DeleteCommandEmitter delete_command_emitter;
         commands::emitters::DragAndDropCommandEmitter drag_and_drop_command_emitter;
-        commands::emitters::MoveEditorPlaneCommandEmitter move_editor_plane_command_emitter;
+        commands::emitters::MoveEditorGridCommandEmitter move_editor_drawer_command_emitter;
         commands::emitters::RotateEditorPlaneCommandEmitter rotate_editor_plane_command_emitter;
+        commands::emitters::MoveEditorViewLimiterCommandEmitter x_min_plane_view_limiter_command_emitter;
+        commands::emitters::MoveEditorViewLimiterCommandEmitter x_max_plane_view_limiter_command_emitter;
+        commands::emitters::MoveEditorViewLimiterCommandEmitter y_min_plane_view_limiter_command_emitter;
+        commands::emitters::MoveEditorViewLimiterCommandEmitter y_max_plane_view_limiter_command_emitter;
+        commands::emitters::MoveEditorViewLimiterCommandEmitter z_min_plane_view_limiter_command_emitter;
+        commands::emitters::MoveEditorViewLimiterCommandEmitter z_max_plane_view_limiter_command_emitter;
 
         void _on_frame_post_draw();
 
         void _on_edition_mode_changed(int selected_index);
+
+        void _draw_grids_and_planes() const;
 
     public:
         static void _bind_methods();
