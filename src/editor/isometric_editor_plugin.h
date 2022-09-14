@@ -94,12 +94,7 @@ namespace editor {
         commands::emitters::DragAndDropCommandEmitter drag_and_drop_command_emitter;
         commands::emitters::MoveEditorGridCommandEmitter move_editor_drawer_command_emitter;
         commands::emitters::RotateEditorPlaneCommandEmitter rotate_editor_plane_command_emitter;
-        commands::emitters::MoveEditorViewLimiterCommandEmitter x_min_plane_view_limiter_command_emitter;
-        commands::emitters::MoveEditorViewLimiterCommandEmitter x_max_plane_view_limiter_command_emitter;
-        commands::emitters::MoveEditorViewLimiterCommandEmitter y_min_plane_view_limiter_command_emitter;
-        commands::emitters::MoveEditorViewLimiterCommandEmitter y_max_plane_view_limiter_command_emitter;
-        commands::emitters::MoveEditorViewLimiterCommandEmitter z_min_plane_view_limiter_command_emitter;
-        commands::emitters::MoveEditorViewLimiterCommandEmitter z_max_plane_view_limiter_command_emitter;
+        commands::emitters::MoveEditorViewLimiterCommandEmitter plane_view_limiter_command_emitter;
 
         void _on_frame_post_draw();
 

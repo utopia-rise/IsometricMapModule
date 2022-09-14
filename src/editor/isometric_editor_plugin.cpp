@@ -38,12 +38,7 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
         drag_and_drop_command_emitter(EditorNode::get_undo_redo()),
         move_editor_drawer_command_emitter(EditorNode::get_undo_redo()),
         rotate_editor_plane_command_emitter(EditorNode::get_undo_redo()),
-        x_min_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::X_MIN_VIEW_LIMITER),
-        x_max_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::X_MAX_VIEW_LIMITER),
-        y_min_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER),
-        y_max_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER),
-        z_min_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER),
-        z_max_plane_view_limiter_command_emitter(EditorNode::get_undo_redo(), EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER) {
+        plane_view_limiter_command_emitter(EditorNode::get_undo_redo()) {
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
@@ -204,12 +199,7 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
     move_editor_drawer_command_emitter.on_gui_input(p_event);
     rotate_editor_plane_command_emitter.on_gui_input(p_event);
 
-    x_min_plane_view_limiter_command_emitter.on_gui_input(p_event);
-    x_max_plane_view_limiter_command_emitter.on_gui_input(p_event);
-    y_min_plane_view_limiter_command_emitter.on_gui_input(p_event);
-    y_max_plane_view_limiter_command_emitter.on_gui_input(p_event);
-    z_min_plane_view_limiter_command_emitter.on_gui_input(p_event);
-    z_max_plane_view_limiter_command_emitter.on_gui_input(p_event);
+    plane_view_limiter_command_emitter.on_gui_input(p_event);
     return true;
 }
 
@@ -298,7 +288,7 @@ void IsometricEditorPlugin::_draw_grids_and_planes() const {
     EditionGridDrawer::draw_grid(map_handling_data.editor_planes[EditorPlane::PlaneType::EDITOR_DRAWER], *selected_map);
     const Vector3& map_size{selected_map->get_size()};
 
-    for (int i = EditorPlane::PlaneType::X_MAX_VIEW_LIMITER; i <= EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER; ++i) {
+    for (int i = EditorPlane::PlaneType::X_MIN_VIEW_LIMITER; i <= EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER; ++i) {
         const EditorPlane& plane{map_handling_data.editor_planes[i]};
         switch (plane.get_axis()) {
             case Vector3::AXIS_X:
