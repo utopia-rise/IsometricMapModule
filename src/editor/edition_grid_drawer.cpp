@@ -4,13 +4,13 @@
 #include "editor_plane.h"
 #include "../isometric_server.h"
 
-void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const node::IsometricMap& map) {
+void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const node::IsometricMap* map) {
     RID rid{editor_plane.get_rid()};
     VisualServer::get_singleton()->canvas_item_clear(rid);
-    VisualServer::get_singleton()->canvas_item_set_parent(rid, map.get_canvas_item());
+    VisualServer::get_singleton()->canvas_item_set_parent(rid, map->get_canvas_item());
 
 
-    RID space_rid{map.get_space_RID()};
+    RID space_rid{map->get_space_RID()};
 
     float diamond_height{
         static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(space_rid))
@@ -20,7 +20,7 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
     };
     float tile_z_length{IsometricServer::get_instance()->get_isometric_space_z_length(space_rid)};
 
-    Vector3 map_size{map.get_size()};
+    Vector3 map_size{map->get_size()};
 
     Vector2 global_offset{0, static_cast<float>(-diamond_height) * 0.5f};
     float editor_plane_position = static_cast<float>(editor_plane.get_position());
@@ -126,20 +126,20 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
     }
 }
 
-void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_plane, const node::IsometricMap& map) {
+void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_plane, const node::IsometricMap* map) {
     RID rid{p_editor_plane.get_rid()};
 
     VisualServer::get_singleton()->canvas_item_clear(rid);
-    VisualServer::get_singleton()->canvas_item_set_parent(rid, map.get_canvas_item());
+    VisualServer::get_singleton()->canvas_item_set_parent(rid, map->get_canvas_item());
 
-    RID space_rid{map.get_space_RID()};
+    RID space_rid{map->get_space_RID()};
     float diamond_width{
             static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(space_rid))
     };
     float diamond_height{
             static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(space_rid))
     };
-    Vector3 map_size{map.get_size()};
+    Vector3 map_size{map->get_size()};
     int editor_plane_position{p_editor_plane.get_position()};
     Vector2 global_offset{0, static_cast<float>(-diamond_height) * 0.5f};
     float tile_z_length{IsometricServer::get_instance()->get_isometric_space_z_length(space_rid)};

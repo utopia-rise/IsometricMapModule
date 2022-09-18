@@ -44,7 +44,7 @@ namespace editor {
         void set_should_clear_buffer_on_next_frame(bool should);
 
         void refresh_positionable_selection_pane();
-        void refresh() const;
+        void refresh(int p_plane_type);
 
         node::IsometricMap* get_selected_map() const;
         EditorPlane& get_editor_plane_for_selected_map(EditorPlane::PlaneType p_plane_type);
@@ -67,6 +67,8 @@ namespace editor {
     private:
         struct MapHandlingData {
             EditorPlane editor_planes[EditorPlane::PlaneType::SIZE];
+            Ref<SceneTreeTimer> plane_timers[EditorPlane::PlaneType::SIZE];
+            bool is_grid[EditorPlane::PlaneType::SIZE];
 
             MapHandlingData();
             explicit MapHandlingData(const Vector3& p_map_size);
@@ -100,7 +102,11 @@ namespace editor {
 
         void _on_edition_mode_changed(int selected_index);
 
-        void _draw_grids_and_planes() const;
+        void _on_plane_visibility_timeout(int p_plane_type);
+
+        void _draw_edition_grid() const;
+        void _draw_plane(EditorPlane::PlaneType p_plane_type);
+        void _set_plane_timer(EditorPlane::PlaneType p_plane_type, float p_delay);
 
     public:
         static void _bind_methods();

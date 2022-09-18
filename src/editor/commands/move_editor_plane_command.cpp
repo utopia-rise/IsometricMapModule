@@ -26,7 +26,7 @@ void MoveEditorPlaneCommand::act(bool p_is_forward) {
     }
 
     editor_plane.set_position(new_position);
-    isometric_editor_plugin->refresh();
+    isometric_editor_plugin->refresh(plane_type);
 }
 
 void MoveEditorPlaneCommand::set_is_forward(bool p_is_forward) {
