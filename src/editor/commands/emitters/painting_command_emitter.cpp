@@ -58,6 +58,10 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
         return commands;
     }
 
+    if (!isometric_editor_plugin->is_aabb_in_view_limiters(aabb)) {
+        return commands;
+    }
+
     if (map->is_overlapping(aabb)) {
         return commands;
     }

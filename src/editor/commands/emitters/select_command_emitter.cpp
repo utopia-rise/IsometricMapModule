@@ -33,6 +33,10 @@ SelectCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_even
         )
     };
 
+    if (!isometric_editor_plugin->is_aabb_in_view_limiters({position, {1, 1, 1}})) {
+        return commands;
+    }
+
     if (!map->get_positionable_at(position)) {
         return commands;
     }

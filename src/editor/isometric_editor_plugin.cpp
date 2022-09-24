@@ -235,6 +235,28 @@ EditorPlane& IsometricEditorPlugin::get_editor_plane_for_selected_map(EditorPlan
     return handling_data_map[reinterpret_cast<uint64_t>(selected_map)].editor_planes[p_plane_type];
 }
 
+bool IsometricEditorPlugin::is_aabb_in_view_limiters(const AABB& p_aabb) const {
+    const MapHandlingData& map_handling_data{handling_data_map[reinterpret_cast<uint64_t>(selected_map)]};
+    const Vector3& position{p_aabb.position};
+    const Vector3& size{p_aabb.size};
+    int pos_x{static_cast<int>(position.x)};
+    int pos_y{static_cast<int>(position.y)};
+    int pos_z{static_cast<int>(position.z)};
+    int max_x{pos_x + static_cast<int>(size.x) - 1};
+    int max_y{pos_y + static_cast<int>(size.y) - 1};
+    int max_z{pos_z + static_cast<int>(size.z) - 1};
+
+    if (pos_x < map_handling_data.editor_planes[EditorPlane::PlaneType::X_MIN_VIEW_LIMITER].get_position() ||
+        pos_y < map_handling_data.editor_planes[EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER].get_position() ||
+        pos_z < map_handling_data.editor_planes[EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER].get_position() ||
+        max_x >= map_handling_data.editor_planes[EditorPlane::PlaneType::X_MAX_VIEW_LIMITER].get_position() ||
+        max_y >= map_handling_data.editor_planes[EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER].get_position() ||
+        max_z >= map_handling_data.editor_planes[EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER].get_position()) {
+        return false;
+    }
+    return true;
+}
+
 IsometricEditorPlugin::MapHandlingData::MapHandlingData() :
         editor_planes{
                 {0,  Vector3::Axis::AXIS_Z, Vector2()},

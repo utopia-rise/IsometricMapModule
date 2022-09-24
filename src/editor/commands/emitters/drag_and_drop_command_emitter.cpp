@@ -56,14 +56,16 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
     if (Input::get_singleton()->is_mouse_button_pressed(BUTTON_LEFT)) {
         if (is_activated) {
             AABB real_aabb{_calculate_real_aabb(initial_position, mouse_position, positionable_size)};
-            if (!map->is_aabb_in_map(real_aabb) || map->is_overlapping(real_aabb)) {
+            if (!map->is_aabb_in_map(real_aabb) || map->is_overlapping(real_aabb) ||
+                !isometric_editor_plugin->is_aabb_in_view_limiters(real_aabb)) {
                 return commands;
             }
 
             limit_position = mouse_position;
         } else {
             AABB real_aabb{_calculate_real_aabb(mouse_position, mouse_position, positionable_size)};
-            if (!map->is_aabb_in_map(real_aabb) || map->is_overlapping(real_aabb)) {
+            if (!map->is_aabb_in_map(real_aabb) || map->is_overlapping(real_aabb) ||
+                !isometric_editor_plugin->is_aabb_in_view_limiters(real_aabb)) {
                 return commands;
             }
 

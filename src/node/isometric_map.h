@@ -39,6 +39,8 @@ namespace node {
 
         int get_positionable_id_for_position(const Vector3& position);
 
+        Vector<IsometricPositionable*> get_positionables_in(const AABB& p_aabb) const;
+
         bool is_aabb_in_map(const AABB& aabb) const;
 
         void set_size(Vector3 p_size) override;
