@@ -19,8 +19,8 @@ add_compile_definitions(TOOLS_ENABLED)
 add_compile_definitions(DEBUG_ENABLED)
 
 # platforms
-add_compile_definitions(WINDOWS_ENABLED)
+#add_compile_definitions(WINDOWS_ENABLED)
 #add_compile_definitions(X11_ENABLED)
-#add_compile_definitions(OSX_ENABLED)
-#add_compile_definitions(APPLE_STYLE_KEYS)
+add_compile_definitions(OSX_ENABLED)
+add_compile_definitions(APPLE_STYLE_KEYS)
 #add_compile_definitions(__ANDROID__)

@@ -11,28 +11,28 @@
 using namespace editor::commands::emitters;
 
 MoveEditorViewLimiterCommandEmitter::MoveEditorViewLimiterCommandEmitter(UndoRedo* undo_redo)
-        : CommandEmitter(undo_redo) {
+        : CommandEmitter(undo_redo)
+#ifdef OSX_ENABLED
+        , cumulative_scroll_delta(),
+        cumulative_scroll_last_time()
+#endif
+        {
 
 }
 
 Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from_gui_input_to_command_impl(
-        Ref<InputEventMouseButton> p_event) {
+        Ref<ScrollInputEvent> p_event) {
     Vector<Ref<editor::commands::Command>> commands;
 
-    if (!p_event->is_pressed() ||
+    if (!_is_event_activated(p_event) ||
         !(p_event->get_control() || p_event->get_command())) {
         return commands;
     }
 
-    bool is_forward{false};
-    switch (p_event->get_button_index()) {
-        case ButtonList::BUTTON_WHEEL_UP:
-            is_forward = true;
-            break;
-        case ButtonList::BUTTON_WHEEL_DOWN:
-            break;
-        default:
-            return commands;
+    EventMotion motion{_is_event_forward(p_event)};
+
+    if (motion == EventMotion::NONE) {
+        return commands;
     }
 
     EditorPlane::PlaneType plane_type;
@@ -61,6 +61,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
 
     auto editor_plane_position{static_cast<real_t>(plane.get_position())};
 
+    bool is_forward{motion == EventMotion::FORWARD};
     if ((editor_plane_position == 0 && !is_forward) || (editor_plane_position == plane_max_position && is_forward)) {
         return commands;
     }
@@ -147,6 +148,45 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
     commands.push_back(move_command);
 
     return commands;
+}
+
+bool MoveEditorViewLimiterCommandEmitter::_is_event_activated(Ref<ScrollInputEvent> p_event) {
+#ifdef OSX_ENABLED
+    return true;
+#else
+    return p_event->is_pressed();
+#endif
+}
+
+MoveEditorViewLimiterCommandEmitter::EventMotion
+MoveEditorViewLimiterCommandEmitter::_is_event_forward(Ref<ScrollInputEvent> p_event) {
+#ifdef OSX_ENABLED
+    const real_t threshold{1.0};
+    cumulative_scroll_delta += p_event->get_delta().y;
+    uint64_t now{OS::get_singleton()->get_system_time_secs()};
+    if (now - cumulative_scroll_last_time > 2) {
+        cumulative_scroll_delta = 0;
+    }
+    cumulative_scroll_last_time = now;
+    if (cumulative_scroll_delta >= threshold) {
+        cumulative_scroll_delta = 0;
+        return EventMotion::BACKWARD;
+    } else if (cumulative_scroll_delta < -threshold) {
+        cumulative_scroll_delta = 0;
+        return EventMotion::FORWARD;
+    } else {
+        return EventMotion::NONE;
+    }
+#else
+    switch (p_event->get_button_index()) {
+        case ButtonList::BUTTON_WHEEL_UP:
+            return EventMotion::FORWARD;
+        case ButtonList::BUTTON_WHEEL_DOWN:
+            return EventMotion::BACKWARD;
+        default:
+            return EventMotion::NONE;
+    }
+#endif
 }
 
 #endif
