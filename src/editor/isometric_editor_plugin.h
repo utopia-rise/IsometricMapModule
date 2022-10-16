@@ -11,11 +11,12 @@
 #include <modules/isometric_maps/src/editor/commands/emitters/delete_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/drag_and_drop_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/select_all_command_emitter.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/move_editor_plane_command_emitter.h>
 #include <modules/isometric_maps/src/editor/commands/emitters/rotate_editor_plane_command_emitter.h>
+#include <modules/isometric_maps/src/editor/commands/emitters/move_editor_grid_command_emitter.h>
 #include "editor_plane.h"
 #include "edition_grid_drawer.h"
 #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
+#include "modules/isometric_maps/src/editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
 
 namespace editor {
 
@@ -43,10 +44,13 @@ namespace editor {
         void set_should_clear_buffer_on_next_frame(bool should);
 
         void refresh_positionable_selection_pane();
-        void refresh() const;
+        void refresh(int p_plane_type);
 
         node::IsometricMap* get_selected_map() const;
-        EditorPlane& get_editor_plane_for_selected_map();
+        EditorPlane& get_editor_plane_for_selected_map(EditorPlane::PlaneType p_plane_type);
+
+
+        bool is_aabb_in_view_limiters(const AABB& p_aabb) const;
 
     protected:
         void _notification(int p_notification);
@@ -65,10 +69,12 @@ namespace editor {
 
     private:
         struct MapHandlingData {
-            EditorPlane edition_grid_plane;
+            EditorPlane editor_planes[EditorPlane::PlaneType::SIZE];
+            Ref<SceneTreeTimer> plane_timers[EditorPlane::PlaneType::SIZE];
+            bool is_grid[EditorPlane::PlaneType::SIZE];
 
             MapHandlingData();
-            explicit MapHandlingData(EditorPlane p_editor_plane);
+            explicit MapHandlingData(const Vector3& p_map_size);
         };
 
         editor::inspector::PositionableSelectionPane* positionable_selection_pane;
@@ -91,12 +97,19 @@ namespace editor {
         commands::emitters::SelectAllCommandEmitter select_all_command_emitter;
         commands::emitters::DeleteCommandEmitter delete_command_emitter;
         commands::emitters::DragAndDropCommandEmitter drag_and_drop_command_emitter;
-        commands::emitters::MoveEditorPlaneCommandEmitter move_editor_plane_command_emitter;
+        commands::emitters::MoveEditorGridCommandEmitter move_editor_drawer_command_emitter;
         commands::emitters::RotateEditorPlaneCommandEmitter rotate_editor_plane_command_emitter;
+        commands::emitters::MoveEditorViewLimiterCommandEmitter plane_view_limiter_command_emitter;
 
         void _on_frame_post_draw();
 
         void _on_edition_mode_changed(int selected_index);
+
+        void _on_plane_visibility_timeout(int p_plane_type);
+
+        void _draw_edition_grid() const;
+        void _draw_plane(EditorPlane::PlaneType p_plane_type);
+        void _set_plane_timer(EditorPlane::PlaneType p_plane_type, float p_delay);
 
     public:
         static void _bind_methods();

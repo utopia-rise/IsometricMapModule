@@ -3,19 +3,18 @@
 #include <core/os/keyboard.h>
 #include <modules/isometric_maps/src/editor/commands/move_editor_plane_command.h>
 #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
-#include "move_editor_plane_command_emitter.h"
+#include "move_editor_grid_command_emitter.h"
 
 using namespace editor::commands::emitters;
 
 Vector<Ref<editor::commands::Command>>
-MoveEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
+MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
     Vector<Ref<editor::commands::Command>> commands;
 
     if (!p_event->is_pressed()) {
         return commands;
     }
 
-    Ref<editor::commands::MoveEditorPlaneCommand> move_command;
     bool is_forward{false};
     switch (p_event->get_scancode()) {
         case KeyList::KEY_UP:
@@ -29,7 +28,7 @@ MoveEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey>
 
     IsometricEditorPlugin* isometric_editor_plugin{IsometricEditorPlugin::get_instance()};
     node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
-    EditorPlane& editor_plane{isometric_editor_plugin->get_editor_plane_for_selected_map()};
+    EditorPlane& editor_plane{isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER)};
     real_t editor_plane_position{static_cast<real_t>(editor_plane.get_position())};
     switch (editor_plane.get_axis()) {
         case Vector3::AXIS_X:
@@ -51,14 +50,16 @@ MoveEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey>
             break;
     }
 
+    Ref<editor::commands::MoveEditorPlaneCommand> move_command;
     move_command.instance();
     move_command->set_is_forward(is_forward);
+    move_command->set_plane_type(EditorPlane::PlaneType::EDITOR_DRAWER);
     commands.push_back(move_command);
 
     return commands;
 }
 
-MoveEditorPlaneCommandEmitter::MoveEditorPlaneCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {
+MoveEditorGridCommandEmitter::MoveEditorGridCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {
 
 }
 

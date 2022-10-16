@@ -49,6 +49,22 @@ int IsometricMap::get_positionable_id_for_position(const Vector3& position) {
     return grid_3d.get_data(position);
 }
 
+Vector<IsometricPositionable*> IsometricMap::get_positionables_in(const AABB& p_aabb) const {
+    Vector<IsometricPositionable*> ret;
+
+    const Vector3& position{p_aabb.position};
+
+    for (int x = 0; x < static_cast<int>(p_aabb.size.x); ++x) {
+        for (int y = 0; y < static_cast<int>(p_aabb.size.y); ++y) {
+            for (int z = 0; z < static_cast<int>(p_aabb.size.z); ++z) {
+                ret.push_back(instances_grid_3d.get_data(position + Vector3(x, y, z)));
+            }
+        }
+    }
+
+    return ret;
+}
+
 bool IsometricMap::is_aabb_in_map(const AABB& aabb) const {
     const Vector3& position{aabb.position};
     const Vector3& size{aabb.size};

@@ -39,7 +39,7 @@ namespace containers {
 
         void reset();
 
-        T get_data(const Vector3 &position);
+        T get_data(const Vector3 &position) const;
 
         void set_data(const Vector3 &position, T data);
 
@@ -121,7 +121,7 @@ namespace containers {
     }
 
     template<class T, T default_value>
-    T Grid3D<T, default_value>::get_data(const Vector3 &position) {
+    T Grid3D<T, default_value>::get_data(const Vector3 &position) const {
         int pos_x = static_cast<int>(position.x);
         int pos_y = static_cast<int>(position.y);
         int pos_z = static_cast<int>(position.z);

@@ -23,7 +23,7 @@ SelectCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_even
         IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
     };
 
-    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map();
+    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
     const Vector3& position{
         utils::from_screen_to_3D(
                 *parameters,
@@ -32,6 +32,10 @@ SelectCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_even
                 static_cast<float>(editor_plane.get_position())
         )
     };
+
+    if (!isometric_editor_plugin->is_aabb_in_view_limiters({position, {1, 1, 1}})) {
+        return commands;
+    }
 
     if (!map->get_positionable_at(position)) {
         return commands;

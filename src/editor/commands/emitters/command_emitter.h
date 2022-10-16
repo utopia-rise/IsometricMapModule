@@ -34,7 +34,9 @@ namespace editor {
                     bool has_valid_command{false};
                     for (int i = 0; i < commands.size(); ++i) {
                         Ref<Command> command{commands[i]};
-                        if (!command.is_valid()) continue;
+                        if (!command.is_valid()) {
+                            continue;
+                        }
                         if (!has_valid_command) {
                             undo_redo->create_action();
                         }

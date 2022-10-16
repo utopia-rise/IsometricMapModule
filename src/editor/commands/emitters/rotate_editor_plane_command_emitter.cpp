@@ -15,7 +15,11 @@ RotateEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKe
         return commands;
     }
 
-    EditorPlane& editor_plane{IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map()};
+    EditorPlane& editor_plane{
+        IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(
+                EditorPlane::PlaneType::EDITOR_DRAWER
+        )
+    };
     Vector3::Axis current_axis{editor_plane.get_axis()};
 
     Ref<editor::commands::RotateEditorPlaneCommand> rotate_command;

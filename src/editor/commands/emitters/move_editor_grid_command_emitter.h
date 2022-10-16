@@ -9,13 +9,13 @@
 namespace editor {
     namespace commands {
         namespace emitters {
-            class MoveEditorPlaneCommandEmitter : public CommandEmitter<MoveEditorPlaneCommandEmitter, InputEventKey>{
-                friend class CommandEmitter<MoveEditorPlaneCommandEmitter, InputEventKey>;
+            class MoveEditorGridCommandEmitter : public CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey>{
+                friend class CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey>;
 
             public:
-                MoveEditorPlaneCommandEmitter() = delete;
-                explicit MoveEditorPlaneCommandEmitter(UndoRedo* undo_redo);
-                ~MoveEditorPlaneCommandEmitter() = default;
+                MoveEditorGridCommandEmitter() = delete;
+                explicit MoveEditorGridCommandEmitter(UndoRedo* undo_redo);
+                ~MoveEditorGridCommandEmitter() = default;
 
             private:
                 Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventKey> p_event);
