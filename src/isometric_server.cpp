@@ -198,12 +198,23 @@ void IsometricServer::generate_topological_render_graph(data::IsometricSpace* p_
 
 void IsometricServer::render_isometric_element(IsometricElement* data) {
     data->dirty = false;
+    data->is_invalid = false;
     int maxZ = 0;
+    stack.push_back(data);
     for (int i = 0; i < data->behind_statics.size(); i++) {
         IsometricElement* behind{data->behind_statics[i]};
         if (behind) {
             if (behind->dirty) {
                 render_isometric_element(behind);
+            }
+            else {
+                int index = stack.size - 1;
+                IsometricElement* stack_element = stack[stack.size - 1];
+                do {
+                    data->is_invalid = true;
+                    index--;
+                    stack_element = stack[stack.size - 1];
+                } while(stack_element != stack_element);
             }
             int zOrderSize = behind->z_size;
             int zOrder = behind->z_order;
@@ -214,17 +225,26 @@ void IsometricServer::render_isometric_element(IsometricElement* data) {
     for (int i = 0; i < data->behind_dynamics.size(); i++) {
         IsometricElement* behind{data->behind_dynamics[i]};
         if (behind) {
-                if (behind->dirty) {
-                    render_isometric_element(behind);
-                }
-                int zOrderSize = behind->z_size;
-                int zOrder = behind->z_order;
-                int newZOrder = zOrderSize + zOrder;
-                maxZ = newZOrder >= maxZ ? newZOrder : maxZ;
+            if (behind->dirty) {
+                render_isometric_element(behind);
+            }
+            else {
+                int index = stack.size - 1;
+                IsometricElement* stack_element = stack[stack.size - 1];
+                do {
+                    data->is_invalid = true;
+                    index--;
+                    stack_element = stack[stack.size - 1];
+                } while(stack_element != stack_element);
+            }
+            int zOrderSize = behind->z_size;
+            int zOrder = behind->z_order;
+            int newZOrder = zOrderSize + zOrder;
+            maxZ = newZOrder >= maxZ ? newZOrder : maxZ;
         }
     }
+    stack.remove(stack.size - 1)
     data->z_order = maxZ;
-
 }
 
 void IsometricServer::update_space_configuration(const RID space_rid, const RID conf_rid) {
@@ -326,3 +346,11 @@ float IsometricServer::get_isometric_space_z_length(const RID space_rid) {
 
     return space->configuration.z_length;
 }
+
+    void set_debug_mode(const bool debug){
+
+    }
+
+    void draw_debug(){
+
+    }

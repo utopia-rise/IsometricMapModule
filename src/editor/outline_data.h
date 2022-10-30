@@ -14,6 +14,8 @@ namespace editor {
         real_t line_size;
         bool should_draw_polygons;
 
+        Vector<PoolVector2Array> debug_shape;
+
         OutlineData();
         ~OutlineData() = default;
     };

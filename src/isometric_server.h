@@ -17,6 +17,8 @@ private:
     RID_Owner<data::IsometricElement> elements_owner;
     Vector<data::IsometricSpace*> worlds;
 
+    Vector<data::IsometricElemen*> stack;
+
     void render_isometric_element(data::IsometricElement* data);
     static void iteration(void* p_udata);
     static uint64_t get_ms_delay();
@@ -53,6 +55,7 @@ public:
 
     uint64_t get_isometric_z_index(const RID element_rid);
 
+    bool is_element_invalid(const RID element_rid);
 
     /////////////////////////ENGINE INTERNAL API/////////////////////////////////////
     void generate_topological_render_graph(data::IsometricSpace* p_isometric_space);

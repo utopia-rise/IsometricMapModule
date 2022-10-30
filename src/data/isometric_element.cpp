@@ -2,5 +2,5 @@
 
 using namespace data;
 
-IsometricElement::IsometricElement() {
+IsometricElement::IsometricElement(): {
 }

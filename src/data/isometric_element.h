@@ -22,6 +22,8 @@ namespace data {
         Vector<IsometricElement*> behind_statics;
         Vector<IsometricElement*> behind_dynamics;
 
+        bool is_invalid = false;
+
         IsometricElement();
     };
 } // namespace data
