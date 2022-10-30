@@ -6,8 +6,6 @@
 
 namespace data {
     struct IsometricSpace : public RID_Data {
-        RID self;
-
         data::IsometricParameters configuration;
         Vector<data::IsometricElement*> static_elements;
         Vector<data::IsometricElement*> dynamic_elements;

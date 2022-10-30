@@ -60,15 +60,19 @@ OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
         down_points.push_back(points[2]);
         down_points.push_back(points[3]);
 
-        if(IsometricServer::get_instance()->is_element_invalid(positionable->get_element_RID())){
-            Color color1 = Color(0.8, 0.3, 0.3);
-            Color color2 = Color(0.7, 0.3, 0.3);
-            Color color3 = Color(0.6, 0.3, 0.3);
+        Color color1;
+        Color color2;
+        Color color3;
+
+        if(IsometricServer::get_instance()->is_element_invalid(positionable->get_rid())){
+            color1 = Color(0.8, 0.3, 0.3);
+            color2 = Color(0.7, 0.3, 0.3);
+            color3 = Color(0.6, 0.3, 0.3);
         }
         else {
-            Color color1 = Color(0.8, 0.8, 0.8);
-            Color color2 = Color(0.7, 0.7, 0.7);
-            Color color3 = Color(0.6, 0.6, 0.6);
+            color1 = Color(0.8, 0.8, 0.8);
+            color2 = Color(0.7, 0.7, 0.7);
+            color3 = Color(0.6, 0.6, 0.6);
         }
 
         auto leftPoints = Vector<Vector2>();

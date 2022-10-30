@@ -187,6 +187,10 @@ void IsometricPositionable::_rebind_collision_object_position() const {
     );
 }
 
+RID IsometricPositionable::get_rid() const {
+    return self;
+}
+
 #ifdef TOOLS_ENABLED
 
 editor::OutlineData& IsometricPositionable::get_outline_data() {

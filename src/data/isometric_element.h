@@ -16,15 +16,15 @@ namespace data {
         bool is_dynamic = false;
 
         int z_order = 0;
+        int z_order_update = 0;
         bool dirty = true;
+        bool to_delete = false;
         int z_size = 1;
 
         Vector<IsometricElement*> behind_statics;
         Vector<IsometricElement*> behind_dynamics;
 
         bool is_invalid = false;
-
-        IsometricElement();
     };
 } // namespace data
 #endif //ISOMETRIC_MAPS_ISOMETRIC_ELEMENT_H
