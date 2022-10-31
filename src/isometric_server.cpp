@@ -32,8 +32,8 @@ void IsometricServer::iteration(void* p_udata) {
         List<RID> list;
         server->elements_owner.get_owned_list(&list);
 
-        for (int i = 0; i < list.size(); ++i) {
-            if (IsometricElement* positionable = server->elements_owner.getornull(list[i])) {
+        for (List<RID>::Element* current = list.front(); current; current = current->next()) {
+            if (IsometricElement* positionable = server->elements_owner.getornull(current->get())) {
                 positionable->behind_dynamics.clear();
                 positionable->z_order = 0;
                 positionable->dirty = true;
@@ -46,8 +46,9 @@ void IsometricServer::iteration(void* p_udata) {
 
         SpinLock& lock{server->spin_lock};
         lock.lock();
-        for (int i = 0; i < list.size(); ++i) {
-            if (IsometricElement* positionable{server->elements_owner.getornull(list[i])}) {
+
+        for (List<RID>::Element* current = list.front(); current; current = current->next()) {
+            if (IsometricElement* positionable{server->elements_owner.getornull(current->get())}) {
                 positionable->z_order_update = positionable->z_order;
             }
         }
@@ -62,8 +63,8 @@ void IsometricServer::synchronize_z_order() {
     elements_owner.get_owned_list(&list);
 
     spin_lock.lock();
-    for (int i = 0; i < list.size(); ++i) {
-        if (IsometricElement* positionable = elements_owner.getornull(list[i])) {
+    for (List<RID>::Element* current = list.front(); current; current = current->next()) {
+        if (IsometricElement* positionable = elements_owner.getornull(current->get())) {
             if (positionable->to_delete) {
                 continue;
             }

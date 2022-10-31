@@ -48,7 +48,7 @@ namespace node {
         void _notification(int notif);
 
         virtual void _enter_tree();
-        void _process();
+        void _physics_process();
         void _exit_tree();
 
     public:
