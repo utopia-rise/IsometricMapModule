@@ -57,11 +57,15 @@ void IsometricPositionable::_enter_tree() {
     update_position();
 }
 
-void IsometricPositionable::_physics_process() {
+void IsometricPositionable::_ready() {
     if (is_dynamic && collision_object && !Engine::get_singleton()->is_editor_hint()) {
-        const Vector3& collision_origin{collision_object->get_global_transform().origin};
-        set_global_position_3d({collision_origin.x, collision_origin.z, collision_origin.y});
+        set_physics_process(true);
     }
+}
+
+void IsometricPositionable::_physics_process() {
+    const Vector3& collision_origin{collision_object->get_global_transform().origin};
+    set_global_position_3d({collision_origin.x, collision_origin.z, collision_origin.y});
 }
 
 void IsometricPositionable::_exit_tree() {
@@ -141,6 +145,9 @@ void IsometricPositionable::_notification(int notif) {
             break;
         case NOTIFICATION_EXIT_TREE:
             _exit_tree();
+            break;
+        case NOTIFICATION_READY:
+            _ready();
             break;
         case NOTIFICATION_PHYSICS_PROCESS:
             _physics_process();
