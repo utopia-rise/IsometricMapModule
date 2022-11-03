@@ -48,7 +48,8 @@ namespace node {
         void _notification(int notif);
 
         virtual void _enter_tree();
-        void _process();
+        void _ready();
+        void _physics_process();
         void _exit_tree();
 
     public:
@@ -75,6 +76,8 @@ namespace node {
 
         const NodePath& get_collision_object_node_path() const;
         void set_collision_object_node_path(const NodePath& p_node_path);
+
+        RID get_rid() const;
 
 #ifdef TOOLS_ENABLED
         editor::OutlineData& get_outline_data();

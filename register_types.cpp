@@ -28,6 +28,7 @@ static EditorPlugin* isometric_tile_editor_plugin_creator_func(EditorNode* edito
 #endif
 
 void register_isometric_maps_types() {
+    IsometricServer::create_server();
     ClassDB::register_class<IsometricServer>();
     Engine::get_singleton()->add_singleton(Engine::Singleton("IsometricServer", reinterpret_cast<Object *>(IsometricServer::get_instance())));
 
@@ -52,5 +53,5 @@ void register_isometric_maps_types() {
 }
 
 void unregister_isometric_maps_types() {
-
+    IsometricServer::terminate_server();
 }

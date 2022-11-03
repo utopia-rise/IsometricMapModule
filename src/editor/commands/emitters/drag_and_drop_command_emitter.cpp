@@ -116,7 +116,6 @@ void DragAndDropCommandEmitter::_clear_current_preview_nodes() {
         for (int i = 0; i < current_preview_nodes.size(); ++i) {
             if (node::IsometricPositionable* current_preview_node{current_preview_nodes[i]}) {
                 map->remove_child(current_preview_node);
-                memdelete(current_preview_node);
             }
         }
         current_preview_nodes.resize(0);

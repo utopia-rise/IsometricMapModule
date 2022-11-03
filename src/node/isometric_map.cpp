@@ -104,11 +104,17 @@ void IsometricMap::_on_enter_tree() {
     if (child_positionable_initialized) {
         return;
     }
+#ifdef TOOLS_ENABLED
+    Node::set_human_readable_collision_renaming(false);
+#endif
     const Vector<int>& id_vector{grid_3d.get_internal_array()};
     for (int i = 0; i < id_vector.size(); ++i) {
         add_positionable_as_child(id_vector[i], grid_3d.get_position_3d_from_index(i));
     }
     child_positionable_initialized = true;
+#ifdef TOOLS_ENABLED
+    Node::set_human_readable_collision_renaming(true);
+#endif
 }
 
 Array IsometricMap::_get_grid_3d() const {
@@ -129,7 +135,9 @@ void IsometricMap::_set_grid_3d(const Array& array) {
 }
 
 void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3& position) {
-    if (positionable_id == resource::PositionableSet::NONE_POSITIONABLE_ID) return;
+    if (positionable_id == resource::PositionableSet::NONE_POSITIONABLE_ID) {
+        return;
+    }
     if (auto* positionable{
             Object::cast_to<IsometricPositionable>(
                     positionable_set->get_positionable_scene_for_id(positionable_id)->instance()
