@@ -18,18 +18,14 @@ IsometricServer::IsometricServer() : ordering_requested(false), exit_thread(fals
     VisualServer::get_singleton()->connect("frame_post_draw", this, "request_new_ordering");
 }
 
-void IsometricServer::create_server() {
-    _instance = memnew(IsometricServer);
-}
-
 IsometricServer* IsometricServer::get_instance() {
     return _instance;
 }
 
-void IsometricServer::terminate_server() {
-    _instance->command_queue.push(_instance, &IsometricServer::stop_server);
-    _instance->thread.wait_to_finish();
-    memdelete(_instance);
+void IsometricServer::create_server() {
+    if(!_instance){
+        _instance = memnew(IsometricServer);
+    }
 }
 
 void IsometricServer::iteration(void* p_udata) {
@@ -41,18 +37,27 @@ void IsometricServer::iteration(void* p_udata) {
     server->command_queue.flush_all();
 }
 
-void IsometricServer::stop_server() {
+void IsometricServer::terminate_server() {
+    if(_instance){
+        _instance->command_queue.push(_instance, &IsometricServer::command_stop_server);
+        _instance->thread.wait_to_finish();
+        memdelete(_instance);
+        _instance = nullptr;
+    }
+}
+
+void IsometricServer::command_stop_server() {
     exit_thread = true;
 }
 
 void IsometricServer::request_new_ordering() {
     if(!ordering_requested){
         ordering_requested = true;
-        command_queue.push(this, &IsometricServer::sort_spaces);
+        command_queue.push(this, &IsometricServer::command_isometric_sort);
     }
 }
 
-void IsometricServer::sort_spaces() {
+void IsometricServer::command_isometric_sort() {
     for (int i = 0; i < elements.size(); i++) {
         if (IsometricElement* positionable{elements[i]}) {
             positionable->behind_dynamics.clear();
@@ -62,7 +67,7 @@ void IsometricServer::sort_spaces() {
     }
 
     for (int i = 0; i < worlds.size(); ++i) {
-        generate_topological_render_graph(worlds[i]);
+        generate_topological_sorting_graph(worlds[i]);
     }
 
     SpinLock& lock{spin_lock};
@@ -98,23 +103,23 @@ void IsometricServer::synchronize_z_order() {
 RID IsometricServer::create_space() {
     data::IsometricSpace* data{memnew(data::IsometricSpace())};
     RID rid{worlds_owner.make_rid(data)};
-    command_queue.push(this, &IsometricServer::create_space_impl, data);
+    command_queue.push(this, &IsometricServer::command_create_space, data);
     return rid;
 }
 
-void IsometricServer::create_space_impl(data::IsometricSpace* isometric_space) {
+void IsometricServer::command_create_space(data::IsometricSpace* isometric_space) {
     worlds.push_back(isometric_space);
 }
 
 void IsometricServer::delete_space(const RID rid) {
     command_queue.push(
             this,
-            &IsometricServer::delete_space_impl,
+            &IsometricServer::command_delete_space,
             rid
     );
 }
 
-void IsometricServer::delete_space_impl(const RID rid) {
+void IsometricServer::command_delete_space(const RID rid) {
     data::IsometricSpace* data{worlds_owner.getornull(rid)};
     if (!data) {
         WARN_PRINT(vformat("This is not a valid isometric space RID: %s", rid.get_id()));
@@ -140,7 +145,7 @@ RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canva
 
     command_queue.push(
             this,
-            &IsometricServer::register_isometric_element_impl,
+            &IsometricServer::command_register_isometric_element,
             space_rid,
             isometric_element,
             p_is_dynamic
@@ -150,7 +155,7 @@ RID IsometricServer::register_isometric_element(const RID space_rid, RID p_canva
 }
 
 void
-IsometricServer::register_isometric_element_impl(const RID space_rid, IsometricElement* isometric_element, bool p_is_dynamic) {
+IsometricServer::command_register_isometric_element(const RID space_rid, IsometricElement* isometric_element, bool p_is_dynamic) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
         LOG_WARNING(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()));
@@ -181,10 +186,10 @@ void IsometricServer::unregister_isometric_element(const RID space_rid, const RI
     if (IsometricElement* element{elements_owner.getornull(rid)}) {
         element->to_delete = true;
     }
-    command_queue.push(this, &IsometricServer::unregister_isometric_element_impl, space_rid, rid);
+    command_queue.push(this, &IsometricServer::command_unregister_isometric_element, space_rid, rid);
 }
 
-void IsometricServer::unregister_isometric_element_impl(const RID space_rid, const RID rid) {
+void IsometricServer::command_unregister_isometric_element(const RID space_rid, const RID rid) {
     data::IsometricSpace* space{worlds_owner.getornull(space_rid)};
     if (!space) {
         LOG_WARNING(vformat("This is not a valid isometric space RID: %s", space_rid.get_id()));
@@ -212,7 +217,7 @@ void IsometricServer::unregister_isometric_element_impl(const RID space_rid, con
     elements_owner.free(rid);
 }
 
-void IsometricServer::generate_topological_render_graph(data::IsometricSpace* p_isometric_space) {
+void IsometricServer::generate_topological_sorting_graph(data::IsometricSpace* p_isometric_space) {
 
     for (int i = 0; i < p_isometric_space->dynamic_elements.size(); ++i) {
         if (IsometricElement* dynamicPositionable{p_isometric_space->dynamic_elements[i]}) {
@@ -253,18 +258,18 @@ void IsometricServer::generate_topological_render_graph(data::IsometricSpace* p_
     for (int i = 0; i < p_isometric_space->static_elements.size(); ++i) {
         IsometricElement* positionable = p_isometric_space->static_elements[i];
         if (positionable && positionable->dirty) {
-            render_isometric_element(positionable);
+            sort_isometric_element(positionable);
         }
     }
     for (int i = 0; i < p_isometric_space->dynamic_elements.size(); ++i) {
         IsometricElement* positionable{p_isometric_space->dynamic_elements[i]};
         if (positionable && positionable->dirty) {
-            render_isometric_element(positionable);
+            sort_isometric_element(positionable);
         }
     }
 }
 
-void IsometricServer::render_isometric_element(IsometricElement* data) {
+void IsometricServer::sort_isometric_element(IsometricElement* data) {
     data->dirty = false;
     data->is_invalid = false;
     int max_z = 0;
@@ -285,7 +290,7 @@ void IsometricServer::render_isometric_element(IsometricElement* data) {
 
 int IsometricServer::update_z_order(data::IsometricElement* element_behind, int current_z_order) {
     if (element_behind->dirty) {
-        render_isometric_element(element_behind);
+        sort_isometric_element(element_behind);
     }
     else {
         int index = stack.size() - 1;
@@ -337,13 +342,13 @@ const data::IsometricParameters* IsometricServer::get_space_configuration_from_e
 void IsometricServer::set_isometric_element_position(const RID element_rid, const Vector3 global_position) {
     command_queue.push(
             this,
-            &IsometricServer::set_isometric_element_position_impl,
+            &IsometricServer::command_set_isometric_element_position,
             element_rid,
             global_position
     );
 }
 
-void IsometricServer::set_isometric_element_position_impl(const RID element_rid, const Vector3 global_position) {
+void IsometricServer::command_set_isometric_element_position(const RID element_rid, const Vector3 global_position) {
     IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
     if (!isometric_element) {
         LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()));
@@ -356,13 +361,13 @@ void IsometricServer::set_isometric_element_position_impl(const RID element_rid,
 void IsometricServer::set_isometric_element_size(const RID element_rid, const Vector3 size) {
     command_queue.push(
             this,
-            &IsometricServer::set_isometric_element_size_impl,
+            &IsometricServer::command_set_isometric_element_size,
             element_rid,
             size
     );
 }
 
-void IsometricServer::set_isometric_element_size_impl(const RID element_rid, const Vector3 size) {
+void IsometricServer::command_set_isometric_element_size(const RID element_rid, const Vector3 size) {
     IsometricElement* isometric_element{elements_owner.getornull(element_rid)};
     if (!isometric_element) {
         LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()));

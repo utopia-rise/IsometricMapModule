@@ -27,20 +27,6 @@ private:
     LocalVector<data::IsometricElement*> stack;
 
     static void iteration(void* p_udata);
-    void stop_server();
-
-    void sort_spaces();
-    void generate_topological_render_graph(data::IsometricSpace* p_isometric_space);
-    void render_isometric_element(data::IsometricElement* data);
-    int update_z_order(data::IsometricElement* element_behind, int current_z_order);
-
-    void create_space_impl(data::IsometricSpace* isometric_space);
-    void delete_space_impl(const RID rid);
-
-    void set_isometric_element_position_impl(const RID element_rid, const Vector3 global_position);
-    void set_isometric_element_size_impl(const RID element_rid, const Vector3 size);
-    void register_isometric_element_impl(const RID space_rid, data::IsometricElement* isometric_element, bool p_is_dynamic);
-    void unregister_isometric_element_impl(const RID space_rid, const RID rid);
 
 public:
     IsometricServer();
@@ -82,12 +68,28 @@ public:
 
     void request_new_ordering();
 
-    /////////////////////////ENGINE INTERNAL API/////////////////////////////////////
     int get_isometric_space_diamond_width(const RID space_rid);
 
     int get_isometric_space_diamond_height(const RID space_rid);
 
     float get_isometric_space_z_length(const RID space_rid);
+
+private:
+    /////////////////////////THREAD COMMANDS/////////////////////////////////////
+    void command_create_space(data::IsometricSpace* isometric_space);
+    void command_delete_space(const RID rid);
+
+    void command_register_isometric_element(const RID space_rid, data::IsometricElement* isometric_element, bool p_is_dynamic);
+    void command_unregister_isometric_element(const RID space_rid, const RID rid);
+    void command_set_isometric_element_position(const RID element_rid, const Vector3 global_position);
+    void command_set_isometric_element_size(const RID element_rid, const Vector3 size);
+
+    void command_isometric_sort();
+    void generate_topological_sorting_graph(data::IsometricSpace* p_isometric_space);
+    void sort_isometric_element(data::IsometricElement* data);
+    int update_z_order(data::IsometricElement* element_behind, int current_z_order);
+
+    void command_stop_server();
 };
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
