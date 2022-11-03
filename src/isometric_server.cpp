@@ -7,20 +7,29 @@
 
 using namespace data;
 
+IsometricServer* IsometricServer::_instance = nullptr;
+
 IsometricServer::IsometricServer() : ordering_requested(false), exit_thread(false), thread(), spin_lock(), command_queue(true) {
+    worlds.reserve(8);
+    elements.reserve(512);
+    stack.reserve(32);
     thread.start(&IsometricServer::iteration, this);
     VisualServer::get_singleton()->connect("frame_pre_draw", this, "synchronize_z_order");
     VisualServer::get_singleton()->connect("frame_post_draw", this, "request_new_ordering");
 }
 
-IsometricServer::~IsometricServer() {
-    exit_thread = true;
-    thread.wait_to_finish();
+void IsometricServer::create_server() {
+    _instance = memnew(IsometricServer);
 }
 
 IsometricServer* IsometricServer::get_instance() {
-    static IsometricServer instance;
-    return &instance;
+    return _instance;
+}
+
+void IsometricServer::terminate_server() {
+    _instance->command_queue.push(_instance, &IsometricServer::stop_server);
+    _instance->thread.wait_to_finish();
+    memdelete(_instance);
 }
 
 void IsometricServer::iteration(void* p_udata) {
@@ -32,6 +41,10 @@ void IsometricServer::iteration(void* p_udata) {
     server->command_queue.flush_all();
 }
 
+void IsometricServer::stop_server() {
+    exit_thread = true;
+}
+
 void IsometricServer::request_new_ordering() {
     if(!ordering_requested){
         ordering_requested = true;
@@ -40,11 +53,8 @@ void IsometricServer::request_new_ordering() {
 }
 
 void IsometricServer::sort_spaces() {
-    List<RID> list;
-    elements_owner.get_owned_list(&list);
-
-    for (List<RID>::Element* current = list.front(); current; current = current->next()) {
-        if (IsometricElement* positionable = elements_owner.getornull(current->get())) {
+    for (int i = 0; i < elements.size(); i++) {
+        if (IsometricElement* positionable{elements[i]}) {
             positionable->behind_dynamics.clear();
             positionable->z_order = 0;
             positionable->dirty = true;
@@ -58,8 +68,8 @@ void IsometricServer::sort_spaces() {
     SpinLock& lock{spin_lock};
     lock.lock();
 
-    for (List<RID>::Element* current = list.front(); current; current = current->next()) {
-        if (IsometricElement* positionable{elements_owner.getornull(current->get())}) {
+    for (int i = 0; i < elements.size(); i++) {
+        if (IsometricElement* positionable{elements[i]}) {
             positionable->z_order_update = positionable->z_order;
         }
     }
@@ -164,6 +174,7 @@ IsometricServer::register_isometric_element_impl(const RID space_rid, IsometricE
     } else {
         space->dynamic_elements.push_back(isometric_element);
     }
+    elements.push_back(isometric_element);
 }
 
 void IsometricServer::unregister_isometric_element(const RID space_rid, const RID rid) {
@@ -197,6 +208,7 @@ void IsometricServer::unregister_isometric_element_impl(const RID space_rid, con
     isometric_element->behind_statics.clear();
     isometric_element->behind_dynamics.clear();
 
+    elements.erase(isometric_element);
     elements_owner.free(rid);
 }
 

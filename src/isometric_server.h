@@ -10,6 +10,8 @@
 class IsometricServer : public Object {
 GDCLASS(IsometricServer, Object)
 private:
+    static IsometricServer* _instance;
+
     mutable bool exit_thread;
     bool ordering_requested;
     Thread thread;
@@ -19,12 +21,13 @@ private:
     RID_Owner<data::IsometricSpace> worlds_owner;
     RID_Owner<data::IsometricElement> elements_owner;
 
-    Vector<data::IsometricSpace*> worlds;
-    Vector<data::IsometricElement*> elements;
+    LocalVector<data::IsometricSpace*> worlds;
+    LocalVector<data::IsometricElement*> elements;
 
-    Vector<data::IsometricElement*> stack;
+    LocalVector<data::IsometricElement*> stack;
 
     static void iteration(void* p_udata);
+    void stop_server();
 
     void sort_spaces();
     void generate_topological_render_graph(data::IsometricSpace* p_isometric_space);
@@ -42,11 +45,13 @@ private:
 public:
     IsometricServer();
 
-    ~IsometricServer() override;
+    ~IsometricServer() = default;
 
     IsometricServer(const IsometricServer &) = delete;
 
+    static void create_server();
     static IsometricServer* get_instance();
+    static void terminate_server();
 
     static void _bind_methods();
 
