@@ -7,8 +7,10 @@
 
 using namespace data;
 
-IsometricServer::IsometricServer() : thread_exited(false), exit_thread(false), thread(), spin_lock(), command_queue(true) {
+IsometricServer::IsometricServer() : ordering_requested(false), exit_thread(false), thread(), spin_lock(), command_queue(true) {
     thread.start(&IsometricServer::iteration, this);
+    VisualServer::get_singleton()->connect("frame_pre_draw", this, "synchronize_z_order");
+    VisualServer::get_singleton()->connect("frame_post_draw", this, "request_new_ordering");
 }
 
 IsometricServer::~IsometricServer() {
@@ -22,40 +24,47 @@ IsometricServer* IsometricServer::get_instance() {
 }
 
 void IsometricServer::iteration(void* p_udata) {
-    static uint64_t msdelay{get_ms_delay()};
-
     auto* server{reinterpret_cast<IsometricServer*>(p_udata)};
 
     while (!server->exit_thread) {
-        server->command_queue.flush_all();
-
-        List<RID> list;
-        server->elements_owner.get_owned_list(&list);
-
-        for (List<RID>::Element* current = list.front(); current; current = current->next()) {
-            if (IsometricElement* positionable = server->elements_owner.getornull(current->get())) {
-                positionable->behind_dynamics.clear();
-                positionable->z_order = 0;
-                positionable->dirty = true;
-            }
-        }
-
-        for (int i = 0; i < server->worlds.size(); ++i) {
-            server->generate_topological_render_graph(server->worlds[i]);
-        }
-
-        SpinLock& lock{server->spin_lock};
-        lock.lock();
-
-        for (List<RID>::Element* current = list.front(); current; current = current->next()) {
-            if (IsometricElement* positionable{server->elements_owner.getornull(current->get())}) {
-                positionable->z_order_update = positionable->z_order;
-            }
-        }
-        lock.unlock();
-        
-        OS::get_singleton()->delay_usec(msdelay * 1000);
+        server->command_queue.wait_and_flush_one();
     }
+    server->command_queue.flush_all();
+}
+
+void IsometricServer::request_new_ordering() {
+    if(!ordering_requested){
+        ordering_requested = true;
+        command_queue.push(this, &IsometricServer::sort_spaces);
+    }
+}
+
+void IsometricServer::sort_spaces() {
+    List<RID> list;
+    elements_owner.get_owned_list(&list);
+
+    for (List<RID>::Element* current = list.front(); current; current = current->next()) {
+        if (IsometricElement* positionable = elements_owner.getornull(current->get())) {
+            positionable->behind_dynamics.clear();
+            positionable->z_order = 0;
+            positionable->dirty = true;
+        }
+    }
+
+    for (int i = 0; i < worlds.size(); ++i) {
+        generate_topological_render_graph(worlds[i]);
+    }
+
+    SpinLock& lock{spin_lock};
+    lock.lock();
+
+    for (List<RID>::Element* current = list.front(); current; current = current->next()) {
+        if (IsometricElement* positionable{elements_owner.getornull(current->get())}) {
+            positionable->z_order_update = positionable->z_order;
+        }
+    }
+    lock.unlock();
+    ordering_requested = false;
 }
 
 void IsometricServer::synchronize_z_order() {
@@ -76,20 +85,7 @@ void IsometricServer::synchronize_z_order() {
     spin_lock.unlock();
 }
 
-uint64_t IsometricServer::get_ms_delay() {
-    if (Engine::get_singleton()->is_editor_hint()) {
-        return 16;
-    }
-    return 33;
-}
-
 RID IsometricServer::create_space() {
-    static bool is_server_connected_to_main_loop{false};
-    if (unlikely(!is_server_connected_to_main_loop)) {
-        SceneTree::get_singleton()->connect("idle_frame", this, "synchronize_z_order");
-        is_server_connected_to_main_loop = true;
-    }
-
     data::IsometricSpace* data{memnew(data::IsometricSpace())};
     RID rid{worlds_owner.make_rid(data)};
     command_queue.push(this, &IsometricServer::create_space_impl, data);
@@ -326,19 +322,6 @@ const data::IsometricParameters* IsometricServer::get_space_configuration_from_e
     return &(worlds_owner.get(isometric_element->world)->configuration);
 }
 
-
-void IsometricServer::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("create_space"), &IsometricServer::create_space);
-    ClassDB::bind_method(D_METHOD("delete_space"), &IsometricServer::delete_space);
-
-    ClassDB::bind_method(D_METHOD("register_isometric_element"), &IsometricServer::register_isometric_element);
-    ClassDB::bind_method(D_METHOD("unregister_isometric_element"), &IsometricServer::unregister_isometric_element);
-
-    ClassDB::bind_method(D_METHOD("update_space_configuration"), &IsometricServer::update_space_configuration);
-
-    ClassDB::bind_method(D_METHOD("synchronize_z_order"), &IsometricServer::synchronize_z_order);
-}
-
 void IsometricServer::set_isometric_element_position(const RID element_rid, const Vector3 global_position) {
     command_queue.push(
             this,
@@ -424,4 +407,17 @@ float IsometricServer::get_isometric_space_z_length(const RID space_rid) {
     }
 
     return space->configuration.z_length;
+}
+
+void IsometricServer::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("create_space"), &IsometricServer::create_space);
+    ClassDB::bind_method(D_METHOD("delete_space"), &IsometricServer::delete_space);
+
+    ClassDB::bind_method(D_METHOD("register_isometric_element"), &IsometricServer::register_isometric_element);
+    ClassDB::bind_method(D_METHOD("unregister_isometric_element"), &IsometricServer::unregister_isometric_element);
+
+    ClassDB::bind_method(D_METHOD("update_space_configuration"), &IsometricServer::update_space_configuration);
+
+    ClassDB::bind_method(D_METHOD("synchronize_z_order"), &IsometricServer::synchronize_z_order);
+    ClassDB::bind_method(D_METHOD("request_new_ordering"), &IsometricServer::request_new_ordering);
 }

@@ -10,22 +10,26 @@
 class IsometricServer : public Object {
 GDCLASS(IsometricServer, Object)
 private:
-    bool thread_exited;
     mutable bool exit_thread;
+    bool ordering_requested;
     Thread thread;
     SpinLock spin_lock;
     CommandQueueMT command_queue;
 
     RID_Owner<data::IsometricSpace> worlds_owner;
     RID_Owner<data::IsometricElement> elements_owner;
+
     Vector<data::IsometricSpace*> worlds;
+    Vector<data::IsometricElement*> elements;
 
     Vector<data::IsometricElement*> stack;
 
+    static void iteration(void* p_udata);
+
+    void sort_spaces();
+    void generate_topological_render_graph(data::IsometricSpace* p_isometric_space);
     void render_isometric_element(data::IsometricElement* data);
     int update_z_order(data::IsometricElement* element_behind, int current_z_order);
-    static void iteration(void* p_udata);
-    static uint64_t get_ms_delay();
 
     void create_space_impl(data::IsometricSpace* isometric_space);
     void delete_space_impl(const RID rid);
@@ -69,16 +73,16 @@ public:
 
     bool is_element_invalid(const RID element_rid);
 
-    /////////////////////////ENGINE INTERNAL API/////////////////////////////////////
-    void generate_topological_render_graph(data::IsometricSpace* p_isometric_space);
+    void synchronize_z_order();
 
+    void request_new_ordering();
+
+    /////////////////////////ENGINE INTERNAL API/////////////////////////////////////
     int get_isometric_space_diamond_width(const RID space_rid);
 
     int get_isometric_space_diamond_height(const RID space_rid);
 
     float get_isometric_space_z_length(const RID space_rid);
-
-    void synchronize_z_order();
 };
 
 #endif //ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
