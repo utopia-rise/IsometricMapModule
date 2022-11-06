@@ -26,7 +26,7 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
     node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
 
     const data::IsometricParameters* parameters{
-        IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
+            IsometricServer::get_instance()->space_get_configuration(map->get_space_RID())
     };
 
     EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);

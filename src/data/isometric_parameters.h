@@ -7,7 +7,6 @@
 
 #include <core/object.h>
 #include <core/resource.h>
-#include "isometric_element.h"
 
 #define DEFAULT_ANGLE 30
 #define DEFAULT_WIDTH 256

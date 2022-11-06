@@ -13,12 +13,12 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
     RID space_rid{map->get_space_RID()};
 
     float diamond_height{
-        static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(space_rid))
+        static_cast<float>(IsometricServer::get_instance()->space_get_diamond_height(space_rid))
     };
     float diamond_width{
-        static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(space_rid))
+        static_cast<float>(IsometricServer::get_instance()->space_get_diamond_width(space_rid))
     };
-    float tile_z_length{IsometricServer::get_instance()->get_isometric_space_z_length(space_rid)};
+    float tile_z_length{IsometricServer::get_instance()->space_get_z_length(space_rid)};
 
     Vector3 map_size{map->get_size()};
 
@@ -94,7 +94,7 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
             {
                 Vector2 offset{
                         0,
-                        IsometricServer::get_instance()->get_isometric_space_z_length(space_rid) *
+                        IsometricServer::get_instance()->space_get_z_length(space_rid) *
                         editor_plane_position
                 };
                 VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
@@ -134,15 +134,15 @@ void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_p
 
     RID space_rid{map->get_space_RID()};
     float diamond_width{
-            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_width(space_rid))
+            static_cast<float>(IsometricServer::get_instance()->space_get_diamond_width(space_rid))
     };
     float diamond_height{
-            static_cast<float>(IsometricServer::get_instance()->get_isometric_space_diamond_height(space_rid))
+            static_cast<float>(IsometricServer::get_instance()->space_get_diamond_height(space_rid))
     };
     Vector3 map_size{map->get_size()};
     int editor_plane_position{p_editor_plane.get_position()};
     Vector2 global_offset{0, static_cast<float>(-diamond_height) * 0.5f};
-    float tile_z_length{IsometricServer::get_instance()->get_isometric_space_z_length(space_rid)};
+    float tile_z_length{IsometricServer::get_instance()->space_get_z_length(space_rid)};
 
     Vector<Point2> polygon_points;
 
@@ -200,7 +200,7 @@ void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_p
             {
                 Vector2 offset{
                         0,
-                        IsometricServer::get_instance()->get_isometric_space_z_length(space_rid) *
+                        IsometricServer::get_instance()->space_get_z_length(space_rid) *
                         editor_plane_position
                 };
                 VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));

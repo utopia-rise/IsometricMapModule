@@ -6,6 +6,7 @@
 #define ISOMETRIC_MAPS_ISOMETRIC_MATHS_H
 
 #include "../data/isometric_parameters.h"
+#include "../data/isometric_element.h"
 
 namespace utils {
     struct Hexagone {

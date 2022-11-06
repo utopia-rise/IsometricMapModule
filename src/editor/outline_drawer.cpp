@@ -15,7 +15,7 @@ OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
     VisualServer::get_singleton()->canvas_item_set_z_index(outline_rid, VisualServer::CANVAS_ITEM_Z_MAX);
 
     if (const data::IsometricParameters* space_configuration{
-            IsometricServer::get_instance()->get_space_configuration(positionable->get_space_RID())
+            IsometricServer::get_instance()->space_get_configuration(positionable->get_space_RID())
     }) {
         PoolVector2Array points{utils::get_bounding_box(*space_configuration, positionable->get_size())};
 
@@ -63,17 +63,6 @@ OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
         Color color1;
         Color color2;
         Color color3;
-
-        if(IsometricServer::get_instance()->is_element_invalid(positionable->get_rid())){
-            color1 = Color(0.8, 0.3, 0.3);
-            color2 = Color(0.7, 0.3, 0.3);
-            color3 = Color(0.6, 0.3, 0.3);
-        }
-        else {
-            color1 = Color(0.8, 0.8, 0.8);
-            color2 = Color(0.7, 0.7, 0.7);
-            color3 = Color(0.6, 0.6, 0.6);
-        }
 
         auto leftPoints = Vector<Vector2>();
         auto rightPoints = Vector<Vector2>();

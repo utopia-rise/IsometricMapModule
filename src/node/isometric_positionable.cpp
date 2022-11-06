@@ -27,34 +27,24 @@ void IsometricPositionable::_enter_tree() {
         }
     }
 
-    if (world != RID()) {
-        IsometricServer::get_instance()->unregister_isometric_element(world, self);
-    }
-
-    world_owner = false;
-    world = RID();
-
     if (const Node* parent{get_parent()}) {
         if (auto positionable{cast_to<IsometricPositionable>(parent)}) {
             if (positionable->world != RID()) {
-
                 world = positionable->world;
                 world_owner = false;
-                self = IsometricServer::get_instance()->register_isometric_element(world, this->get_canvas_item(),
-                                                                                   is_dynamic, {get_global_position_3d(), size});
-                update_position();
-                return;
             }
         }
     }
 
-    world = IsometricServer::get_instance()->create_space();
-    world_owner = true;
+    if (world == RID()){
+        world = IS->space_create();
+        world_owner = true;
+    }
 
-
-    self = IsometricServer::get_instance()->register_isometric_element(world, this->get_canvas_item(),
-                                                                       is_dynamic, {get_global_position_3d(), size});
+    self = IS->isometric_element_create(is_dynamic,{get_global_position_3d(), size});
+    IS->isometric_element_attach_canvas_item(self, get_canvas_item());
     update_position();
+    IS->space_attach_isometric_element(world, self);
 }
 
 void IsometricPositionable::_ready() {
@@ -65,32 +55,35 @@ void IsometricPositionable::_ready() {
 
 void IsometricPositionable::_physics_process() {
     const Vector3& collision_origin{collision_object->get_global_transform().origin};
-    set_global_position_3d({collision_origin.x, collision_origin.z, collision_origin.y});
+    if(!collision_origin.is_equal_approx(get_global_position_3d())) {
+        set_global_position_3d({collision_origin.x, collision_origin.z, collision_origin.y});
+    }
 }
 
 void IsometricPositionable::_exit_tree() {
     if (self != RID()) {
-        IsometricServer::get_instance()->unregister_isometric_element(world, self);
+        IS->free_rid(self);
         if (world_owner) {
             world_owner = false;
-            IsometricServer::get_instance()->delete_space(world);
+            IS->free_rid(world);
         }
         world = RID();
+        self = RID();
     }
 }
 
 void IsometricPositionable::update_position() {
-    const data::IsometricParameters* params = IsometricServer::get_instance()->get_space_configuration(world);
+    if(self.is_valid()) {
+        IS->isometric_element_set_position(self, get_global_position_3d());
+    }
+    if (world.is_valid()) {
+        const data::IsometricParameters *params = IS->space_get_configuration(world);
+        Vector2 position2D = utils::from_3D_to_screen(*params, local_position);
 
-    Vector2 position2D = utils::from_3D_to_screen(*params, local_position);
-    Transform2D transform = get_transform();
-    transform.set_origin(position2D);
-
-    set_transform(transform);
-
-#ifdef TOOLS_ENABLED
-    editor::OutlineDrawer::draw_outline(this);
-#endif
+        Transform2D transform = get_transform();
+        transform.set_origin(position2D);
+        set_transform(transform);
+    }
 }
 
 Vector3 IsometricPositionable::get_local_position_3d() const {
@@ -99,12 +92,7 @@ Vector3 IsometricPositionable::get_local_position_3d() const {
 
 void IsometricPositionable::set_local_position_3d(Vector3 p_local) {
     local_position = p_local;
-    if(self.is_valid()) {
-        IsometricServer::get_instance()->set_isometric_element_position(self, get_global_position_3d());
-    }
-    if (world.is_valid()) {
-        update_position();
-    }
+    update_position();
     _rebind_collision_object_position();
 }
 
@@ -130,7 +118,7 @@ Vector3 IsometricPositionable::get_size() const {
 void IsometricPositionable::set_size(Vector3 s) {
     size = s;
     if(self.is_valid()) {
-        IsometricServer::get_instance()->set_isometric_element_size(self, size);
+        IsometricServer::get_instance()->isometric_element_set_size(self, size);
     }
 #ifdef TOOLS_ENABLED
     editor::OutlineDrawer::draw_outline(this);
@@ -223,10 +211,4 @@ void IsometricPositionable::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_collision_object_node_path", "p_node_path"), &IsometricPositionable::set_collision_object_node_path);
     ClassDB::bind_method(D_METHOD("get_collision_object_node_path"), &IsometricPositionable::get_collision_object_node_path);
     ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "collision_object_node_path"), "set_collision_object_node_path", "get_collision_object_node_path");
-
-    //    BIND_ENUM_CONSTANT(NONE);
-    //    BIND_ENUM_CONSTANT(LEFT);
-    //    BIND_ENUM_CONSTANT(RIGHT);
-    //    BIND_ENUM_CONSTANT(FORWARD);
-    //    BIND_ENUM_CONSTANT(BACKWARD);
 }
