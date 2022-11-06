@@ -13,6 +13,7 @@ namespace data {
         ////////Set by API calls (main thread)//////
         IsometricSpace* space = nullptr;
         bool is_dynamic = false;
+        int id;
 
         //////Set by commands (isometric server thread)///////
         AABB aabb  = AABB(Vector3(0., 0., 0.),Vector3( 1., 1., 1.));

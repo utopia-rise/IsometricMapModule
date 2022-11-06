@@ -9,6 +9,7 @@ IsometricMap::IsometricMap() :
         instances_grid_3d(),
         positionable_set(),
         child_positionable_initialized(false) {
+    is_container = true;
 }
 
 Ref<resource::PositionableSet> IsometricMap::get_positionable_set() const {

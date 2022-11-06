@@ -55,6 +55,7 @@ IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
 
 void IsometricEditorPlugin::set_debug_mode(bool b) {
     show_debug = b;
+    get_tree()->call_group(node::IsometricPositionable::get_debug_group_name(), "set_debug_view", b);
     editor::OutlineDrawer::set_outline_visible(selected_map, b);
 }
 

@@ -19,6 +19,8 @@ private:
     Thread thread;
     CommandQueueMT command_queue;
 
+    SafeNumeric<int> counter;
+
     enum RequestType{
         SYNC,
         ASYNC_REQUESTED,
@@ -69,11 +71,11 @@ public:
     void fetch_data_and_request_ordering();
     void force_synchronous_sort(bool sync);
 
-    //DELETE
+    ///DELETE
     void free_rid(RID rid);
 
 private:
-    /////////////////////////THREAD COMMANDS/////////////////////////////////////
+     /////////////////////////THREAD COMMANDS/////////////////////////////////////
     void command_space_create(data::IsometricSpace* space);
     void command_space_attach_isometric_element(data::IsometricSpace* space, data::IsometricElement* element);
     void command_space_delete(data::IsometricSpace* space);

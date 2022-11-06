@@ -7,9 +7,14 @@
 
 using namespace node;
 
+StringName IsometricPositionable::get_debug_group_name() {
+    static StringName debug_name{StringName("isometric_debug_view")};
+    return debug_name;
+}
+
 IsometricPositionable::IsometricPositionable() :
-        Node2D(), size({1, 1, 1}), is_dynamic(false), collision_object_node_path(),
-        collision_object(nullptr), world(RID()), world_owner(false), self(RID())
+        Node2D(), size({1, 1, 1}), self(RID()), is_dynamic(false), collision_object_node_path(),
+        collision_object(nullptr), world(RID()), world_owner(false), is_container{false}
 #ifdef TOOLS_ENABLED
         , outline_data()
 #endif
@@ -18,6 +23,7 @@ IsometricPositionable::IsometricPositionable() :
 }
 
 void IsometricPositionable::_enter_tree() {
+    add_to_group(get_debug_group_name());
     if (!collision_object_node_path.is_empty()) {
         if (auto* collider{Object::cast_to<CollisionObject>(get_node(collision_object_node_path))}) {
             collision_object = collider;
@@ -41,10 +47,12 @@ void IsometricPositionable::_enter_tree() {
         world_owner = true;
     }
 
-    self = IS->isometric_element_create(is_dynamic,{get_global_position_3d(), size});
-    IS->isometric_element_attach_canvas_item(self, get_canvas_item());
-    update_position();
-    IS->space_attach_isometric_element(world, self);
+    if(!is_container){
+        self = IS->isometric_element_create(is_dynamic,{get_global_position_3d(), size});
+        IS->isometric_element_attach_canvas_item(self, get_canvas_item());
+        update_position();
+        IS->space_attach_isometric_element(world, self);
+    }
 }
 
 void IsometricPositionable::_ready() {
@@ -54,9 +62,10 @@ void IsometricPositionable::_ready() {
 }
 
 void IsometricPositionable::_physics_process() {
-    const Vector3& collision_origin{collision_object->get_global_transform().origin};
+    Vector3 collision_origin{collision_object->get_global_transform().origin};
+    collision_origin = {collision_origin.x, collision_origin.z, collision_origin.y};
     if(!collision_origin.is_equal_approx(get_global_position_3d())) {
-        set_global_position_3d({collision_origin.x, collision_origin.z, collision_origin.y});
+        set_global_position_3d(collision_origin);
     }
 }
 
@@ -70,6 +79,7 @@ void IsometricPositionable::_exit_tree() {
         world = RID();
         self = RID();
     }
+    remove_from_group(get_debug_group_name());
 }
 
 void IsometricPositionable::update_position() {
@@ -192,6 +202,18 @@ editor::OutlineData& IsometricPositionable::get_outline_data() {
     return outline_data;
 }
 
+void IsometricPositionable::set_debug_view(bool p_debug){
+    debug_view = p_debug;
+    //set_visible(!p_debug);
+    if(is_container) { return; }
+    outline_data.should_draw_polygons = p_debug;
+    editor::OutlineDrawer::set_outline_visible(this, p_debug);
+    if(p_debug){
+        editor::OutlineDrawer::draw_outline(this);
+    }
+    update();
+}
+
 #endif
 
 void IsometricPositionable::_bind_methods() {
@@ -211,4 +233,8 @@ void IsometricPositionable::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_collision_object_node_path", "p_node_path"), &IsometricPositionable::set_collision_object_node_path);
     ClassDB::bind_method(D_METHOD("get_collision_object_node_path"), &IsometricPositionable::get_collision_object_node_path);
     ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "collision_object_node_path"), "set_collision_object_node_path", "get_collision_object_node_path");
+
+#ifdef TOOLS_ENABLED
+    ClassDB::bind_method(D_METHOD("set_debug_view"), &IsometricPositionable::set_debug_view);
+#endif
 }

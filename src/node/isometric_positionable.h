@@ -12,6 +12,8 @@ namespace node {
     GDCLASS(IsometricPositionable, Node2D)
 
     public:
+        static StringName get_debug_group_name();
+
         enum class SlopeType {
             NONE = 0,
             LEFT = 1,
@@ -36,12 +38,14 @@ namespace node {
         void _rebind_collision_object_position() const;
 
 #ifdef TOOLS_ENABLED
+        bool debug_view = false;
         editor::OutlineData outline_data;
 #endif
 
     protected:
         RID world;
         bool world_owner;
+        bool is_container;
 
         void update_position();
 
@@ -80,6 +84,7 @@ namespace node {
         RID get_rid() const;
 
 #ifdef TOOLS_ENABLED
+        void set_debug_view(bool p_debug);
         editor::OutlineData& get_outline_data();
 #endif
 

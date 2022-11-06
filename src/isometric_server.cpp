@@ -8,11 +8,12 @@ using namespace data;
 
 IsometricServer* IsometricServer::_instance = nullptr;
 
-IsometricServer::IsometricServer() : state{ASYNC_DONE}, exit_thread(false), thread(), command_queue(true) {
+IsometricServer::IsometricServer() : state{SYNC}, exit_thread(false), thread(), command_queue(true) {
     worlds.reserve(8);
     stack.reserve(32);
     thread.start(&IsometricServer::iteration, this);
     VisualServer::get_singleton()->connect("frame_pre_draw", this, "fetch_data_and_request_ordering");
+    counter.set(0);
 }
 
 ///////////////STATIC//////////////////
@@ -67,6 +68,7 @@ RID IsometricServer::isometric_element_create(bool is_dynamic, AABB aabb) {
     element->z_size = 1;
     element->aabb = aabb;
     element->is_dynamic = is_dynamic;
+    element->id = counter.postincrement();
     RID rid{elements_owner.make_rid(element)};
     command_queue.push(this, &IsometricServer::command_isometric_element_create, element, is_dynamic);
     return rid;
@@ -175,15 +177,12 @@ void IsometricServer::command_stop_server() {
 
 void IsometricServer::command_space_create(IsometricSpace* space) {
     worlds.push_back(space);
-    LOG_INFO(vformat("NEW WORLD %s", worlds.size()));
 }
 
 void IsometricServer::command_space_attach_isometric_element(data::IsometricSpace* space, data::IsometricElement* element) {
     space->dirty = true;
 
     if (!element->is_dynamic) {
-        space->static_elements.push_back(element);
-
         for (int i = 0; i < space->static_elements.size(); i++) {
             IsometricElement* static_element{space->static_elements[i]};
             if (utils::are_elements_overlapping(space->configuration, static_element, element)) {
@@ -194,13 +193,13 @@ void IsometricServer::command_space_attach_isometric_element(data::IsometricSpac
                 }
             }
         }
+        space->static_elements.push_back(element);
     } else {
         space->dynamic_elements.push_back(element);
     }
 }
 
 void IsometricServer::command_space_delete(IsometricSpace* space) {
-    LOG_INFO(vformat("DELETE WORLD %s", worlds.find(space) + 1));
     space->static_elements.clear();
     space->dynamic_elements.clear();
     worlds.erase(space);
@@ -212,6 +211,10 @@ void IsometricServer::command_isometric_element_create(data::IsometricElement* e
 }
 
 void IsometricServer::command_isometric_element_attach_canvas_item(data::IsometricElement* element, const RID canvas_rid){
+    IsometricSpace* space{element->space};
+    if(space) {
+        element->space->dirty = true;
+    }
     element->visual_rid = canvas_rid;
 }
 
@@ -253,7 +256,6 @@ void IsometricServer::command_isometric_sort() {
     for(int i = 0; i < worlds.size(); i++) {
         IsometricSpace* world{worlds[i]};
         if(!world->dirty) { continue;}
-        LOG_INFO(vformat("SORT WORLD %s", i + 1));
         for (int j = 0; j < world->static_elements.size(); j++) {
             IsometricElement* positionable{world->static_elements[j]};
             positionable->behind_dynamics.clear();
@@ -264,6 +266,7 @@ void IsometricServer::command_isometric_sort() {
         for (int j = 0; j < world->dynamic_elements.size(); j++) {
             IsometricElement* positionable{world->dynamic_elements[j]};
             positionable->behind_dynamics.clear();
+            positionable->behind_statics.clear();
             positionable->z_order = 0;
             positionable->dirty = true;
             positionable->is_invalid = false;
@@ -361,6 +364,7 @@ int IsometricServer::calculate_z_order(data::IsometricElement* element_behind, i
         }
         stack_element->is_invalid = true;
     }
+
     int z_order_size = element_behind->z_size;
     int z_order = element_behind->z_order;
     int new_z_order = z_order_size + z_order;
@@ -371,14 +375,13 @@ void IsometricServer::command_update_visual_server(){
     for(int i = 0; i < worlds.size(); i++) {
         IsometricSpace* world{worlds[i]};
         if(world->fetched) { continue;}
-        LOG_INFO(vformat("UPDATE WORLD %s", i + 1));
         for (int j = 0; j < world->static_elements.size(); j++) {
             IsometricElement* positionable{world->static_elements[j]};
             RID visual_rid{positionable->visual_rid};
             if(!visual_rid.is_valid()) { continue;}
             VisualServer::get_singleton()->canvas_item_set_z_index(visual_rid, positionable->z_order);
             if(positionable->is_invalid){
-                VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.7, 0.7));
+                VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.5, 0.5));
             }
             else {
                 VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 1., 1.));
@@ -390,7 +393,7 @@ void IsometricServer::command_update_visual_server(){
             if(!visual_rid.is_valid()) { continue;}
             VisualServer::get_singleton()->canvas_item_set_z_index(visual_rid, positionable->z_order);
             if(positionable->is_invalid){
-                VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.7, 0.7));
+                VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.5, 0.5));
             }
             else {
                 VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 1., 1.));
