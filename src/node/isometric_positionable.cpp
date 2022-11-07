@@ -131,10 +131,10 @@ void IsometricPositionable::set_size(Vector3 s) {
     size = s;
     if(self.is_valid() && is_dynamic) {
         IsometricServer::get_instance()->isometric_element_set_size(self, size);
-    }
 #ifdef TOOLS_ENABLED
-    editor::OutlineDrawer::draw_outline(this);
+        editor::OutlineDrawer::draw_outline(this);
 #endif
+    }
     _rebind_collision_object_position();
 }
 
