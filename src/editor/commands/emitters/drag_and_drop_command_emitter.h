@@ -27,7 +27,7 @@ namespace editor {
 
                 Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
 
-                void _clear_current_preview_nodes();
+                void _clear_current_preview_nodes(int new_size);
 
                 static AABB _calculate_real_aabb(const Vector3& initial_position, const Vector3& limit_position,
                                                  const Vector3& positionable_size);

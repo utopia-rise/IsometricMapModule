@@ -2,7 +2,6 @@
 #include <modules/isometric_maps/src/isometric_server.h>
 #include <modules/isometric_maps/src/utils/isometric_maths.h>
 #include <modules/isometric_maps/src/editor/outline_drawer.h>
-#include <modules/isometric_maps/src/logging.h>
 #include <core/engine.h>
 
 using namespace node;
