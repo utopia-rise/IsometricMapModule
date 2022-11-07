@@ -26,6 +26,7 @@ namespace node {
     private:
         Vector3 size;
         Vector3 local_position;
+        int depth;
 
         SlopeType slope_type =  SlopeType::NONE;
 
@@ -70,6 +71,10 @@ namespace node {
         virtual Vector3 get_size() const;
 
         virtual void set_size(Vector3 p_size);
+
+        int get_depth() const;
+
+        void set_depth(int p_depth);
 
         RID get_space_RID() const;
 

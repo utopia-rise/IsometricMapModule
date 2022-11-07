@@ -4,6 +4,7 @@
 #include "positionable_scenes_cache_manager.h"
 #include "positionable_selector_manager.h"
 #include "outline_drawer.h"
+#include "modules/isometric_maps/src/isometric_server.h"
 #include <scene/main/viewport.h>
 #include <core/os/keyboard.h>
 
@@ -56,6 +57,7 @@ IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
 void IsometricEditorPlugin::set_debug_mode(bool b) {
     show_debug = b;
     get_tree()->call_group(node::IsometricPositionable::get_debug_group_name(), "set_debug_view", b);
+    IS->set_debug(b);
     editor::OutlineDrawer::set_outline_visible(selected_map, b);
 }
 

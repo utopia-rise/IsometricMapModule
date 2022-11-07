@@ -27,6 +27,7 @@ private:
         ASYNC_DONE
     };
     RequestType state;
+    bool is_debug;
 
     mutable RID_Owner<data::IsometricSpace> worlds_owner;
     mutable RID_Owner<data::IsometricElement> elements_owner;
@@ -63,9 +64,10 @@ public:
 
     ///ISOMETRIC ELEMENT
     RID isometric_element_create(bool is_dynamic, AABB aabb = AABB());
-    void isometric_element_attach_canvas_item(const RID element_rid, const RID canvas_rid);
+    void isometric_element_attach_canvas_item(const RID element_rid, const RID canvas_rid, const int depth = 1);
     void isometric_element_set_position(const RID element_rid, const Vector3 global_position);
     void isometric_element_set_size(const RID element_rid, const Vector3 size);
+    void isometric_element_set_depth(const RID element_rid, const int depth);
 
     ///ORDERING
     void fetch_data_and_request_ordering();
@@ -74,6 +76,8 @@ public:
     ///DELETE
     void free_rid(RID rid);
 
+    ///UTILITIES
+    void set_debug(bool p_debug);
 private:
      /////////////////////////THREAD COMMANDS/////////////////////////////////////
     void command_space_create(data::IsometricSpace* space);
@@ -84,6 +88,7 @@ private:
     void command_isometric_element_attach_canvas_item(data::IsometricElement* element, const RID canvas_rid);
     void command_isometric_element_set_position(data::IsometricElement* element, const Vector3 global_position);
     void command_isometric_element_set_size(data::IsometricElement* element, const Vector3 size);
+    void command_isometric_element_set_depth(data::IsometricElement* element, const int depth);
     void command_isometric_element_delete(data::IsometricElement* element);
 
     void command_isometric_sort();
@@ -92,7 +97,7 @@ private:
     _FORCE_INLINE_ int calculate_z_order(data::IsometricElement* element_behind, int current_z_order);
 
     void command_update_visual_server();
-
+    void command_set_debug(bool p_debug);
     void command_stop_server();
 
     ///////////////UTILITIES/////////

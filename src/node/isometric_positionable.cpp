@@ -12,7 +12,7 @@ StringName IsometricPositionable::get_debug_group_name() {
 }
 
 IsometricPositionable::IsometricPositionable() :
-        Node2D(), size({1, 1, 1}), self(RID()), is_dynamic(false), collision_object_node_path(),
+        Node2D(), size({1, 1, 1}), depth(1), self(RID()), is_dynamic(false), collision_object_node_path(),
         collision_object(nullptr), world(RID()), world_owner(false), is_container{false}
 #ifdef TOOLS_ENABLED
         , outline_data()
@@ -48,7 +48,7 @@ void IsometricPositionable::_enter_tree() {
 
     if(!is_container){
         self = IS->isometric_element_create(is_dynamic,{get_global_position_3d(), size});
-        IS->isometric_element_attach_canvas_item(self, get_canvas_item());
+        IS->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
         update_position();
         IS->space_attach_isometric_element(world, self);
     }
@@ -118,6 +118,9 @@ Vector3 IsometricPositionable::get_global_position_3d() const {
 void IsometricPositionable::set_global_position_3d(const Vector3& p_position) {
     const Vector3& offset{p_position - get_global_position_3d()};
     set_local_position_3d(local_position + offset);
+    if(self.is_valid() && is_dynamic) {
+        IsometricServer::get_instance()->isometric_element_set_position(self, get_global_position_3d());
+    }
 }
 
 Vector3 IsometricPositionable::get_size() const {
@@ -126,13 +129,24 @@ Vector3 IsometricPositionable::get_size() const {
 
 void IsometricPositionable::set_size(Vector3 s) {
     size = s;
-    if(self.is_valid()) {
+    if(self.is_valid() && is_dynamic) {
         IsometricServer::get_instance()->isometric_element_set_size(self, size);
     }
 #ifdef TOOLS_ENABLED
     editor::OutlineDrawer::draw_outline(this);
 #endif
     _rebind_collision_object_position();
+}
+
+int IsometricPositionable::get_depth() const {
+    return depth;
+}
+
+void IsometricPositionable::set_depth(int p_depth){
+    depth = p_depth;
+    if(self.is_valid() && is_dynamic){
+        IS->isometric_element_set_depth(self, p_depth);
+    }
 }
 
 void IsometricPositionable::_notification(int notif) {
@@ -167,6 +181,13 @@ bool IsometricPositionable::get_is_dynamic() const {
 }
 
 void IsometricPositionable::set_is_dynamic(bool p_is_dynamic) {
+    if(p_is_dynamic != is_dynamic && !is_container) {
+        IS->free_rid(self);
+        self = IS->isometric_element_create(is_dynamic,{get_global_position_3d(), size});
+        IS->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
+        update_position();
+        IS->space_attach_isometric_element(world, self);
+    }
     is_dynamic = p_is_dynamic;
 }
 
@@ -203,8 +224,13 @@ editor::OutlineData& IsometricPositionable::get_outline_data() {
 
 void IsometricPositionable::set_debug_view(bool p_debug){
     debug_view = p_debug;
-    //set_visible(!p_debug);
     if(is_container) { return; }
+    for(int i = 0; i < get_child_count(); i++){
+        CanvasItem* item{cast_to<CanvasItem>(get_child(i))};
+        if(item && !cast_to<IsometricPositionable>(item)){
+            item->set_visible(!p_debug);
+        }
+    }
     outline_data.should_draw_polygons = p_debug;
     editor::OutlineDrawer::set_outline_visible(this, p_debug);
     if(p_debug){
@@ -224,6 +250,11 @@ void IsometricPositionable::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_size"), &IsometricPositionable::get_size);
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "size"), "set_size", "get_size");
     ADD_PROPERTY_DEFAULT("size", Vector3(1, 1, 1));
+
+    ClassDB::bind_method(D_METHOD("set_depth", "d"), &IsometricPositionable::set_depth);
+    ClassDB::bind_method(D_METHOD("get_depth"), &IsometricPositionable::get_depth);
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "depth"), "set_depth", "get_depth");
+    ADD_PROPERTY_DEFAULT("depth", 1);
 
     ClassDB::bind_method(D_METHOD("set_is_dynamic", "p_is_dynamic"), &IsometricPositionable::set_is_dynamic);
     ClassDB::bind_method(D_METHOD("get_is_dynamic"), &IsometricPositionable::get_is_dynamic);

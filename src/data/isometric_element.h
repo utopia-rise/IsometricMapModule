@@ -19,7 +19,7 @@ namespace data {
         AABB aabb  = AABB(Vector3(0., 0., 0.),Vector3( 1., 1., 1.));
 
         RID visual_rid = RID();
-        int z_size = 1;
+        int depth = 1;
         int z_order = 0;
 
         LocalVector<IsometricElement*> behind_statics;

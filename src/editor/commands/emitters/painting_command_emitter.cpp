@@ -71,11 +71,11 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
                 map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
         );
 
+        //TODO: Use the future container node to avoid flickering.
         current_preview_node->set_modulate(Color(1, 1, 1, 0.5));
         current_preview_node->set_is_dynamic(true);
-
-        map->add_child(current_preview_node);
         current_preview_node->set_local_position_3d(position);
+        map->add_child(current_preview_node);
 
         return commands;
     }
