@@ -101,32 +101,23 @@ private:
     void command_stop_server();
 
     ///////////////UTILITIES/////////
-    _FORCE_INLINE_ data::IsometricElement* check_and_fetch_element_rid(const RID rid) const {
-        if(!elements_owner.owns(rid)) {
-            LOG_WARNING(vformat("This is not a valid isometric element RID: %s", rid.get_id()));
-            return nullptr;
-        }
-        return elements_owner.get(rid);
-    }
-
-    _FORCE_INLINE_ data::IsometricSpace* check_and_fetch_space_rid(const RID rid) const {
-        if(!worlds_owner.owns(rid)) {
-            LOG_WARNING(vformat("This is not a valid space RID: %s", rid.get_id()));
-            return nullptr;
-        }
-        return worlds_owner.get(rid);
-    }
 
 #define GET_ELEMENT_RID_DATA_WITH_RET(element, element_rid, ret) \
-    IsometricElement* element = check_and_fetch_element_rid(element_rid); \
-    if(!element) { return ret; }          \
+    if(!elements_owner.owns(element_rid)) {\
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()));\
+        return ret;\
+    }\
+    IsometricElement* element{elements_owner.get(element_rid)};\
     do {} while (false)
 
 #define GET_ELEMENT_RID_DATA(element, element_rid) GET_ELEMENT_RID_DATA_WITH_RET(element, element_rid, void())
 
 #define GET_SPACE_RID_DATA_WITH_RET(space, space_rid, ret) \
-    IsometricSpace* space = check_and_fetch_space_rid(space_rid); \
-    if(!space) { return ret; }          \
+    if(!worlds_owner.owns(space_rid)) {\
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", space_rid.get_id()));\
+        return ret;\
+    }\
+    IsometricSpace* space{worlds_owner.get(space_rid)};\
     do {} while (false)
 
 #define GET_SPACE_RID_DATA(element, element_rid) GET_SPACE_RID_DATA_WITH_RET(element, element_rid, void())

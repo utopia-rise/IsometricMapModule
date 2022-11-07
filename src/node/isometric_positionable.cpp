@@ -181,7 +181,7 @@ bool IsometricPositionable::get_is_dynamic() const {
 }
 
 void IsometricPositionable::set_is_dynamic(bool p_is_dynamic) {
-    if(p_is_dynamic != is_dynamic && !is_container) {
+    if(self.is_valid() && p_is_dynamic != is_dynamic) {
         IS->free_rid(self);
         self = IS->isometric_element_create(is_dynamic,{get_global_position_3d(), size});
         IS->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
