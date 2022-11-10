@@ -42,15 +42,15 @@ void IsometricPositionable::_enter_tree() {
     }
 
     if (world == RID()){
-        world = IS->space_create();
+        world = ISOMETRIC_SERVER->space_create();
         world_owner = true;
     }
 
     if(!is_container){
-        self = IS->isometric_element_create(is_dynamic,{get_global_position_3d(), size});
-        IS->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
+        self = ISOMETRIC_SERVER->isometric_element_create(is_dynamic, {get_global_position_3d(), size});
+        ISOMETRIC_SERVER->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
         update_position();
-        IS->space_attach_isometric_element(world, self);
+        ISOMETRIC_SERVER->space_attach_isometric_element(world, self);
     }
 }
 
@@ -70,10 +70,11 @@ void IsometricPositionable::_physics_process() {
 
 void IsometricPositionable::_exit_tree() {
     if (self != RID()) {
-        IS->free_rid(self);
+        ISOMETRIC_SERVER->isometric_element_detach_canvas_item(self);
+        ISOMETRIC_SERVER->free_rid(self);
         if (world_owner) {
             world_owner = false;
-            IS->free_rid(world);
+            ISOMETRIC_SERVER->free_rid(world);
         }
         world = RID();
         self = RID();
@@ -83,10 +84,10 @@ void IsometricPositionable::_exit_tree() {
 
 void IsometricPositionable::update_position() {
     if(self.is_valid()) {
-        IS->isometric_element_set_position(self, get_global_position_3d());
+        ISOMETRIC_SERVER->isometric_element_set_position(self, get_global_position_3d());
     }
     if (world.is_valid()) {
-        const data::IsometricParameters *params = IS->space_get_configuration(world);
+        const data::IsometricParameters *params = ISOMETRIC_SERVER->space_get_configuration(world);
         Vector2 position2D = utils::from_3D_to_screen(*params, local_position);
 
         Transform2D transform = get_transform();
@@ -145,7 +146,7 @@ int IsometricPositionable::get_depth() const {
 void IsometricPositionable::set_depth(int p_depth){
     depth = p_depth;
     if(self.is_valid() && is_dynamic){
-        IS->isometric_element_set_depth(self, p_depth);
+        ISOMETRIC_SERVER->isometric_element_set_depth(self, p_depth);
     }
 }
 
@@ -182,11 +183,11 @@ bool IsometricPositionable::get_is_dynamic() const {
 
 void IsometricPositionable::set_is_dynamic(bool p_is_dynamic) {
     if(self.is_valid() && p_is_dynamic != is_dynamic) {
-        IS->free_rid(self);
-        self = IS->isometric_element_create(is_dynamic,{get_global_position_3d(), size});
-        IS->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
+        ISOMETRIC_SERVER->free_rid(self);
+        self = ISOMETRIC_SERVER->isometric_element_create(is_dynamic, {get_global_position_3d(), size});
+        ISOMETRIC_SERVER->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
         update_position();
-        IS->space_attach_isometric_element(world, self);
+        ISOMETRIC_SERVER->space_attach_isometric_element(world, self);
     }
     is_dynamic = p_is_dynamic;
 }

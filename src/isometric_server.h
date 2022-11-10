@@ -8,7 +8,7 @@
 #include "core/os/spin_lock.h"
 #include "logging.h"
 
-#define IS IsometricServer::get_instance()
+#define ISOMETRIC_SERVER IsometricServer::get_instance()
 
 class IsometricServer : public Object {
 GDCLASS(IsometricServer, Object)
@@ -18,8 +18,6 @@ private:
     mutable bool exit_thread;
     Thread thread;
     CommandQueueMT command_queue;
-
-    SafeNumeric<int> counter;
 
     enum RequestType{
         SYNC,
@@ -56,6 +54,7 @@ public:
     ///SPACE
     RID space_create();
     void space_attach_isometric_element(const RID space_rid, RID element_rid);
+    void space_detach_isometric_element(RID element_rid);
     void space_update_configuration(const RID space_rid, RID conf_RID);
     const data::IsometricParameters* space_get_configuration(const RID space_rid);
     int space_get_diamond_width(const RID space_rid);
@@ -65,13 +64,14 @@ public:
     ///ISOMETRIC ELEMENT
     RID isometric_element_create(bool is_dynamic, AABB aabb = AABB());
     void isometric_element_attach_canvas_item(const RID element_rid, const RID canvas_rid, const int depth = 1);
+    void isometric_element_detach_canvas_item(const RID element_rid);
     void isometric_element_set_position(const RID element_rid, const Vector3 global_position);
     void isometric_element_set_size(const RID element_rid, const Vector3 size);
     void isometric_element_set_depth(const RID element_rid, const int depth);
 
     ///ORDERING
     void fetch_data_and_request_ordering();
-    void force_synchronous_sort(bool sync);
+    void set_synchronous_mode(bool sync);
 
     ///DELETE
     void free_rid(RID rid);
@@ -82,10 +82,12 @@ private:
      /////////////////////////THREAD COMMANDS/////////////////////////////////////
     void command_space_create(data::IsometricSpace* space);
     void command_space_attach_isometric_element(data::IsometricSpace* space, data::IsometricElement* element);
+    void command_space_detach_isometric_element(data::IsometricElement* element);
     void command_space_delete(data::IsometricSpace* space);
 
     void command_isometric_element_create(data::IsometricElement* element, bool p_is_dynamic);
     void command_isometric_element_attach_canvas_item(data::IsometricElement* element, const RID canvas_rid);
+    void command_isometric_element_detach_canvas_item(data::IsometricElement* element);
     void command_isometric_element_set_position(data::IsometricElement* element, const Vector3 global_position);
     void command_isometric_element_set_size(data::IsometricElement* element, const Vector3 size);
     void command_isometric_element_set_depth(data::IsometricElement* element, const int depth);

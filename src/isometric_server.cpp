@@ -13,7 +13,6 @@ IsometricServer::IsometricServer() : state{ASYNC_DONE}, exit_thread(false), thre
     stack.reserve(32);
     thread.start(&IsometricServer::iteration, this);
     VisualServer::get_singleton()->connect("frame_pre_draw", this, "fetch_data_and_request_ordering");
-    counter.set(0);
 }
 
 ///////////////STATIC//////////////////
@@ -63,12 +62,16 @@ void IsometricServer::space_attach_isometric_element(const RID space_rid, RID el
     command_queue.push(this, &IsometricServer::command_space_attach_isometric_element, space, element);
 }
 
+void IsometricServer::space_detach_isometric_element(RID element_rid) {
+    GET_ELEMENT_RID_DATA(element, element_rid);
+    command_queue.push(this, &IsometricServer::command_space_detach_isometric_element, element);
+}
+
 RID IsometricServer::isometric_element_create(bool is_dynamic, AABB aabb) {
     IsometricElement* element{memnew(IsometricElement())};
     element->depth = 1;
     element->aabb = aabb;
     element->is_dynamic = is_dynamic;
-    element->id = counter.postincrement();
     RID rid{elements_owner.make_rid(element)};
     command_queue.push(this, &IsometricServer::command_isometric_element_create, element, is_dynamic);
     return rid;
@@ -76,8 +79,15 @@ RID IsometricServer::isometric_element_create(bool is_dynamic, AABB aabb) {
 
 void IsometricServer::isometric_element_attach_canvas_item(const RID element_rid, const RID canvas_rid, const int depth) {
     GET_ELEMENT_RID_DATA(element, element_rid);
+    element->visual_rid = canvas_rid;
     command_queue.push(this, &IsometricServer::command_isometric_element_set_depth, element, depth);
     command_queue.push(this, &IsometricServer::command_isometric_element_attach_canvas_item, element, canvas_rid);
+}
+
+void IsometricServer::isometric_element_detach_canvas_item(const RID element_rid){
+    GET_ELEMENT_RID_DATA(element, element_rid);
+    element->visual_rid = RID();
+    command_queue.push(this, &IsometricServer::command_isometric_element_detach_canvas_item, element);
 }
 
 void IsometricServer::space_update_configuration(const RID space_rid, RID conf_RID) {
@@ -94,7 +104,7 @@ const data::IsometricParameters* IsometricServer::space_get_configuration(const 
 
 void IsometricServer::isometric_element_set_position(const RID element_rid, const Vector3 global_position) {
     GET_ELEMENT_RID_DATA(element, element_rid);
-    if(element->space and !element->is_dynamic){
+    if(element->space && !element->is_dynamic){
         LOG_WARNING(vformat("A static element position can't be changed after being attached to a space."));
         return;
     }
@@ -108,7 +118,7 @@ void IsometricServer::isometric_element_set_position(const RID element_rid, cons
 
 void IsometricServer::isometric_element_set_size(const RID element_rid, const Vector3 size) {
     GET_ELEMENT_RID_DATA(element, element_rid);
-    if(element->space and !element->is_dynamic){
+    if(element->space && !element->is_dynamic){
         LOG_WARNING(vformat("A static element size can't be changed after being attached to a space."));
         return;
     }
@@ -122,7 +132,7 @@ void IsometricServer::isometric_element_set_size(const RID element_rid, const Ve
 
 void IsometricServer::isometric_element_set_depth(const RID element_rid, const int depth) {
     GET_ELEMENT_RID_DATA(element, element_rid);
-    if(element->space and !element->is_dynamic){
+    if(element->space && !element->is_dynamic){
         LOG_WARNING(vformat("A static element size can't be changed after being attached to a space."));
         return;
     }
@@ -149,7 +159,7 @@ float IsometricServer::space_get_z_length(const RID space_rid) {
     return space->configuration.z_length;
 }
 
-void IsometricServer::force_synchronous_sort(bool sync){
+void IsometricServer::set_synchronous_mode(bool sync){
     if(sync) {
         state = SYNC;
     } else {
@@ -214,10 +224,37 @@ void IsometricServer::command_space_attach_isometric_element(data::IsometricSpac
     }
 }
 
+void IsometricServer::command_space_detach_isometric_element(data::IsometricElement* element){
+    IsometricSpace* space{element->space};
+    if(space) {
+        if (space) {
+            space->dirty = true;
+            if (!element->is_dynamic) {
+                space->static_elements.erase(element);
+                for (int i = 0; i < space->static_elements.size(); i++) {
+                    space->static_elements[i]->behind_statics.erase(element);
+                }
+            } else {
+                space->dynamic_elements.erase(element);
+            }
+            element->behind_statics.clear();
+            element->behind_dynamics.clear();
+        }
+    }
+}
+
 void IsometricServer::command_space_delete(IsometricSpace* space) {
+    for (int i = 0; i < space->static_elements.size(); i++) {
+        space->static_elements[i]->space = nullptr;
+    }
     space->static_elements.clear();
+
+    for (int i = 0; i < space->dynamic_elements.size(); i++) {
+        space->dynamic_elements[i]->space = nullptr;
+    }
     space->dynamic_elements.clear();
     worlds.erase(space);
+
     memdelete(space);
 }
 
@@ -230,7 +267,13 @@ void IsometricServer::command_isometric_element_attach_canvas_item(data::Isometr
     if(space) {
         element->space->dirty = true;
     }
-    element->visual_rid = canvas_rid;
+}
+
+void IsometricServer::command_isometric_element_detach_canvas_item(data::IsometricElement* element){
+    IsometricSpace* space{element->space};
+    if(space) {
+        element->space->dirty = true;
+    }
 }
 
 void IsometricServer::command_isometric_element_set_position(data::IsometricElement* element, const Vector3 global_position) {
@@ -445,6 +488,7 @@ void IsometricServer::command_stop_server() {
 void IsometricServer::_bind_methods() {
     ClassDB::bind_method(D_METHOD("space_create"), &IsometricServer::space_create);
     ClassDB::bind_method(D_METHOD("space_attach_isometric_element"), &IsometricServer::space_attach_isometric_element);
+    ClassDB::bind_method(D_METHOD("space_detach_isometric_element"), &IsometricServer::space_detach_isometric_element);
     ClassDB::bind_method(D_METHOD("space_update_configuration"), &IsometricServer::space_update_configuration);
     ClassDB::bind_method(D_METHOD("space_get_diamond_width"), &IsometricServer::space_get_diamond_width);
     ClassDB::bind_method(D_METHOD("space_get_diamond_height"), &IsometricServer::space_get_diamond_height);
@@ -452,12 +496,13 @@ void IsometricServer::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("isometric_element_create"), &IsometricServer::isometric_element_create, AABB());
     ClassDB::bind_method(D_METHOD("isometric_element_attach_canvas_item"), &IsometricServer::isometric_element_attach_canvas_item, 1);
+    ClassDB::bind_method(D_METHOD("isometric_element_detach_canvas_item"), &IsometricServer::isometric_element_detach_canvas_item);
     ClassDB::bind_method(D_METHOD("isometric_element_set_position"), &IsometricServer::isometric_element_set_position);
     ClassDB::bind_method(D_METHOD("isometric_element_set_size"), &IsometricServer::isometric_element_set_size);
     ClassDB::bind_method(D_METHOD("isometric_element_set_depth"), &IsometricServer::isometric_element_set_depth);
 
     ClassDB::bind_method(D_METHOD("fetch_data_and_request_ordering"), &IsometricServer::fetch_data_and_request_ordering);
-    ClassDB::bind_method(D_METHOD("force_synchronous_sort"), &IsometricServer::force_synchronous_sort);
+    ClassDB::bind_method(D_METHOD("set_synchronous_mode"), &IsometricServer::set_synchronous_mode);
 
     ClassDB::bind_method(D_METHOD("free_rid"), &IsometricServer::free_rid);
 
