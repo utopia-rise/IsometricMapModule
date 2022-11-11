@@ -1,7 +1,3 @@
-//
-// Created by CedNaru on 14/02/2021.
-//
-
 #include "isometric_parameters.h"
 
 using namespace data;

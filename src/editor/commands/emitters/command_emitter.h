@@ -4,6 +4,7 @@
 #ifdef TOOLS_ENABLED
     #include <core/os/input_event.h>
     #include <core/undo_redo.h>
+    #include "../command.h"
 
 namespace editor {
     namespace commands {
@@ -20,7 +21,6 @@ namespace editor {
 
             private:
                 UndoRedo* undo_redo;
-
                 Vector<Ref<Command>> from_gui_input_to_command(Ref<Evt> p_event);
             };
 
