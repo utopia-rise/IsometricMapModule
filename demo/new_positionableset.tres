@@ -1,0 +1,12 @@
+[gd_resource type="PositionableSet" format=2]
+
+[resource]
+categories = PoolStringArray( "All" )
+categories_to_identifiers = {
+"All": [ 1, 2 ]
+}
+last_id = 2
+identifier_to_scene_path = {
+1: "res://IsometricPositionable.tscn",
+2: "res://block.tscn"
+}
