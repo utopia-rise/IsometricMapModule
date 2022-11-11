@@ -6,7 +6,7 @@ String PlaceholderType::get_type_name() const {
     return type_name;
 }
 
-void PlaceholderType::set_type_name(const String &name) {
+void PlaceholderType::set_type_name(const String& name) {
     type_name = name;
 }
 
@@ -18,5 +18,4 @@ void PlaceholderType::set_color(Color col) {
     color = col;
 }
 
-void PlaceholderType::_bind_methods() {
-}
+void PlaceholderType::_bind_methods() {}

@@ -1,29 +1,26 @@
 #ifdef TOOLS_ENABLED
 
-#include <modules/isometric_maps/src/isometric_server.h>
-#include <modules/isometric_maps/src/utils/isometric_maths.h>
-#include "outline_drawer.h"
+    #include "outline_drawer.h"
+    #include <modules/isometric_maps/src/isometric_server.h>
+    #include <modules/isometric_maps/src/utils/isometric_maths.h>
 
 using namespace editor;
 
-void
-OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
-    const OutlineData& outline_data{positionable->get_outline_data()};
-    RID outline_rid{outline_data.rid};
+void OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
+    const OutlineData& outline_data {positionable->get_outline_data()};
+    RID outline_rid {outline_data.rid};
     VisualServer::get_singleton()->canvas_item_clear(outline_rid);
     VisualServer::get_singleton()->canvas_item_set_parent(outline_rid, positionable->get_canvas_item());
     VisualServer::get_singleton()->canvas_item_set_z_as_relative_to_parent(outline_rid, true);
 
-    if (const data::IsometricParameters* space_configuration{
-            IsometricServer::get_instance()->space_get_configuration(positionable->get_space_RID())
-    }) {
-        PoolVector2Array points{utils::get_bounding_box(*space_configuration, positionable->get_size())};
+    if (const data::IsometricParameters * space_configuration {IsometricServer::get_instance()->space_get_configuration(positionable->get_space_RID())}) {
+        PoolVector2Array points {utils::get_bounding_box(*space_configuration, positionable->get_size())};
 
-        int no_slope{0};
-        int left_slope{0};
-        int right_slope{0};
-        int forward_slope{0};
-        int backward_slope{0};
+        int no_slope {0};
+        int left_slope {0};
+        int right_slope {0};
+        int forward_slope {0};
+        int backward_slope {0};
 
         switch (positionable->get_slope_type()) {
             case node::IsometricPositionable::SlopeType::NONE:
@@ -64,7 +61,7 @@ OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
         Color color2;
         Color color3;
 
-        if(positionable->get_is_dynamic()){
+        if (positionable->get_is_dynamic()) {
             color1 = {0.5, 0.5, 0.5, 1.};
             color2 = {0.2, 0.2, 0.2, 1.};
             color3 = {0.4, 0.4, 0.4, 1.};
@@ -112,8 +109,8 @@ OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
             VisualServer::get_singleton()->canvas_item_add_polygon(outline_rid, rightPoints, rightColor);
         }
 
-        const Color& color{outline_data.color};
-        real_t line_size{outline_data.line_size};
+        const Color& color {outline_data.color};
+        real_t line_size {outline_data.line_size};
 
         //    Upper Lines
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[0], up_points[1], color, line_size);
@@ -123,23 +120,23 @@ OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
 
         //    Vertical Lines
 
-        //draw_line(up_p[0], down_p[0], color, line_size);
+        // draw_line(up_p[0], down_p[0], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[1], down_points[1], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[2], down_points[2], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[3], down_points[3], color, line_size);
 
         //    Lower Lines
-        //draw_line(down_p[0], down_p[1], color, line_size);
+        // draw_line(down_p[0], down_p[1], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, down_points[1], down_points[2], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, down_points[2], down_points[3], color, line_size);
-        //draw_line(down_p[3], down_p[0], color, line_size);
+        // draw_line(down_p[3], down_p[0], color, line_size);
 
         VisualServer::get_singleton()->canvas_item_set_visible(outline_rid, outline_data.is_visible);
     }
 }
 
 void OutlineDrawer::set_outline_visible(node::IsometricPositionable* positionable, bool visible) {
-    OutlineData& outline_data{positionable->get_outline_data()};
+    OutlineData& outline_data {positionable->get_outline_data()};
     outline_data.is_visible = visible;
     VisualServer::get_singleton()->canvas_item_set_visible(outline_data.rid, visible);
 }

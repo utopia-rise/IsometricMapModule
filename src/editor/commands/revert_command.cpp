@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
 
-#include "revert_command.h"
+    #include "revert_command.h"
 
 using namespace editor::commands;
 
@@ -12,7 +12,7 @@ void RevertCommand::undo() {
     reverse_command->redo();
 }
 
-void RevertCommand::set_reverse_command(Ref<Command> p_reverse_command) { // NOLINT(performance-unnecessary-value-param)
+void RevertCommand::set_reverse_command(Ref<Command> p_reverse_command) {// NOLINT(performance-unnecessary-value-param)
     reverse_command = p_reverse_command;
 }
 

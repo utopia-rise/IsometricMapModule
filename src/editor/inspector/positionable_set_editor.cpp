@@ -1,15 +1,15 @@
 #ifdef TOOLS_ENABLED
 
-#include <scene/gui/button.h>
-#include <scene/gui/label.h>
-#include <scene/gui/item_list.h>
-#include <scene/gui/option_button.h>
-#include <core/os/file_access.h>
-#include <modules/isometric_maps/src/editor/positionable_set_editor_plugin.h>
-#include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
-#include <modules/isometric_maps/src/editor/editor_utils.h>
-#include <editor/editor_node.h>
-#include "positionable_set_editor.h"
+    #include "positionable_set_editor.h"
+    #include <core/os/file_access.h>
+    #include <editor/editor_node.h>
+    #include <modules/isometric_maps/src/editor/editor_utils.h>
+    #include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
+    #include <modules/isometric_maps/src/editor/positionable_set_editor_plugin.h>
+    #include <scene/gui/button.h>
+    #include <scene/gui/item_list.h>
+    #include <scene/gui/label.h>
+    #include <scene/gui/option_button.h>
 
 using namespace editor::inspector;
 
@@ -18,28 +18,21 @@ void PositionableSetEditor::set_positionable_set(const Ref<resource::Positionabl
     _refresh_categories();
 }
 
-PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selector(memnew(OptionButton)),
-                                                 contained_tiles_list(memnew(ItemList)),
-                                                 fix_path_button(memnew(Button)),
-                                                 add_category_dialog(memnew(WindowDialog)),
-                                                 add_category_dialog_line_edit(memnew(LineEdit)),
-                                                 file_dialog(memnew(FileDialog)),
-                                                 fix_path_dialog(memnew(FileDialog)),
-                                                 alert_popup(memnew(AcceptDialog)),
-                                                 remove_tile_alert_popup(memnew(WindowDialog)),
-                                                 do_not_display_alert_remove_tile(memnew(CheckBox)),
-                                                 remove_category_alert_popup(memnew(WindowDialog)),
-                                                 do_not_display_alert_remove_category(memnew(CheckBox)),
-                                                 current_set() {
-    HBoxContainer* select_category_container{memnew(HBoxContainer)};
-    Label* category_selector_label{memnew(Label)};
+PositionableSetEditor::PositionableSetEditor() :
+    VBoxContainer(), category_selector(memnew(OptionButton)), contained_tiles_list(memnew(ItemList)), fix_path_button(memnew(Button)),
+    add_category_dialog(memnew(WindowDialog)), add_category_dialog_line_edit(memnew(LineEdit)), file_dialog(memnew(FileDialog)),
+    fix_path_dialog(memnew(FileDialog)), alert_popup(memnew(AcceptDialog)), remove_tile_alert_popup(memnew(WindowDialog)),
+    do_not_display_alert_remove_tile(memnew(CheckBox)), remove_category_alert_popup(memnew(WindowDialog)),
+    do_not_display_alert_remove_category(memnew(CheckBox)), current_set() {
+    HBoxContainer* select_category_container {memnew(HBoxContainer)};
+    Label* category_selector_label {memnew(Label)};
     category_selector_label->set_text("Categories:");
     category_selector->set_h_size_flags(SIZE_EXPAND_FILL);
-    Button* add_category_button{memnew(Button)};
+    Button* add_category_button {memnew(Button)};
     add_category_button->set_text("+");
-    Button* remove_category_button{memnew(Button)};
+    Button* remove_category_button {memnew(Button)};
     remove_category_button->set_text("-");
-    Button* refresh_button{memnew(Button)};
+    Button* refresh_button {memnew(Button)};
     refresh_button->set_text("Refresh");
 
     select_category_container->add_child(category_selector_label);
@@ -50,7 +43,7 @@ PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selec
 
     add_child(select_category_container);
 
-    Label* contained_tiles_label{memnew(Label)};
+    Label* contained_tiles_label {memnew(Label)};
     contained_tiles_label->set_text("Contained positionables:");
 
     add_child(contained_tiles_label);
@@ -60,18 +53,18 @@ PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selec
 
     add_child(contained_tiles_list);
 
-    HBoxContainer* add_and_remove_tiles_container{memnew(HBoxContainer)};
+    HBoxContainer* add_and_remove_tiles_container {memnew(HBoxContainer)};
 
     fix_path_button->set_text("Fix !");
     fix_path_button->set_visible(false);
     add_and_remove_tiles_container->add_child(fix_path_button);
 
-    Button* add_positionable_button{memnew(Button)};
+    Button* add_positionable_button {memnew(Button)};
     add_positionable_button->set_text("+");
 
     add_and_remove_tiles_container->add_child(add_positionable_button);
 
-    Button* remove_positionable_button{memnew(Button)};
+    Button* remove_positionable_button {memnew(Button)};
     remove_positionable_button->set_text("-");
 
     add_and_remove_tiles_container->add_child(remove_positionable_button);
@@ -79,15 +72,15 @@ PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selec
 
     add_child(add_and_remove_tiles_container);
 
-    Button* save_button{memnew(Button)};
+    Button* save_button {memnew(Button)};
     save_button->set_text("Save");
 
     add_child(save_button);
 
     add_category_dialog->set_title("Add category");
-    VBoxContainer* add_category_dialog_container{memnew(VBoxContainer)};
+    VBoxContainer* add_category_dialog_container {memnew(VBoxContainer)};
     add_category_dialog_line_edit->set_h_size_flags(SIZE_EXPAND_FILL);
-    Button* add_category_dialog_ok_button{memnew(Button)};
+    Button* add_category_dialog_ok_button {memnew(Button)};
     add_category_dialog_ok_button->set_text("Ok!");
     add_category_dialog_ok_button->set_h_size_flags(SIZE_SHRINK_CENTER);
     add_category_dialog_container->add_child(add_category_dialog_line_edit);
@@ -118,11 +111,11 @@ PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selec
     add_child(alert_popup);
     alert_popup->set_visible(false);
 
-    Button* remove_tile_alert_ok_button{_generate_alert_remove_dialog(remove_tile_alert_popup, do_not_display_alert_remove_tile)};
+    Button* remove_tile_alert_ok_button {_generate_alert_remove_dialog(remove_tile_alert_popup, do_not_display_alert_remove_tile)};
     add_child(remove_tile_alert_popup);
     remove_tile_alert_popup->set_visible(false);
 
-    Button* remove_category_alert_ok_button{_generate_alert_remove_dialog(remove_category_alert_popup, do_not_display_alert_remove_category)};
+    Button* remove_category_alert_ok_button {_generate_alert_remove_dialog(remove_category_alert_popup, do_not_display_alert_remove_category)};
     add_child(remove_category_alert_popup);
     remove_category_alert_popup->set_visible(false);
 
@@ -148,10 +141,7 @@ PositionableSetEditor::PositionableSetEditor() : VBoxContainer(), category_selec
 
     save_button->connect("pressed", this, "_on_save_button");
 
-    PositionableScenesCacheManager::get_instance().register_control(
-            this,
-            "_refresh_icons"
-    );
+    PositionableScenesCacheManager::get_instance().register_control(this, "_refresh_icons");
 }
 
 PositionableSetEditor::~PositionableSetEditor() {
@@ -165,7 +155,7 @@ void PositionableSetEditor::_on_add_category_button() {
 void PositionableSetEditor::_on_add_category_dialog_ok_button() {
     add_category_dialog->set_visible(false);
     if (current_set.is_valid()) {
-        const String& category_to_add{add_category_dialog_line_edit->get_text()};
+        const String& category_to_add {add_category_dialog_line_edit->get_text()};
         if (!current_set->add_category(category_to_add)) {
             alert_popup->set_text("This category already exists !");
             alert_popup->popup_centered();
@@ -177,9 +167,7 @@ void PositionableSetEditor::_on_add_category_dialog_ok_button() {
 }
 
 void PositionableSetEditor::_on_remove_category_button() {
-    if (_popup_if_no_category_selected()) {
-        return;
-    }
+    if (_popup_if_no_category_selected()) { return; }
 
     if (!do_not_display_alert_remove_category->is_pressed()) {
         remove_category_alert_popup->popup_centered_ratio(0.4);
@@ -195,9 +183,7 @@ void PositionableSetEditor::_on_remove_category_alert_ok_button() {
 }
 
 void PositionableSetEditor::_on_add_positionable_button() {
-    if (_popup_if_no_category_selected()) {
-        return;
-    }
+    if (_popup_if_no_category_selected()) { return; }
     file_dialog->popup_centered_ratio(0.75);
 }
 
@@ -206,8 +192,8 @@ void PositionableSetEditor::_on_file_dialog_file_or_dir_selected(const String& p
     EditorUtils::find_all_positionables_in_path(path, &positionables_in_path);
 
     for (int i = 0; i < positionables_in_path.size(); ++i) {
-        const String& positionable_path{positionables_in_path[i]};
-        const String& category{category_selector->get_text()};
+        const String& positionable_path {positionables_in_path[i]};
+        const String& category {category_selector->get_text()};
         current_set->insert_positionable_if_not_present(category, positionable_path);
     }
 
@@ -215,9 +201,7 @@ void PositionableSetEditor::_on_file_dialog_file_or_dir_selected(const String& p
 }
 
 void PositionableSetEditor::_on_remove_positionable_button() {
-    if (_popup_if_no_category_selected()) {
-        return;
-    }
+    if (_popup_if_no_category_selected()) { return; }
 
     if (contained_tiles_list->get_selected_items().empty()) {
         alert_popup->set_text("You must select a tile !");
@@ -248,9 +232,8 @@ void PositionableSetEditor::_on_fix_path_dialog_file_selected(const String& path
 
     if (positionables_in_path.empty()) return;
 
-    if (auto* metadata{Object::cast_to<PositionableItemListMetadata>(
-            contained_tiles_list->get_item_metadata(contained_tiles_list->get_selected_items()[0])
-    )}) {
+    if (auto* metadata {
+                Object::cast_to<PositionableItemListMetadata>(contained_tiles_list->get_item_metadata(contained_tiles_list->get_selected_items()[0]))}) {
         if (!current_set->add_or_update_positionable(metadata->positionable_id, positionables_in_path[0])) {
             alert_popup->set_text("Tile already exists in set !");
             alert_popup->popup_centered();
@@ -263,7 +246,7 @@ void PositionableSetEditor::_on_fix_path_dialog_file_selected(const String& path
 void PositionableSetEditor::_refresh_categories() {
     category_selector->clear();
     if (current_set.is_valid()) {
-        const PoolStringArray &paths{current_set->get_categories()};
+        const PoolStringArray& paths {current_set->get_categories()};
         for (int i = 0; i < paths.size(); ++i) {
             category_selector->add_item(paths[i]);
         }
@@ -276,18 +259,11 @@ void PositionableSetEditor::_on_category_selected(int index) {
     PositionableScenesCacheManager::get_instance().clear(this);
     contained_tiles_list->clear();
 
-    if (index < 0) {
-        return;
-    }
+    if (index < 0) { return; }
 
-    const String& selected_category{category_selector->get_item_text(index)};
+    const String& selected_category {category_selector->get_item_text(index)};
 
-    EditorUtils::refresh_item_list_containing_tiles_for_category(
-            selected_category,
-            contained_tiles_list,
-            current_set,
-            this
-    );
+    EditorUtils::refresh_item_list_containing_tiles_for_category(selected_category, contained_tiles_list, current_set, this);
 }
 
 void PositionableSetEditor::_on_positionable_selected(int index) {
@@ -295,13 +271,11 @@ void PositionableSetEditor::_on_positionable_selected(int index) {
 }
 
 void PositionableSetEditor::_on_save_button() {
-    if (current_set.is_valid()) {
-        EditorNode::get_singleton()->save_resource(current_set);
-    }
+    if (current_set.is_valid()) { EditorNode::get_singleton()->save_resource(current_set); }
 }
 
 bool PositionableSetEditor::_popup_if_no_category_selected() {
-    int selected_category{category_selector->get_selected()};
+    int selected_category {category_selector->get_selected()};
     if (selected_category < 0 || category_selector->get_item_text(selected_category).empty()) {
         alert_popup->set_text("You must select a category !");
         alert_popup->popup_centered();
@@ -311,8 +285,8 @@ bool PositionableSetEditor::_popup_if_no_category_selected() {
 }
 
 void PositionableSetEditor::_remove_selected_positionable() {
-    int selected_item_index{contained_tiles_list->get_selected_items()[0]};
-    Ref<PositionableItemListMetadata> metadata{contained_tiles_list->get_item_metadata(selected_item_index)};
+    int selected_item_index {contained_tiles_list->get_selected_items()[0]};
+    Ref<PositionableItemListMetadata> metadata {contained_tiles_list->get_item_metadata(selected_item_index)};
     current_set->remove_positionable(metadata->positionable_id);
     contained_tiles_list->clear();
     _on_category_selected(category_selector->get_selected());
@@ -331,11 +305,10 @@ void PositionableSetEditor::_refresh() {
     _on_category_selected(category_selector->get_selected());
 }
 
-Button* PositionableSetEditor::_generate_alert_remove_dialog(WindowDialog* dialog,
-                                                             CheckBox* do_not_display_alert_check_box) {
+Button* PositionableSetEditor::_generate_alert_remove_dialog(WindowDialog* dialog, CheckBox* do_not_display_alert_check_box) {
     dialog->set_title("Remove from positionable set");
-    VBoxContainer* remove_alert_container{memnew(VBoxContainer)};
-    Label* alert_remove_text{memnew(Label)};
+    VBoxContainer* remove_alert_container {memnew(VBoxContainer)};
+    Label* alert_remove_text {memnew(Label)};
     alert_remove_text->set_text("You're going to remove tile(s) from set.\nMake sure those tiles are not used anymore in maps.\n"
                                 "If those are still in use, this will break you're map and you'll have to fix it.");
     alert_remove_text->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -343,7 +316,7 @@ Button* PositionableSetEditor::_generate_alert_remove_dialog(WindowDialog* dialo
     remove_alert_container->add_child(alert_remove_text);
     do_not_display_alert_check_box->set_text("Do not display this message anymore.");
     remove_alert_container->add_child(do_not_display_alert_check_box);
-    Button* remove_alert_ok_button{memnew(Button)};
+    Button* remove_alert_ok_button {memnew(Button)};
     remove_alert_ok_button->set_text("Remove !");
     remove_alert_ok_button->set_h_size_flags(SIZE_SHRINK_CENTER);
     remove_alert_container->add_child(remove_alert_ok_button);

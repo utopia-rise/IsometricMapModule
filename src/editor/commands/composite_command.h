@@ -1,9 +1,9 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_COMPOSITE_COMMAND_H
 #define ISOMETRIC_MAPS_COMPOSITE_COMMAND_H
 
-#include "command.h"
+#ifdef TOOLS_ENABLED
+
+    #include "command.h"
 
 namespace editor {
     namespace commands {
@@ -16,13 +16,12 @@ namespace editor {
 
             CompositeCommand() = default;
             ~CompositeCommand() override = default;
+
         private:
             Vector<Ref<Command>> commands;
         };
-    }
-}
-
-
-#endif //ISOMETRIC_MAPS_COMPOSITE_COMMAND_H
+    }// namespace commands
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_COMPOSITE_COMMAND_H

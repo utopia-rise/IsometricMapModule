@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
 
-#include "command.h"
+    #include "command.h"
 
 using namespace editor::commands;
 

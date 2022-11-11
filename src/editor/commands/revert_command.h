@@ -1,9 +1,9 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_REVERT_COMMAND_H
 #define ISOMETRIC_MAPS_REVERT_COMMAND_H
 
-#include "command.h"
+#ifdef TOOLS_ENABLED
+
+    #include "command.h"
 
 namespace editor {
     namespace commands {
@@ -20,10 +20,8 @@ namespace editor {
         private:
             Ref<Command> reverse_command;
         };
-    }
-}
-
-
-#endif //ISOMETRIC_MAPS_REVERT_COMMAND_H
+    }// namespace commands
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_REVERT_COMMAND_H

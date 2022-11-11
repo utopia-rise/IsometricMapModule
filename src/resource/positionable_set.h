@@ -10,6 +10,7 @@ namespace resource {
         GDCLASS(PositionableSet, Resource)
 
 #ifdef TOOLS_ENABLED
+
     public:
         struct RemovedElement {
             int id;
@@ -81,7 +82,6 @@ namespace resource {
     public:
         static void _bind_methods();
     };
-}
+}// namespace resource
 
-
-#endif //ISOMETRIC_MAPS_POSITIONABLE_SET_H
+#endif// ISOMETRIC_MAPS_POSITIONABLE_SET_H

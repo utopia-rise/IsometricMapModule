@@ -8,7 +8,7 @@
 namespace node {
 
     class IsometricMap : public IsometricPositionable {
-    GDCLASS(IsometricMap, IsometricPositionable)
+        GDCLASS(IsometricMap, IsometricPositionable)
 
     private:
         bool draw_tiles;
@@ -18,8 +18,11 @@ namespace node {
         bool child_positionable_initialized;
 
         void _enter_tree() override;
+
         Array _get_grid_3d() const;
+
         void _set_grid_3d(const Array& array);
+
         void add_positionable_as_child(int positionable_id, const Vector3& position);
 
     public:
@@ -28,6 +31,7 @@ namespace node {
         void set_positionable_set(const Ref<resource::PositionableSet>& set);
 
 #ifdef TOOLS_ENABLED
+
         void add_positionable_if_nothing_present(const AABB& aabb, int id);
 
         void remove_positionable(const AABB& aabb);
@@ -43,6 +47,7 @@ namespace node {
         void set_size(Vector3 p_size) override;
 
         bool is_overlapping(const AABB& aabb) const;
+
 #endif
 
         IsometricMap();
@@ -52,5 +57,5 @@ namespace node {
     protected:
         static void _bind_methods();
     };
-} // namespace positionable
-#endif //ISOMETRIC_MAPS_ISOMETRIC_MAP_H
+}// namespace node
+#endif// ISOMETRIC_MAPS_ISOMETRIC_MAP_H
