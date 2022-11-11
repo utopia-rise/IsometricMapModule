@@ -3,3 +3,4 @@ __pycache__
 cmake-build-debug
 **/*.obj
 **/*.o
+/demo/.import/
