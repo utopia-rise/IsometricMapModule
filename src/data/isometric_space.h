@@ -1,27 +1,27 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_SPACE_H
 #define ISOMETRIC_MAPS_ISOMETRIC_SPACE_H
 
-#include <core/rid.h>
-#include "isometric_parameters.h"
 #include "isometric_element.h"
+#include "isometric_parameters.h"
+#include <core/rid.h>
 
 namespace data {
     struct IsometricSpace : public RID_Data {
         //////Set by commands (isometric server thread)//////
-        data::IsometricParameters configuration{data::IsometricParameters::getDefaultConfiguration()};
+        data::IsometricParameters configuration {data::IsometricParameters::getDefaultConfiguration()};
         LocalVector<data::IsometricElement*> static_elements;
         LocalVector<data::IsometricElement*> dynamic_elements;
 
-        //Whether the space needs reordering or not.
+        // Whether the space needs reordering or not.
         bool dirty = false;
-        //Whether the space data were retrieved or not.
-        bool fetched =  true;
+        // Whether the space data were retrieved or not.
+        bool fetched = true;
 
-        IsometricSpace(){
+        IsometricSpace() {
             static_elements.reserve(512);
             dynamic_elements.reserve(32);
         }
     };
-} // namespace data
+}// namespace data
 
-#endif //ISOMETRIC_MAPS_ISOMETRIC_SPACE_H
+#endif// ISOMETRIC_MAPS_ISOMETRIC_SPACE_H

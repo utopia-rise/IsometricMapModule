@@ -1,16 +1,15 @@
+#ifndef ISOMETRIC_MAPS_EDITION_GRID_H
+#define ISOMETRIC_MAPS_EDITION_GRID_H
+
 #ifdef TOOLS_ENABLED
 
-#ifndef ISOMETRIC_MAPS_EDITIONGRID_H
-#define ISOMETRIC_MAPS_EDITIONGRID_H
-
-#include <core/math/vector2.h>
-#include <core/rid.h>
-#include <core/math/vector3.h>
+    #include <core/math/vector2.h>
+    #include <core/math/vector3.h>
+    #include <core/rid.h>
 
 namespace editor {
 
     class EditorPlane {
-
     public:
         enum PlaneType {
             EDITOR_DRAWER,
@@ -39,8 +38,7 @@ namespace editor {
         Vector2 size;
         RID self;
     };
-}
+}// namespace editor
 
-
-#endif //ISOMETRIC_MAPS_EDITIONGRID_H
 #endif
+#endif// ISOMETRIC_MAPS_EDITION_GRID_H

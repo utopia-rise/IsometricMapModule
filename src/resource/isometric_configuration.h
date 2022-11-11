@@ -1,15 +1,15 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_API_H
 #define ISOMETRIC_MAPS_ISOMETRIC_API_H
 
+#include "../data/isometric_element.h"
 #include <core/object.h>
 #include <core/resource.h>
-#include "../data/isometric_element.h"
 #include <core/rid.h>
 
 namespace resource {
 
     class IsometricConfiguration : public Resource, public RID_Data {
-    GDCLASS(IsometricConfiguration, Resource)
+        GDCLASS(IsometricConfiguration, Resource)
 
     private:
         int tile_width;
@@ -20,7 +20,7 @@ namespace resource {
     public:
         IsometricConfiguration();
 
-        IsometricConfiguration(const IsometricConfiguration &) = default;
+        IsometricConfiguration(const IsometricConfiguration&) = default;
 
         ~IsometricConfiguration() override;
 
@@ -37,15 +37,14 @@ namespace resource {
 
         void set_topological_margin(float margin);
 
-        RID get_rid() const  override;
+        RID get_rid() const override;
 
         static IsometricConfiguration* get_instance(const RID rid);
-
 
     protected:
         static void _bind_methods();
     };
 
-} // namespace resource
+}// namespace resource
 
-#endif //ISOMETRIC_MAPS_ISOMETRIC_API_H
+#endif// ISOMETRIC_MAPS_ISOMETRIC_API_H

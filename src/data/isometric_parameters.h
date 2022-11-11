@@ -14,7 +14,6 @@
 
 namespace data {
     struct IsometricParameters {
-
         int diamond_width;
         int diamond_height;
         float z_length;
@@ -27,5 +26,5 @@ namespace data {
 
         static IsometricParameters getDefaultConfiguration();
     };
-} // namespace data
-#endif //ISOMETRIC_MAPS_ISOMETRIC_PARAMETERS_H
+}// namespace data
+#endif// ISOMETRIC_MAPS_ISOMETRIC_PARAMETERS_H

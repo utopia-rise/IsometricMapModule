@@ -1,26 +1,19 @@
 #ifdef TOOLS_ENABLED
 
-#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
-#include <core/os/keyboard.h>
-#include <modules/isometric_maps/src/editor/commands/rotate_editor_plane_command.h>
-#include "rotate_editor_plane_command_emitter.h"
+    #include "rotate_editor_plane_command_emitter.h"
+    #include <core/os/keyboard.h>
+    #include <modules/isometric_maps/src/editor/commands/rotate_editor_plane_command.h>
+    #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>>
-RotateEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
+Vector<Ref<editor::commands::Command>> RotateEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
     Vector<Ref<Command>> commands;
 
-    if (!p_event->is_pressed()) {
-        return commands;
-    }
+    if (!p_event->is_pressed()) { return commands; }
 
-    EditorPlane& editor_plane{
-        IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(
-                EditorPlane::PlaneType::EDITOR_DRAWER
-        )
-    };
-    Vector3::Axis current_axis{editor_plane.get_axis()};
+    EditorPlane& editor_plane {IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER)};
+    Vector3::Axis current_axis {editor_plane.get_axis()};
 
     Ref<editor::commands::RotateEditorPlaneCommand> rotate_command;
     int new_axis;
@@ -47,8 +40,6 @@ RotateEditorPlaneCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKe
     return commands;
 }
 
-RotateEditorPlaneCommandEmitter::RotateEditorPlaneCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {
-
-}
+RotateEditorPlaneCommandEmitter::RotateEditorPlaneCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {}
 
 #endif

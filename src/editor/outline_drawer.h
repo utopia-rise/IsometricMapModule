@@ -1,9 +1,9 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_OUTLINE_DRAWER_H
 #define ISOMETRIC_MAPS_OUTLINE_DRAWER_H
 
-#include <modules/isometric_maps/src/node/isometric_positionable.h>
+#ifdef TOOLS_ENABLED
+
+    #include <modules/isometric_maps/src/node/isometric_positionable.h>
 
 namespace editor {
     class OutlineDrawer {
@@ -12,8 +12,7 @@ namespace editor {
 
         static void set_outline_visible(node::IsometricPositionable* positionable, bool visible);
     };
-} // namespace editor
-
-#endif //ISOMETRIC_MAPS_OUTLINE_DRAWER_H
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_OUTLINE_DRAWER_H

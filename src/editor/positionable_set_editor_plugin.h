@@ -1,10 +1,10 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_POSITIONABLE_SET_EDITOR_PLUGIN_H
 #define ISOMETRIC_MAPS_POSITIONABLE_SET_EDITOR_PLUGIN_H
 
-#include <editor/editor_plugin.h>
-#include <modules/isometric_maps/src/editor/inspector/positionable_set_editor.h>
+#ifdef TOOLS_ENABLED
+
+    #include <editor/editor_plugin.h>
+    #include <modules/isometric_maps/src/editor/inspector/positionable_set_editor.h>
 
 namespace editor {
     class PositionableSetEditorPlugin : public EditorPlugin {
@@ -30,11 +30,8 @@ namespace editor {
 
     public:
         static void _bind_methods();
-
     };
-}
-
-
-#endif //ISOMETRIC_MAPS_POSITIONABLE_SET_EDITOR_PLUGIN_H
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_POSITIONABLE_SET_EDITOR_PLUGIN_H

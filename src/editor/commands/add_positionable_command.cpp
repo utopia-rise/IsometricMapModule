@@ -1,7 +1,7 @@
 #ifdef TOOLS_ENABLED
 
-#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
-#include "add_positionable_command.h"
+    #include "add_positionable_command.h"
+    #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 
 using namespace editor::commands;
 
@@ -21,14 +21,8 @@ void AddPositionableCommand::set_positionable_id(int id) {
     positionable_id = id;
 }
 
-void AddPositionableCommand::_bind_methods_impl() {
+void AddPositionableCommand::_bind_methods_impl() {}
 
-}
-
-AddPositionableCommand::AddPositionableCommand() : Command(),
-                                                   aabb(),
-                                                   positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID) {
-
-}
+AddPositionableCommand::AddPositionableCommand() : Command(), aabb(), positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID) {}
 
 #endif

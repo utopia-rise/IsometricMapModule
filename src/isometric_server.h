@@ -1,17 +1,18 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
 #define ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
 
-#include <core/os/thread.h>
-#include "data/isometric_space.h"
-#include "data/isometric_element.h"
 #include "core/command_queue_mt.h"
 #include "core/os/spin_lock.h"
+#include "data/isometric_element.h"
+#include "data/isometric_space.h"
 #include "logging.h"
+#include <core/os/thread.h>
 
 #define ISOMETRIC_SERVER IsometricServer::get_instance()
 
 class IsometricServer : public Object {
-GDCLASS(IsometricServer, Object)
+    GDCLASS(IsometricServer, Object)
+
 private:
     static IsometricServer* _instance;
 
@@ -19,11 +20,12 @@ private:
     Thread thread;
     CommandQueueMT command_queue;
 
-    enum RequestType{
+    enum RequestType {
         SYNC,
         ASYNC_REQUESTED,
         ASYNC_DONE
     };
+
     RequestType state;
     bool is_debug;
 
@@ -41,7 +43,7 @@ public:
 
     ~IsometricServer() = default;
 
-    IsometricServer(const IsometricServer &) = delete;
+    IsometricServer(const IsometricServer&) = delete;
 
     static void create_server();
     static IsometricServer* get_instance();
@@ -51,7 +53,7 @@ public:
 
     /////////////////////////PUBLIC API////////////////////////////////////
 
-    ///SPACE
+    /// SPACE
     RID space_create();
     void space_attach_isometric_element(const RID space_rid, RID element_rid);
     void space_detach_isometric_element(RID element_rid);
@@ -61,7 +63,7 @@ public:
     int space_get_diamond_height(const RID space_rid);
     float space_get_z_length(const RID space_rid);
 
-    ///ISOMETRIC ELEMENT
+    /// ISOMETRIC ELEMENT
     RID isometric_element_create(bool is_dynamic, AABB aabb = AABB());
     void isometric_element_attach_canvas_item(const RID element_rid, const RID canvas_rid, const int depth = 1);
     void isometric_element_detach_canvas_item(const RID element_rid);
@@ -69,17 +71,18 @@ public:
     void isometric_element_set_size(const RID element_rid, const Vector3 size);
     void isometric_element_set_depth(const RID element_rid, const int depth);
 
-    ///ORDERING
+    /// ORDERING
     void fetch_data_and_request_ordering();
     void set_synchronous_mode(bool sync);
 
-    ///DELETE
+    /// DELETE
     void free_rid(RID rid);
 
-    ///UTILITIES
+    /// UTILITIES
     void set_debug(bool p_debug);
+
 private:
-     /////////////////////////THREAD COMMANDS/////////////////////////////////////
+    /////////////////////////THREAD COMMANDS/////////////////////////////////////
     void command_space_create(data::IsometricSpace* space);
     void command_space_attach_isometric_element(data::IsometricSpace* space, data::IsometricElement* element);
     void command_space_detach_isometric_element(data::IsometricElement* element);
@@ -104,25 +107,27 @@ private:
 
     ///////////////UTILITIES/////////
 
-#define GET_ELEMENT_RID_DATA_WITH_RET(element, element_rid, ret) \
-    if(!elements_owner.owns(element_rid)) {\
-        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id()));\
-        return ret;\
-    }\
-    IsometricElement* element{elements_owner.get(element_rid)};\
-    do {} while (false)
+#define GET_ELEMENT_RID_DATA_WITH_RET(element, element_rid, ret)                                     \
+    if (!elements_owner.owns(element_rid)) {                                                         \
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id())); \
+        return ret;                                                                                  \
+    }                                                                                                \
+    IsometricElement* element {elements_owner.get(element_rid)};                                     \
+    do {                                                                                             \
+    } while (false)
 
 #define GET_ELEMENT_RID_DATA(element, element_rid) GET_ELEMENT_RID_DATA_WITH_RET(element, element_rid, void())
 
-#define GET_SPACE_RID_DATA_WITH_RET(space, space_rid, ret) \
-    if(!worlds_owner.owns(space_rid)) {\
-        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", space_rid.get_id()));\
-        return ret;\
-    }\
-    IsometricSpace* space{worlds_owner.get(space_rid)};\
-    do {} while (false)
+#define GET_SPACE_RID_DATA_WITH_RET(space, space_rid, ret)                                         \
+    if (!worlds_owner.owns(space_rid)) {                                                           \
+        LOG_WARNING(vformat("This is not a valid isometric element RID: %s", space_rid.get_id())); \
+        return ret;                                                                                \
+    }                                                                                              \
+    IsometricSpace* space {worlds_owner.get(space_rid)};                                           \
+    do {                                                                                           \
+    } while (false)
 
 #define GET_SPACE_RID_DATA(element, element_rid) GET_SPACE_RID_DATA_WITH_RET(element, element_rid, void())
 };
 
-#endif //ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
+#endif// ISOMETRIC_MAPS_ISOMETRIC_SERVER_H

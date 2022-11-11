@@ -1,17 +1,15 @@
+#include "isometric_configuration.h"
 #include <modules/isometric_maps/src/data/isometric_parameters.h>
 #include <modules/isometric_maps/src/logging.h>
-#include "isometric_configuration.h"
 
 using namespace resource;
 
 static RID_Owner<IsometricConfiguration> configurations_owner;
 
-//Todo: Change it so we can set the default values in the editor
-IsometricConfiguration::IsometricConfiguration() :
-        tile_width(DEFAULT_WIDTH), angle(DEFAULT_ANGLE), topological_margin(DEFAULT_MARGIN) {
+// Todo: Change it so we can set the default values in the editor
+IsometricConfiguration::IsometricConfiguration() : tile_width(DEFAULT_WIDTH), angle(DEFAULT_ANGLE), topological_margin(DEFAULT_MARGIN) {
     configurations_owner.make_rid(this);
 }
-
 
 int IsometricConfiguration::get_tile_width() const {
     return tile_width;
@@ -21,7 +19,6 @@ void IsometricConfiguration::set_tile_width(int t_w) {
     tile_width = t_w;
 }
 
-
 int IsometricConfiguration::get_angle() const {
     return angle;
 }
@@ -29,7 +26,6 @@ int IsometricConfiguration::get_angle() const {
 void IsometricConfiguration::set_angle(int agl) {
     angle = agl;
 }
-
 
 float IsometricConfiguration::get_topological_margin() const {
     return topological_margin;
@@ -44,14 +40,13 @@ RID IsometricConfiguration::get_rid() const {
 }
 
 IsometricConfiguration* IsometricConfiguration::get_instance(const RID rid) {
-    IsometricConfiguration* conf{configurations_owner.getornull(rid)};
+    IsometricConfiguration* conf {configurations_owner.getornull(rid)};
     if (!conf) {
         LOG_WARNING("This is not a valid isometric configuration RID.");
         return nullptr;
     }
     return conf;
 }
-
 
 void IsometricConfiguration::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_angle"), &IsometricConfiguration::get_angle);

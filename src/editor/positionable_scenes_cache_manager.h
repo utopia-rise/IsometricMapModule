@@ -1,12 +1,12 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef GODOT_POSITIONABLE_SCENES_CACHE_MANAGER_H
 #define GODOT_POSITIONABLE_SCENES_CACHE_MANAGER_H
 
-#include <core/hash_map.h>
-#include <core/reference.h>
-#include <scene/resources/packed_scene.h>
-#include <modules/isometric_maps/src/node/isometric_positionable.h>
+#ifdef TOOLS_ENABLED
+
+    #include <core/hash_map.h>
+    #include <core/reference.h>
+    #include <modules/isometric_maps/src/node/isometric_positionable.h>
+    #include <scene/resources/packed_scene.h>
 
 namespace editor {
     class PositionableScenesCacheManager {
@@ -49,9 +49,7 @@ namespace editor {
         PositionableScenesCacheManager();
         ~PositionableScenesCacheManager() = default;
     };
-}
-
-
-#endif //GODOT_POSITIONABLE_SCENES_CACHE_MANAGER_H
+}// namespace editor
 
 #endif
+#endif// GODOT_POSITIONABLE_SCENES_CACHE_MANAGER_H

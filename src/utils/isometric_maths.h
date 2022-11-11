@@ -5,35 +5,27 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_MATHS_H
 #define ISOMETRIC_MAPS_ISOMETRIC_MATHS_H
 
-#include "../data/isometric_parameters.h"
 #include "../data/isometric_element.h"
+#include "../data/isometric_parameters.h"
 
 namespace utils {
     struct Hexagone {
-        real_t minX{};
-        real_t maxX{};
-        real_t minY{};
-        real_t maxY{};
-        real_t minH{};
-        real_t maxH{};
+        real_t minX {};
+        real_t maxX {};
+        real_t minY {};
+        real_t maxY {};
+        real_t minH {};
+        real_t maxH {};
     };
 
-
-    static inline Vector2 from_3D_to_screen(const data::IsometricParameters &params, const Vector3 &pos) {
-        return {
-                (pos.x - pos.y) * static_cast<real_t>(params.diamond_width) * 0.5f,
-                (pos.x + pos.y) * static_cast<real_t>(params.diamond_height) * 0.5f - params.z_length * pos.z
-        };
+    static inline Vector2 from_3D_to_screen(const data::IsometricParameters& params, const Vector3& pos) {
+        return {(pos.x - pos.y) * static_cast<real_t>(params.diamond_width) * 0.5f,
+                (pos.x + pos.y) * static_cast<real_t>(params.diamond_height) * 0.5f - params.z_length * pos.z};
     }
 
-    static Vector3 from_screen_to_3D(
-            const data::IsometricParameters &params,
-            const Vector2 &pos,
-            Vector3::Axis known_axis,
-            real_t orth_known_axis
-        ) {
-        real_t screen_x{pos.x};
-        real_t screen_y{pos.y};
+    static Vector3 from_screen_to_3D(const data::IsometricParameters& params, const Vector2& pos, Vector3::Axis known_axis, real_t orth_known_axis) {
+        real_t screen_x {pos.x};
+        real_t screen_y {pos.y};
         auto diamond_width = static_cast<real_t>(params.diamond_width);
         auto diamond_height = static_cast<real_t>(params.diamond_height);
 
@@ -58,21 +50,16 @@ namespace utils {
                 break;
         }
 
-        return {
-                ::roundf(orth_x),
-                ::roundf(orth_y),
-                ::roundf(orth_z)
-        };
+        return {::roundf(orth_x), ::roundf(orth_y), ::roundf(orth_z)};
     }
 
     static Hexagone get_hexagone_points(const data::IsometricParameters& params, const AABB& aabb) {
-        const Vector3 &ortho_position{aabb.position};
-        const Vector3 &size{aabb.size};
-        const Vector3 &upper_point{
-                Vector3(ortho_position.x, ortho_position.y, ortho_position.z + params.z_ratio * size.z)};
-        const Vector3 &lower_point{Vector3(ortho_position.x + size.x, ortho_position.y + size.y, ortho_position.z)};
-        const Vector3 &left_point{Vector3(ortho_position.x, ortho_position.y + size.y, ortho_position.z)};
-        const Vector3 &right_point{Vector3(ortho_position.x + size.x, ortho_position.y, ortho_position.z)};
+        const Vector3& ortho_position {aabb.position};
+        const Vector3& size {aabb.size};
+        const Vector3& upper_point {Vector3(ortho_position.x, ortho_position.y, ortho_position.z + params.z_ratio * size.z)};
+        const Vector3& lower_point {Vector3(ortho_position.x + size.x, ortho_position.y + size.y, ortho_position.z)};
+        const Vector3& left_point {Vector3(ortho_position.x, ortho_position.y + size.y, ortho_position.z)};
+        const Vector3& right_point {Vector3(ortho_position.x + size.x, ortho_position.y, ortho_position.z)};
 
         const real_t minX = upper_point.x - upper_point.z;
         const real_t maxX = lower_point.x - lower_point.z;
@@ -84,24 +71,22 @@ namespace utils {
         return {minX, maxX, minY, maxY, hMin, hMax};
     }
 
-    static Hexagone get_hexagone_points(const data::IsometricParameters &params, const data::IsometricElement* data) {
+    static Hexagone get_hexagone_points(const data::IsometricParameters& params, const data::IsometricElement* data) {
         return get_hexagone_points(params, data->aabb);
     }
 
-    static bool are_elements_overlapping(const data::IsometricParameters &params,
-                                  const data::IsometricElement* data1,
-                                  const data::IsometricElement* data2) {
+    static bool are_elements_overlapping(const data::IsometricParameters& params, const data::IsometricElement* data1, const data::IsometricElement* data2) {
         Hexagone hex1 = get_hexagone_points(params, data1);
         Hexagone hex2 = get_hexagone_points(params, data2);
 
-        return !(params.topological_margin >= hex2.maxX - hex1.minX || params.topological_margin >= hex1.maxX - hex2.minX) &&
-               !(params.topological_margin >= hex2.maxY - hex1.minY || params.topological_margin >= hex1.maxY - hex2.minY) &&
-               !(params.topological_margin >= hex2.maxH - hex1.minH || params.topological_margin >= hex1.maxH - hex2.minH);
+        return !(params.topological_margin >= hex2.maxX - hex1.minX || params.topological_margin >= hex1.maxX - hex2.minX)
+            && !(params.topological_margin >= hex2.maxY - hex1.minY || params.topological_margin >= hex1.maxY - hex2.minY)
+            && !(params.topological_margin >= hex2.maxH - hex1.minH || params.topological_margin >= hex1.maxH - hex2.minH);
     }
 
-    static bool is_box_in_front(const data::IsometricParameters &params, const AABB &box, const AABB &other) {
-        const Vector3 &boxEnd{box.position + box.size};
-        const Vector3 &otherEnd{other.position + other.size};
+    static bool is_box_in_front(const data::IsometricParameters& params, const AABB& box, const AABB& other) {
+        const Vector3& boxEnd {box.position + box.size};
+        const Vector3& otherEnd {other.position + other.size};
 
         if (boxEnd.x - other.position.x <= params.topological_margin) {
             return false;
@@ -121,15 +106,15 @@ namespace utils {
             return true;
         }
 
-        const Vector3 &distance{box.position + boxEnd - other.position - otherEnd};
-        const Vector3 &cameraVector{1, 1, params.z_ratio};
+        const Vector3& distance {box.position + boxEnd - other.position - otherEnd};
+        const Vector3& cameraVector {1, 1, params.z_ratio};
         return distance.dot(cameraVector) >= 0;
     }
 
-    static PoolVector2Array get_bounding_box(const data::IsometricParameters &params, Vector3 size) {
-        real_t w{size.x};
-        real_t d{size.y};
-        real_t h{size.z};
+    static PoolVector2Array get_bounding_box(const data::IsometricParameters& params, Vector3 size) {
+        real_t w {size.x};
+        real_t d {size.y};
+        real_t h {size.z};
 
         auto tile_width_float = static_cast<real_t>(params.diamond_width);
         auto tile_height_float = static_cast<real_t>(params.diamond_height);
@@ -138,7 +123,7 @@ namespace utils {
 
         PoolVector2Array points;
 
-        //Lower points
+        // Lower points
         points.push_back(Vector2(0, 0) + offset);
         points.push_back(Vector2(tile_width_float * 0.5f * w, tile_height_float * 0.5f * w) + offset);
         points.push_back(Vector2(tile_width_float * 0.5f * (w - d), tile_height_float * 0.5f * (d + w)) + offset);
@@ -146,7 +131,7 @@ namespace utils {
 
         Vector2 heightOffset(0, -params.z_length * h);
 
-        //Upper points
+        // Upper points
         points.push_back(points[0] + heightOffset);
         points.push_back(points[1] + heightOffset);
         points.push_back(points[2] + heightOffset);
@@ -154,7 +139,6 @@ namespace utils {
 
         return points;
     }
-}
+}// namespace utils
 
-
-#endif //ISOMETRIC_MAPS_ISOMETRIC_MATHS_H
+#endif// ISOMETRIC_MAPS_ISOMETRIC_MATHS_H

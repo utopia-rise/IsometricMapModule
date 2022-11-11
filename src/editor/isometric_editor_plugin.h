@@ -1,22 +1,22 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_EDITOR_PLUGIN_H
 #define ISOMETRIC_MAPS_ISOMETRIC_EDITOR_PLUGIN_H
 
-#include <modules/isometric_maps/src/node/isometric_map.h>
-#include <editor/editor_node.h>
-#include <editor/editor_plugin.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/painting_command_emitter.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/select_command_emitter.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/delete_command_emitter.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/drag_and_drop_command_emitter.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/select_all_command_emitter.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/rotate_editor_plane_command_emitter.h>
-#include <modules/isometric_maps/src/editor/commands/emitters/move_editor_grid_command_emitter.h>
-#include "editor_plane.h"
-#include "edition_grid_drawer.h"
-#include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
-#include "modules/isometric_maps/src/editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
+#ifdef TOOLS_ENABLED
+
+    #include "edition_grid_drawer.h"
+    #include "editor_plane.h"
+    #include "modules/isometric_maps/src/editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
+    #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
+    #include <editor/editor_node.h>
+    #include <editor/editor_plugin.h>
+    #include <modules/isometric_maps/src/editor/commands/emitters/delete_command_emitter.h>
+    #include <modules/isometric_maps/src/editor/commands/emitters/drag_and_drop_command_emitter.h>
+    #include <modules/isometric_maps/src/editor/commands/emitters/move_editor_grid_command_emitter.h>
+    #include <modules/isometric_maps/src/editor/commands/emitters/painting_command_emitter.h>
+    #include <modules/isometric_maps/src/editor/commands/emitters/rotate_editor_plane_command_emitter.h>
+    #include <modules/isometric_maps/src/editor/commands/emitters/select_all_command_emitter.h>
+    #include <modules/isometric_maps/src/editor/commands/emitters/select_command_emitter.h>
+    #include <modules/isometric_maps/src/node/isometric_map.h>
 
 namespace editor {
 
@@ -49,7 +49,6 @@ namespace editor {
         node::IsometricMap* get_selected_map() const;
         EditorPlane& get_editor_plane_for_selected_map(EditorPlane::PlaneType p_plane_type);
 
-
         bool is_aabb_in_view_limiters(const AABB& p_aabb) const;
 
     protected:
@@ -79,10 +78,10 @@ namespace editor {
 
         editor::inspector::PositionableSelectionPane* positionable_selection_pane;
         ToolButton* positionable_pane_button;
-        UndoRedo *undo_redo;
-        HBoxContainer *toolbar;
+        UndoRedo* undo_redo;
+        HBoxContainer* toolbar;
         OptionButton* edition_mode_button;
-        Button *debug_button;
+        Button* debug_button;
 
         HashMap<uint64_t, MapHandlingData> handling_data_map;
         node::IsometricMap* selected_map;
@@ -117,8 +116,7 @@ namespace editor {
         static void _bind_methods();
     };
 
-}
+}// namespace editor
 
 #endif
-
 #endif

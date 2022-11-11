@@ -1,38 +1,32 @@
 #ifdef TOOLS_ENABLED
 
-#include "delete_command_emitter.h"
-#include <core/os/keyboard.h>
-#include <modules/isometric_maps/src/editor/positionable_selector_manager.h>
-#include <modules/isometric_maps/src/editor/commands/revert_command.h>
-#include <modules/isometric_maps/src/editor/commands/add_positionable_command.h>
-#include <modules/isometric_maps/src/editor/commands/select_positionable_command.h>
-#include <modules/isometric_maps/src/editor/commands/composite_command.h>
-#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
+    #include "delete_command_emitter.h"
+    #include <core/os/keyboard.h>
+    #include <modules/isometric_maps/src/editor/commands/add_positionable_command.h>
+    #include <modules/isometric_maps/src/editor/commands/composite_command.h>
+    #include <modules/isometric_maps/src/editor/commands/revert_command.h>
+    #include <modules/isometric_maps/src/editor/commands/select_positionable_command.h>
+    #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
+    #include <modules/isometric_maps/src/editor/positionable_selector_manager.h>
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>>
-DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) { // NOLINT(performance-unnecessary-value-param)
+Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_command_impl(
+        Ref<InputEventKey> p_event) {// NOLINT(performance-unnecessary-value-param)
     Vector<Ref<editor::commands::Command>> commands;
 
-    if (!p_event->is_pressed()) {
-        return commands;
-    }
+    if (!p_event->is_pressed()) { return commands; }
 
-    if (p_event->get_scancode() != KeyList::KEY_BACKSPACE) {
-        return commands;
-    }
+    if (p_event->get_scancode() != KeyList::KEY_BACKSPACE) { return commands; }
 
-    node::IsometricMap* map{IsometricEditorPlugin::get_instance()->get_selected_map()};
+    node::IsometricMap* map {IsometricEditorPlugin::get_instance()->get_selected_map()};
 
-    const Vector<Vector3>& selected_positions{
-        editor::PositionableSelectorManager::get_instance().get_selected_for_map(map)
-    };
+    const Vector<Vector3>& selected_positions {editor::PositionableSelectorManager::get_instance().get_selected_for_map(map)};
 
     for (int i = 0; i < selected_positions.size(); ++i) {
-        const Vector3& position{selected_positions[i]};
-        if (node::IsometricPositionable* current{map->get_positionable_at(position)}) {
-            const Vector3& local_position{current->get_local_position_3d()};
+        const Vector3& position {selected_positions[i]};
+        if (node::IsometricPositionable * current {map->get_positionable_at(position)}) {
+            const Vector3& local_position {current->get_local_position_3d()};
 
             Ref<SelectPositionableCommand> select_command;
             select_command.instance();
@@ -64,8 +58,6 @@ DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event)
     return commands;
 }
 
-DeleteCommandEmitter::DeleteCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {
-
-}
+DeleteCommandEmitter::DeleteCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {}
 
 #endif

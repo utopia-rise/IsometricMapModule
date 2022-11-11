@@ -1,19 +1,20 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_POSITIONABLE_SELECTION_PANE_H
 #define ISOMETRIC_MAPS_POSITIONABLE_SELECTION_PANE_H
 
-#include <scene/gui/split_container.h>
-#include <modules/isometric_maps/src/resource/positionable_set.h>
-#include <scene/gui/option_button.h>
-#include <scene/gui/panel.h>
-#include <scene/gui/label.h>
-#include <scene/gui/item_list.h>
+#ifdef TOOLS_ENABLED
+
+    #include <modules/isometric_maps/src/resource/positionable_set.h>
+    #include <scene/gui/item_list.h>
+    #include <scene/gui/label.h>
+    #include <scene/gui/option_button.h>
+    #include <scene/gui/panel.h>
+    #include <scene/gui/split_container.h>
 
 namespace editor {
     namespace inspector {
         class PositionableSelectionPane : public VSplitContainer {
             GDCLASS(PositionableSelectionPane, VSplitContainer)
+
         public:
             void set_positionable_set(const Ref<resource::PositionableSet>& set);
             int get_selected_positionable_id() const;
@@ -43,9 +44,8 @@ namespace editor {
             static void _bind_methods();
         };
 
-    }
-}
-
-#endif //ISOMETRIC_MAPS_POSITIONABLE_SELECTION_PANE_H
+    }// namespace inspector
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_POSITIONABLE_SELECTION_PANE_H

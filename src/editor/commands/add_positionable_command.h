@@ -1,16 +1,14 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_ADD_POSITIONABLE_COMMAND_H
 #define ISOMETRIC_MAPS_ADD_POSITIONABLE_COMMAND_H
 
-#include <modules/isometric_maps/src/node/isometric_map.h>
-#include "command.h"
+#ifdef TOOLS_ENABLED
 
+    #include "command.h"
+    #include <modules/isometric_maps/src/node/isometric_map.h>
 
 namespace editor {
     namespace commands {
         class AddPositionableCommand : public Command {
-
         public:
             void redo() override;
             void undo() override;
@@ -27,12 +25,9 @@ namespace editor {
 
         public:
             static void _bind_methods_impl();
-
         };
-    }
-}
-
-
-#endif //ISOMETRIC_MAPS_ADD_POSITIONABLE_COMMAND_H
+    }// namespace commands
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_ADD_POSITIONABLE_COMMAND_H

@@ -1,19 +1,18 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_COMMAND_H
 #define ISOMETRIC_MAPS_COMMAND_H
 
-#include <core/class_db.h>
-#include <core/reference.h>
-#include <core/undo_redo.h>
-#include <core/resource.h>
+#ifdef TOOLS_ENABLED
 
+    #include <core/class_db.h>
+    #include <core/reference.h>
+    #include <core/resource.h>
+    #include <core/undo_redo.h>
 
 namespace editor {
     namespace commands {
 
-        class Command : public Resource { //Forced to set as Resource because Undo redo is not expecting a Reference in
-                                          //current godot version, this is will be fixed in 4.0 version of Godot.
+        class Command : public Resource {// Forced to set as Resource because Undo redo is not expecting a Reference in
+            // current godot version, this is will be fixed in 4.0 version of Godot.
             GDCLASS(Command, Resource)
 
         protected:
@@ -28,9 +27,8 @@ namespace editor {
             Command() = default;
             ~Command() override = default;
         };
-    }
-}
-
-#endif //ISOMETRIC_MAPS_COMMAND_H
+    }// namespace commands
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_COMMAND_H

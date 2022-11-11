@@ -1,14 +1,14 @@
 #ifdef TOOLS_ENABLED
 
-#include <modules/isometric_maps/src/resource/positionable_set.h>
-#include "positionable_set_editor_plugin.h"
+    #include "positionable_set_editor_plugin.h"
+    #include <modules/isometric_maps/src/resource/positionable_set.h>
 
 using namespace editor;
 
-const char* POSITIONABLE_SET_EDITOR_BUTTON_TITLE{"Edit Positionable Set"};
+const char* POSITIONABLE_SET_EDITOR_BUTTON_TITLE {"Edit Positionable Set"};
 
 PositionableSetEditorPlugin* PositionableSetEditorPlugin::get_instance() {
-    static PositionableSetEditorPlugin* instance{memnew(PositionableSetEditorPlugin)};
+    static PositionableSetEditorPlugin* instance {memnew(PositionableSetEditorPlugin)};
     return instance;
 }
 
@@ -30,20 +30,13 @@ void PositionableSetEditorPlugin::make_visible(bool b) {
 }
 
 void PositionableSetEditorPlugin::edit(Object* p_object) {
-    if (auto* positionable_set{Object::cast_to<resource::PositionableSet>(p_object)}) {
+    if (auto* positionable_set {Object::cast_to<resource::PositionableSet>(p_object)}) {
         positionable_set_editor->set_positionable_set(Ref<resource::PositionableSet>(positionable_set));
     }
 }
 
-PositionableSetEditorPlugin::PositionableSetEditorPlugin() :
-    EditorPlugin(),
-    positionable_set_editor(nullptr),
-    positionable_set_editor_button(nullptr) {
+PositionableSetEditorPlugin::PositionableSetEditorPlugin() : EditorPlugin(), positionable_set_editor(nullptr), positionable_set_editor_button(nullptr) {}
 
-}
-
-void PositionableSetEditorPlugin::_bind_methods() {
-
-}
+void PositionableSetEditorPlugin::_bind_methods() {}
 
 #endif
