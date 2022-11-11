@@ -12,6 +12,8 @@ namespace node {
     GDCLASS(IsometricPositionable, Node2D)
 
     public:
+        static StringName get_debug_group_name();
+
         enum class SlopeType {
             NONE = 0,
             LEFT = 1,
@@ -24,6 +26,7 @@ namespace node {
     private:
         Vector3 size;
         Vector3 local_position;
+        int depth;
 
         SlopeType slope_type =  SlopeType::NONE;
 
@@ -36,12 +39,14 @@ namespace node {
         void _rebind_collision_object_position() const;
 
 #ifdef TOOLS_ENABLED
+        bool debug_view = false;
         editor::OutlineData outline_data;
 #endif
 
     protected:
         RID world;
         bool world_owner;
+        bool is_container;
 
         void update_position();
 
@@ -67,6 +72,10 @@ namespace node {
 
         virtual void set_size(Vector3 p_size);
 
+        int get_depth() const;
+
+        void set_depth(int p_depth);
+
         RID get_space_RID() const;
 
         SlopeType get_slope_type() const;
@@ -80,6 +89,7 @@ namespace node {
         RID get_rid() const;
 
 #ifdef TOOLS_ENABLED
+        void set_debug_view(bool p_debug);
         editor::OutlineData& get_outline_data();
 #endif
 

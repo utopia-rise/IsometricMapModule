@@ -6,24 +6,27 @@
 #include <core/rid.h>
 
 namespace data {
-    struct IsometricElement : public RID_Data {
-        RID self = RID();
-        RID world = RID();
+    //forward declaration
+    struct IsometricSpace;
 
+    struct IsometricElement : public RID_Data {
+        ////////Set by API calls (main thread)//////
+        IsometricSpace* space = nullptr;
+        bool is_dynamic = false;
         RID visual_rid = RID();
+
+        //////Set by commands (isometric server thread)///////
         AABB aabb  = AABB(Vector3(0., 0., 0.),Vector3( 1., 1., 1.));
 
-        bool is_dynamic = false;
 
+        int depth = 1;
         int z_order = 0;
-        int z_order_update = 0;
+
+        LocalVector<IsometricElement*> behind_statics;
+        LocalVector<IsometricElement*> behind_dynamics;
+
         bool dirty = true;
-        bool to_delete = false;
-        int z_size = 1;
-
-        Vector<IsometricElement*> behind_statics;
-        Vector<IsometricElement*> behind_dynamics;
-
+        bool in_stack = false;
         bool is_invalid = false;
     };
 } // namespace data

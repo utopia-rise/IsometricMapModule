@@ -17,13 +17,10 @@ namespace node {
         Ref<resource::PositionableSet> positionable_set;
         bool child_positionable_initialized;
 
-        void _on_enter_tree();
+        void _enter_tree() override;
         Array _get_grid_3d() const;
         void _set_grid_3d(const Array& array);
         void add_positionable_as_child(int positionable_id, const Vector3& position);
-
-    protected:
-        void _notification(int notif);
 
     public:
         Ref<resource::PositionableSet> get_positionable_set() const;

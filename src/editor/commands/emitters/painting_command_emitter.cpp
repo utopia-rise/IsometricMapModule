@@ -18,7 +18,7 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
     node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
 
     const data::IsometricParameters* parameters{
-        IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
+            IsometricServer::get_instance()->space_get_configuration(map->get_space_RID())
     };
 
     EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
@@ -45,7 +45,7 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
                     map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
             )
         }
-    ) {
+    )   {
         size = positionable->get_size();
         memdelete(positionable);
     } else {
@@ -71,10 +71,11 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
                 map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
         );
 
+        //TODO: Use the future container node to avoid flickering.
         current_preview_node->set_modulate(Color(1, 1, 1, 0.5));
-
-        map->add_child(current_preview_node);
+        current_preview_node->set_is_dynamic(true);
         current_preview_node->set_local_position_3d(position);
+        map->add_child(current_preview_node);
 
         return commands;
     }
@@ -89,6 +90,8 @@ PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_ev
 
 void PaintingCommandEmitter::_clear_current_preview_node() {
     if (current_preview_node) {
+        node::IsometricMap* map{IsometricEditorPlugin::get_instance()->get_selected_map()};
+        map->remove_child(current_preview_node);
         memdelete(current_preview_node);
         current_preview_node = nullptr;
     }

@@ -26,7 +26,7 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
     node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
 
     const data::IsometricParameters* parameters{
-        IsometricServer::get_instance()->get_space_configuration(map->get_space_RID())
+            IsometricServer::get_instance()->space_get_configuration(map->get_space_RID())
     };
 
     EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
@@ -73,25 +73,37 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
             limit_position = mouse_position;
         }
 
-        _clear_current_preview_nodes();
-
         Vector<Vector3> all_positions{_calculate_positionables_positions(initial_position, limit_position, positionable_size)};
 
-        for (int i = 0; i < all_positions.size(); ++i) {
-            node::IsometricPositionable* preview_positionable{
-                Object::cast_to<node::IsometricPositionable>(
-                        map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
-                )
-            };
+        int new_size = all_positions.size();
+
+        //Shrink, remove and delete excess nodes.
+        _clear_current_preview_nodes(new_size);
+
+        //Existing nodes are reused.
+        for (int i = 0; i < current_preview_nodes.size(); ++i) {
+            node::IsometricPositionable* preview_positionable{current_preview_nodes[i]};
             preview_positionable->set_modulate(Color(1, 1, 1, 0.5));
-            map->add_child(preview_positionable);
             preview_positionable->set_local_position_3d(all_positions[i]);
+            map->add_child(preview_positionable);
+        }
+
+        //New nodes are added if the size grew.
+        for (int i = current_preview_nodes.size(); i < new_size; ++i) {
+            node::IsometricPositionable* preview_positionable{
+                    Object::cast_to<node::IsometricPositionable>(
+                            map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
+                    )
+            };
             current_preview_nodes.push_back(preview_positionable);
+            preview_positionable->set_modulate(Color(1, 1, 1, 0.5));
+            preview_positionable->set_local_position_3d(all_positions[i]);
+            map->add_child(preview_positionable);
         }
 
         return commands;
     } else if (is_activated) {
-        _clear_current_preview_nodes();
+        _clear_current_preview_nodes(0);
 
         Vector<Vector3> all_positions{_calculate_positionables_positions(initial_position, limit_position, positionable_size)};
 
@@ -110,15 +122,26 @@ DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p
     return commands;
 }
 
-void DragAndDropCommandEmitter::_clear_current_preview_nodes() {
+void DragAndDropCommandEmitter::_clear_current_preview_nodes(int new_size) {
     if (IsometricEditorPlugin* isometric_editor_plugin{IsometricEditorPlugin::get_instance()}) {
         node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
-        for (int i = 0; i < current_preview_nodes.size(); ++i) {
+
+        //Only remove but not delete nodes in the new range
+        for (int i = 0; i < MIN(new_size, current_preview_nodes.size()); ++i) {
             if (node::IsometricPositionable* current_preview_node{current_preview_nodes[i]}) {
                 map->remove_child(current_preview_node);
             }
         }
-        current_preview_nodes.resize(0);
+        //Remove and delete excess nodes.
+        for (int i = new_size; i < current_preview_nodes.size(); ++i) {
+            if (node::IsometricPositionable* current_preview_node{current_preview_nodes[i]}) {
+                map->remove_child(current_preview_node);
+                memdelete(current_preview_node);
+            }
+        }
+        if(new_size < current_preview_nodes.size()){
+            current_preview_nodes.resize(new_size);
+        }
     }
 }
 
@@ -197,7 +220,7 @@ DragAndDropCommandEmitter::DragAndDropCommandEmitter(UndoRedo* undo_redo) : Comm
 }
 
 DragAndDropCommandEmitter::~DragAndDropCommandEmitter() {
-    _clear_current_preview_nodes();
+    _clear_current_preview_nodes(0);
 }
 
 #endif

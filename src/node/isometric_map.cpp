@@ -9,6 +9,7 @@ IsometricMap::IsometricMap() :
         instances_grid_3d(),
         positionable_set(),
         child_positionable_initialized(false) {
+    is_container = true;
 }
 
 Ref<resource::PositionableSet> IsometricMap::get_positionable_set() const {
@@ -94,13 +95,8 @@ bool IsometricMap::is_overlapping(const AABB& aabb) const {
 
 #endif
 
-void IsometricMap::_notification(int notif) {
-    if (notif == NOTIFICATION_ENTER_TREE) {
-        _on_enter_tree();
-    }
-}
-
-void IsometricMap::_on_enter_tree() {
+void IsometricMap::_enter_tree() {
+    IsometricPositionable::_enter_tree();
     if (child_positionable_initialized) {
         return;
     }
