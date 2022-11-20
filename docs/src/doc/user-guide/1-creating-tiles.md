@@ -23,8 +23,8 @@ You can also add 3D physics node as child of your tile to provide 3D world colli
 
 ![tile-add-physics-gif]
 
-[create-tile-gif]: assets/create-tile.gif
-[change-tile-size-gif]: assets/chante-tile-size.gif
-[add-tile-texture-gif]: assets/add-tile-texture.gif
-[inherit-tile-gif]: assets/inherit-tile.gif
-[tile-add-physics-gif]: assets/tile-add-physics.gif
+[create-tile-gif]: assets/creating-tile/create-tile.gif
+[change-tile-size-gif]: assets/creating-tile/chante-tile-size.gif
+[add-tile-texture-gif]: assets/creating-tile/add-tile-texture.gif
+[inherit-tile-gif]: assets/creating-tile/inherit-tile.gif
+[tile-add-physics-gif]: assets/creating-tile/tile-add-physics.gif
