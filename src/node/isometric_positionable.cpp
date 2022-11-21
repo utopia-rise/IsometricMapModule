@@ -97,7 +97,7 @@ void IsometricPositionable::update_position() {
     if (self.is_valid()) { ISOMETRIC_SERVER->isometric_element_set_position(self, get_global_position_3d()); }
     if (world.is_valid()) {
         const data::IsometricParameters* params = ISOMETRIC_SERVER->space_get_configuration(world);
-        Vector2 position2D = utils::from_3D_to_screen(*params, local_position);
+        Vector2 position2D = utils::from_3D_to_screen(*params, get_global_position_3d());
 
         Transform2D transform = get_transform();
         transform.set_origin(position2D);
