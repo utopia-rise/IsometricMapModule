@@ -112,6 +112,10 @@ void IsometricEditorPlugin::edit(Object* p_object) {
         selected_map->connect("positional_set_changed", positionable_selection_pane, "set_positionable_set");
     }
 
+    if (!selected_map->is_connected(node::IsometricMap::SIZE_CHANGED_SIGNAL, this, "_on_map_size_changed")) {
+        selected_map->connect(node::IsometricMap::SIZE_CHANGED_SIGNAL, this, "_on_map_size_changed");
+    }
+
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     if (!handling_data_map.has(index)) {
         handling_data_map[index] = MapHandlingData(selected_map->get_size());
@@ -295,11 +299,11 @@ IsometricEditorPlugin::MapHandlingData::MapHandlingData(const Vector3& p_map_siz
         editor_planes{
                 {0, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}},
                 {0, Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
-                {static_cast<int>(p_map_size.x), Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
+                {INT_MAX, Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
                 {0, Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
-                {static_cast<int>(p_map_size.y), Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
+                {INT_MAX, Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
                 {0, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}},
-                {static_cast<int>(p_map_size.z), Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}}
+                {INT_MAX, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}}
         },
         plane_timers {
                 {nullptr},
@@ -361,6 +365,32 @@ void IsometricEditorPlugin::_on_plane_visibility_timeout(int p_plane_type) {
     map_handling_data.plane_timers[p_plane_type] = Ref<SceneTreeTimer>();
 }
 
+void IsometricEditorPlugin::_on_map_size_changed() {
+    auto index{reinterpret_cast<uint64_t>(selected_map)};
+    MapHandlingData& map_handling_data{handling_data_map[index]};
+    const Vector3& map_size{selected_map->get_size()};
+
+    EditorPlane& editor_drawer_plane = map_handling_data.editor_planes[EditorPlane::PlaneType::EDITOR_DRAWER];
+    editor_drawer_plane.set_position(CLAMP(editor_drawer_plane.get_position(), 0, map_size.z - 1));
+
+    EditorPlane& x_max_limiter_plane{map_handling_data.editor_planes[EditorPlane::PlaneType::X_MAX_VIEW_LIMITER]};
+    if (x_max_limiter_plane.get_position() != INT_MAX) {
+        x_max_limiter_plane.set_position(CLAMP(x_max_limiter_plane.get_position(), 0, map_size.x));
+    }
+
+    EditorPlane& y_max_limiter_plane{map_handling_data.editor_planes[EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER]};
+    if (y_max_limiter_plane.get_position() != INT_MAX) {
+        y_max_limiter_plane.set_position(CLAMP(y_max_limiter_plane.get_position(), 0, map_size.y));
+    }
+
+    EditorPlane& z_max_limiter_plane{map_handling_data.editor_planes[EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER]};
+    if (z_max_limiter_plane.get_position() != INT_MAX) {
+        z_max_limiter_plane.set_position(CLAMP(z_max_limiter_plane.get_position(), 0, map_size.z));
+    }
+
+    refresh(EditorPlane::PlaneType::EDITOR_DRAWER);
+}
+
 void IsometricEditorPlugin::_draw_edition_grid() const {
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     const MapHandlingData& map_handling_data{handling_data_map[index]};
@@ -399,6 +429,7 @@ void IsometricEditorPlugin::_bind_methods() {
     ClassDB::bind_method("_on_frame_post_draw", &IsometricEditorPlugin::_on_frame_post_draw);
     ClassDB::bind_method("_on_edition_mode_changed", &IsometricEditorPlugin::_on_edition_mode_changed);
     ClassDB::bind_method(D_METHOD("_on_plane_visibility_timeout", "p_plane_type"), &IsometricEditorPlugin::_on_plane_visibility_timeout);
+    ClassDB::bind_method("_on_map_size_changed", &IsometricEditorPlugin::_on_map_size_changed);
 }
 
 #endif

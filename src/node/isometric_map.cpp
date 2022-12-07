@@ -87,6 +87,10 @@ void IsometricMap::set_size(Vector3 p_size) {
     IsometricPositionable::set_size(p_size);
     grid_3d.update_array_size(p_size);
     instances_grid_3d.update_array_size(p_size);
+
+#ifdef TOOLS_ENABLED
+    emit_signal(SIZE_CHANGED_SIGNAL);
+#endif
 }
 
 bool IsometricMap::is_overlapping(const AABB& aabb) const {
@@ -161,4 +165,8 @@ void IsometricMap::_bind_methods() {
     );
 
     ADD_SIGNAL(MethodInfo("positional_set_changed", PropertyInfo(Variant::OBJECT, "set", PROPERTY_HINT_RESOURCE_TYPE, "PositionalSet")));
+
+#ifdef TOOLS_ENABLED
+    ADD_SIGNAL(MethodInfo(SIZE_CHANGED_SIGNAL));
+#endif
 }

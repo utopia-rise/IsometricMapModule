@@ -16,15 +16,16 @@ namespace editor {
 
             void set_is_forward(bool p_is_forward);
             void set_plane_type(EditorPlane::PlaneType p_plane_type);
+            void set_should_set_inf_on_max(bool p_should_set_inf_on_max);
 
             MoveEditorPlaneCommand();
             ~MoveEditorPlaneCommand() override = default;
 
         private:
-            void act(bool p_is_forward);
-
             bool is_forward;
             EditorPlane::PlaneType plane_type;
+            bool should_set_inf_on_max;
+            int former_position;
         };
     }
 }
