@@ -8,7 +8,8 @@
 
 namespace resource {
 
-    class IsometricConfiguration : public Resource, public RID_Data {
+    class IsometricConfiguration : public Resource,
+                                   public RID_Data {
         GDCLASS(IsometricConfiguration, Resource)
 
     private:

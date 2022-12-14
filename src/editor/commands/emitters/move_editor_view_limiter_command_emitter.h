@@ -14,11 +14,11 @@ namespace editor {
         namespace emitters {
             typedef
     #ifdef OSX_ENABLED
-                    InputEventPanGesture
+                InputEventPanGesture
     #else
-                    InputEventMouseButton
+                InputEventMouseButton
     #endif
-                            ScrollInputEvent;
+                    ScrollInputEvent;
 
             class MoveEditorViewLimiterCommandEmitter : public CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent> {
                 friend class CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent>;

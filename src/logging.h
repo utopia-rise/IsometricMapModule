@@ -11,7 +11,8 @@
 
 #define MAPS_ERR_FAIL_COND_MSG(condition, message) ERR_FAIL_COND_MSG(condition, vformat("Godotopia/Isometric-Maps: %s", message))
 
-#define MAPS_ERR_FAIL_COND_V_MSG(condition, ret_var, message) ERR_FAIL_COND_V_MSG(condition, ret_var, vformat("Godotopia/Isometric-Maps: %s", message))
+#define MAPS_ERR_FAIL_COND_V_MSG(condition, ret_var, message) \
+    ERR_FAIL_COND_V_MSG(condition, ret_var, vformat("Godotopia/Isometric-Maps: %s", message))
 
 #define MAPS_ERR_FAIL_COND_MSG(condition, message) ERR_FAIL_COND_MSG(condition, vformat("Godotopia/Isometric-Maps: %s", message))
 

@@ -3,7 +3,12 @@
 using namespace node;
 
 IsometricMap::IsometricMap() :
-    IsometricPositionable(), draw_tiles(true), grid_3d(), instances_grid_3d(), positionable_set(), child_positionable_initialized(false) {
+    IsometricPositionable(),
+    draw_tiles(true),
+    grid_3d(),
+    instances_grid_3d(),
+    positionable_set(),
+    child_positionable_initialized(false) {
     is_container = true;
 }
 
@@ -69,7 +74,9 @@ bool IsometricMap::is_aabb_in_map(const AABB& aabb) const {
     int max_y {pos_y + static_cast<int>(size.y) - 1};
     int max_z {pos_z + static_cast<int>(size.z) - 1};
 
-    if (pos_x < 0 || pos_y < 0 || pos_z < 0 || max_x >= grid_3d.get_width() || max_y >= grid_3d.get_depth() || max_z >= grid_3d.get_height()) { return false; }
+    if (pos_x < 0 || pos_y < 0 || pos_z < 0 || max_x >= grid_3d.get_width() || max_y >= grid_3d.get_depth() || max_z >= grid_3d.get_height()) {
+        return false;
+    }
     return true;
 }
 
@@ -140,7 +147,10 @@ void IsometricMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("_get_grid_3d"), &IsometricMap::_get_grid_3d);
     ClassDB::bind_method(D_METHOD("_set_grid_3d"), &IsometricMap::_set_grid_3d);
     ADD_PROPERTY(
-            PropertyInfo(Variant::ARRAY, "grid_3d", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_grid_3d", "_get_grid_3d");
+        PropertyInfo(Variant::ARRAY, "grid_3d", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+        "_set_grid_3d",
+        "_get_grid_3d"
+    );
 
     ADD_SIGNAL(MethodInfo("positional_set_changed", PropertyInfo(Variant::OBJECT, "set", PROPERTY_HINT_RESOURCE_TYPE, "PositionalSet")));
 

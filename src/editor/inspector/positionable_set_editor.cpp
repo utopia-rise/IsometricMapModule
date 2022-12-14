@@ -19,11 +19,20 @@ void PositionableSetEditor::set_positionable_set(const Ref<resource::Positionabl
 }
 
 PositionableSetEditor::PositionableSetEditor() :
-    VBoxContainer(), category_selector(memnew(OptionButton)), contained_tiles_list(memnew(ItemList)), fix_path_button(memnew(Button)),
-    add_category_dialog(memnew(WindowDialog)), add_category_dialog_line_edit(memnew(LineEdit)), file_dialog(memnew(FileDialog)),
-    fix_path_dialog(memnew(FileDialog)), alert_popup(memnew(AcceptDialog)), remove_tile_alert_popup(memnew(WindowDialog)),
-    do_not_display_alert_remove_tile(memnew(CheckBox)), remove_category_alert_popup(memnew(WindowDialog)),
-    do_not_display_alert_remove_category(memnew(CheckBox)), current_set() {
+    VBoxContainer(),
+    category_selector(memnew(OptionButton)),
+    contained_tiles_list(memnew(ItemList)),
+    fix_path_button(memnew(Button)),
+    add_category_dialog(memnew(WindowDialog)),
+    add_category_dialog_line_edit(memnew(LineEdit)),
+    file_dialog(memnew(FileDialog)),
+    fix_path_dialog(memnew(FileDialog)),
+    alert_popup(memnew(AcceptDialog)),
+    remove_tile_alert_popup(memnew(WindowDialog)),
+    do_not_display_alert_remove_tile(memnew(CheckBox)),
+    remove_category_alert_popup(memnew(WindowDialog)),
+    do_not_display_alert_remove_category(memnew(CheckBox)),
+    current_set() {
     HBoxContainer* select_category_container {memnew(HBoxContainer)};
     Label* category_selector_label {memnew(Label)};
     category_selector_label->set_text("Categories:");
@@ -233,7 +242,7 @@ void PositionableSetEditor::_on_fix_path_dialog_file_selected(const String& path
     if (positionables_in_path.empty()) return;
 
     if (auto* metadata {
-                Object::cast_to<PositionableItemListMetadata>(contained_tiles_list->get_item_metadata(contained_tiles_list->get_selected_items()[0]))}) {
+            Object::cast_to<PositionableItemListMetadata>(contained_tiles_list->get_item_metadata(contained_tiles_list->get_selected_items()[0]))}) {
         if (!current_set->add_or_update_positionable(metadata->positionable_id, positionables_in_path[0])) {
             alert_popup->set_text("Tile already exists in set !");
             alert_popup->popup_centered();

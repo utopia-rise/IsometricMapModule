@@ -9,8 +9,8 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input_to_command_impl(
-        Ref<InputEventMouse> p_event) {// NOLINT(performance-unnecessary-value-param)
+Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event
+) {// NOLINT(performance-unnecessary-value-param)
     Vector<Ref<editor::commands::Command>> commands;
     bool is_activated {initial_position != Vector3(-1, -1, -1)};
 
@@ -26,11 +26,11 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
     EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
     Vector3::Axis editor_plane_axis = editor_plane.get_axis();
     const Vector3& mouse_position {
-            utils::from_screen_to_3D(*parameters, map->get_local_mouse_position(), editor_plane_axis, static_cast<float>(editor_plane.get_position()))};
+        utils::from_screen_to_3D(*parameters, map->get_local_mouse_position(), editor_plane_axis, static_cast<float>(editor_plane.get_position()))};
 
     Vector3 positionable_size;
     if (auto* positionable {
-                Object::cast_to<node::IsometricPositionable>(map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance())}) {
+            Object::cast_to<node::IsometricPositionable>(map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance())}) {
         positionable_size = positionable->get_size();
         memdelete(positionable);
     } else {
@@ -73,7 +73,8 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
         // New nodes are added if the size grew.
         for (int i = current_preview_nodes.size(); i < new_size; ++i) {
             node::IsometricPositionable* preview_positionable {
-                    Object::cast_to<node::IsometricPositionable>(map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance())};
+                Object::cast_to<node::IsometricPositionable>(map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
+                )};
             current_preview_nodes.push_back(preview_positionable);
             preview_positionable->set_modulate(Color(1, 1, 1, 0.5));
             preview_positionable->set_local_position_3d(all_positions[i]);
@@ -120,7 +121,9 @@ void DragAndDropCommandEmitter::_clear_current_preview_nodes(int new_size) {
     }
 }
 
-AABB DragAndDropCommandEmitter::_calculate_real_aabb(const Vector3& initial_position, const Vector3& limit_position, const Vector3& positionable_size) {
+AABB DragAndDropCommandEmitter::_calculate_real_aabb(
+    const Vector3& initial_position, const Vector3& limit_position, const Vector3& positionable_size
+) {
     const Vector3& position_delta {limit_position - initial_position};
 
     float x_size {position_delta.x};
@@ -159,9 +162,9 @@ AABB DragAndDropCommandEmitter::_calculate_real_aabb(const Vector3& initial_posi
     return {};
 }
 
-Vector<Vector3> DragAndDropCommandEmitter::_calculate_positionables_positions(const Vector3& initial_position,
-                                                                              const Vector3& limit_position,
-                                                                              const Vector3& positionable_size) {
+Vector<Vector3> DragAndDropCommandEmitter::_calculate_positionables_positions(
+    const Vector3& initial_position, const Vector3& limit_position, const Vector3& positionable_size
+) {
     AABB real_aabb {_calculate_real_aabb(initial_position, limit_position, positionable_size)};
 
     int elements_count_on_x {static_cast<int>(real_aabb.size.x / positionable_size.x)};
@@ -173,9 +176,10 @@ Vector<Vector3> DragAndDropCommandEmitter::_calculate_positionables_positions(co
     for (int i = 0; i < elements_count_on_x; ++i) {
         for (int j = 0; j < elements_count_on_y; ++j) {
             for (int k = 0; k < elements_count_on_z; ++k) {
-                r_ret.push_back(initial_position + Vector3(1, 0, 0) * static_cast<float>(i) * positionable_size.x
-                                + Vector3(0, 1, 0) * static_cast<float>(j) * positionable_size.y
-                                + Vector3(0, 0, 1) * static_cast<float>(k) * positionable_size.z);
+                r_ret.push_back(
+                    initial_position + Vector3(1, 0, 0) * static_cast<float>(i) * positionable_size.x
+                    + Vector3(0, 1, 0) * static_cast<float>(j) * positionable_size.y + Vector3(0, 0, 1) * static_cast<float>(k) * positionable_size.z
+                );
             }
         }
     }
@@ -184,7 +188,10 @@ Vector<Vector3> DragAndDropCommandEmitter::_calculate_positionables_positions(co
 }
 
 DragAndDropCommandEmitter::DragAndDropCommandEmitter(UndoRedo* undo_redo) :
-    CommandEmitter(undo_redo), current_preview_nodes(), initial_position(-1, -1, -1), limit_position(-1, -1, -1) {}
+    CommandEmitter(undo_redo),
+    current_preview_nodes(),
+    initial_position(-1, -1, -1),
+    limit_position(-1, -1, -1) {}
 
 DragAndDropCommandEmitter::~DragAndDropCommandEmitter() {
     _clear_current_preview_nodes(0);

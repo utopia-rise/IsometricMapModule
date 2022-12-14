@@ -13,7 +13,8 @@ void OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
     VisualServer::get_singleton()->canvas_item_set_parent(outline_rid, positionable->get_canvas_item());
     VisualServer::get_singleton()->canvas_item_set_z_as_relative_to_parent(outline_rid, true);
 
-    if (const data::IsometricParameters * space_configuration {IsometricServer::get_instance()->space_get_configuration(positionable->get_space_RID())}) {
+    if (const data::IsometricParameters
+        * space_configuration {IsometricServer::get_instance()->space_get_configuration(positionable->get_space_RID())}) {
         PoolVector2Array points {utils::get_bounding_box(*space_configuration, positionable->get_size())};
 
         int no_slope {0};

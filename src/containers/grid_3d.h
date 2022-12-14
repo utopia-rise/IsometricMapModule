@@ -22,9 +22,7 @@ namespace containers {
 
         Vector3 plane_square_and_jumps_from(const Vector3& size) const;
 
-        inline int compute_array_size() const {
-            return width * depth * height;
-        }
+        inline int compute_array_size() const { return width * depth * height; }
 
         static int index_increment_from(const Vector3& planeSquareAndJumps, const Vector3& size, int iteration);
 
@@ -120,8 +118,8 @@ namespace containers {
         int pos_y = static_cast<int>(position.y);
         int pos_z = static_cast<int>(position.z);
         return pos_x >= 0 && pos_x < width && pos_y >= 0 && pos_y < depth && pos_z >= 0 && pos_z < height
-                     ? internal_array[pos_x + width * pos_y + width * depth * pos_z]
-                     : default_value;
+                 ? internal_array[pos_x + width * pos_y + width * depth * pos_z]
+                 : default_value;
     }
 
     template<class T, T default_value>
@@ -238,7 +236,10 @@ namespace containers {
 
     template<class T, T default_value>
     Vector3 Grid3D<T, default_value>::get_position_3d_from_index(int id) const {
-        return {static_cast<real_t>(id % width), static_cast<real_t>((id / width) % depth), static_cast<real_t>(static_cast<int>(id / (width * depth)))};
+        return {
+            static_cast<real_t>(id % width),
+            static_cast<real_t>((id / width) % depth),
+            static_cast<real_t>(static_cast<int>(id / (width * depth)))};
     }
 
     template<class T, T default_value>
