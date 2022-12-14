@@ -29,29 +29,31 @@ MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> 
     IsometricEditorPlugin* isometric_editor_plugin{IsometricEditorPlugin::get_instance()};
     node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
     EditorPlane& editor_plane{isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER)};
-    int current_position{editor_plane.get_position()};
 
+    int current_position{editor_plane.get_position()};
+    int new_position{};
     switch (editor_plane.get_axis()) {
         case Vector3::AXIS_X:
-            if ((current_position == 0 && !is_forward) || (current_position == map->get_size().x - 1 && is_forward)) {
+            if ((current_position == 0 && !is_forward) || (current_position >= map->get_size().x - 1 && is_forward)) {
                 return commands;
             }
+            new_position = MIN(current_position, map->get_size().x);
             break;
         case Vector3::AXIS_Y:
-            if ((current_position == 0 && !is_forward) || (current_position == map->get_size().y - 1 && is_forward)) {
+            if ((current_position == 0 && !is_forward) || (current_position >= map->get_size().y - 1 && is_forward)) {
                 return commands;
             }
+            new_position = MIN(current_position, map->get_size().y);
             break;
         case Vector3::AXIS_Z:
-            if ((current_position == 0 && !is_forward) || (current_position == map->get_size().z - 1 && is_forward)) {
+            if ((current_position == 0 && !is_forward) || (current_position >= map->get_size().z - 1 && is_forward)) {
                 return commands;
             }
+            new_position = MIN(current_position, map->get_size().z);
             break;
         default:
             break;
     }
-
-    int new_position{current_position};
 
     if (is_forward) {
         new_position += 1;
