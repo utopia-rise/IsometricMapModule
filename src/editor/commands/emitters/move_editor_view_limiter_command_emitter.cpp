@@ -37,7 +37,6 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
 
     EditorPlane::PlaneType plane_type;
     int plane_max_position;
-    bool should_set_inf_on_max{false};
     const Vector3& map_size{IsometricEditorPlugin::get_instance()->get_selected_map()->get_size()};
     if (Input::get_singleton()->is_key_pressed(KeyList::KEY_1)) {
         plane_type = p_event->get_shift() ?
@@ -58,6 +57,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
         return commands;
     }
 
+    bool should_set_inf_on_max{false};
     if (plane_type == EditorPlane::PlaneType::X_MAX_VIEW_LIMITER ||
         plane_type == EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER ||
         plane_type == EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER) {
@@ -198,14 +198,27 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
             }
             break;
     }
-
     commands.push_back(composite_command);
+
+    int current_position{plane.get_position()};
+    int new_position{current_position};
+
+    if (is_forward) {
+        if (current_position < plane_max_position) {
+            new_position += 1;
+        }
+        if (new_position >= plane_max_position && should_set_inf_on_max) {
+            new_position = INT_MAX;
+        }
+    } else {
+        new_position = CLAMP(current_position - 1, 0, plane_max_position);
+    }
 
     Ref<editor::commands::MoveEditorPlaneCommand> move_command;
     move_command.instance();
-    move_command->set_is_forward(is_forward);
     move_command->set_plane_type(plane_type);
-    move_command->set_should_set_inf_on_max(should_set_inf_on_max);
+    move_command->set_old_position(current_position);
+    move_command->set_new_position(new_position);
     commands.push_back(move_command);
 
     return commands;

@@ -366,28 +366,6 @@ void IsometricEditorPlugin::_on_plane_visibility_timeout(int p_plane_type) {
 }
 
 void IsometricEditorPlugin::_on_map_size_changed() {
-    auto index{reinterpret_cast<uint64_t>(selected_map)};
-    MapHandlingData& map_handling_data{handling_data_map[index]};
-    const Vector3& map_size{selected_map->get_size()};
-
-    EditorPlane& editor_drawer_plane = map_handling_data.editor_planes[EditorPlane::PlaneType::EDITOR_DRAWER];
-    editor_drawer_plane.set_position(CLAMP(editor_drawer_plane.get_position(), 0, map_size.z - 1));
-
-    EditorPlane& x_max_limiter_plane{map_handling_data.editor_planes[EditorPlane::PlaneType::X_MAX_VIEW_LIMITER]};
-    if (x_max_limiter_plane.get_position() != INT_MAX) {
-        x_max_limiter_plane.set_position(CLAMP(x_max_limiter_plane.get_position(), 0, map_size.x));
-    }
-
-    EditorPlane& y_max_limiter_plane{map_handling_data.editor_planes[EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER]};
-    if (y_max_limiter_plane.get_position() != INT_MAX) {
-        y_max_limiter_plane.set_position(CLAMP(y_max_limiter_plane.get_position(), 0, map_size.y));
-    }
-
-    EditorPlane& z_max_limiter_plane{map_handling_data.editor_planes[EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER]};
-    if (z_max_limiter_plane.get_position() != INT_MAX) {
-        z_max_limiter_plane.set_position(CLAMP(z_max_limiter_plane.get_position(), 0, map_size.z));
-    }
-
     refresh(EditorPlane::PlaneType::EDITOR_DRAWER);
 }
 

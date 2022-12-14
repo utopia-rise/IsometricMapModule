@@ -148,7 +148,7 @@ void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_p
 
     switch (p_editor_plane.get_axis()) {
         case Vector3::AXIS_X:
-            if (editor_plane_position >= map_size.x) {
+            if (editor_plane_position > map_size.x) {
                 editor_plane_position = map_size.x;
             }
 
@@ -176,7 +176,7 @@ void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_p
             );
             break;
         case Vector3::AXIS_Y:
-            if (editor_plane_position >= map_size.y) {
+            if (editor_plane_position > map_size.y) {
                 editor_plane_position = map_size.y;
             }
 
@@ -205,7 +205,7 @@ void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_p
             );
             break;
         case Vector3::AXIS_Z:
-            if (editor_plane_position >= map_size.z) {
+            if (editor_plane_position > map_size.z) {
                 editor_plane_position = map_size.z;
             }
 

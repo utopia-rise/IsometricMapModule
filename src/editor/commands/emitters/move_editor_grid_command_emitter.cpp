@@ -29,20 +29,21 @@ MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> 
     IsometricEditorPlugin* isometric_editor_plugin{IsometricEditorPlugin::get_instance()};
     node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
     EditorPlane& editor_plane{isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER)};
-    real_t editor_plane_position{static_cast<real_t>(editor_plane.get_position())};
+    int current_position{editor_plane.get_position()};
+
     switch (editor_plane.get_axis()) {
         case Vector3::AXIS_X:
-            if ((editor_plane_position == 0 && !is_forward) || (editor_plane_position == map->get_size().x - 1 && is_forward)) {
+            if ((current_position == 0 && !is_forward) || (current_position == map->get_size().x - 1 && is_forward)) {
                 return commands;
             }
             break;
         case Vector3::AXIS_Y:
-            if ((editor_plane_position == 0 && !is_forward) || (editor_plane_position == map->get_size().y - 1 && is_forward)) {
+            if ((current_position == 0 && !is_forward) || (current_position == map->get_size().y - 1 && is_forward)) {
                 return commands;
             }
             break;
         case Vector3::AXIS_Z:
-            if ((editor_plane_position == 0 && !is_forward) || (editor_plane_position == map->get_size().z - 1 && is_forward)) {
+            if ((current_position == 0 && !is_forward) || (current_position == map->get_size().z - 1 && is_forward)) {
                 return commands;
             }
             break;
@@ -50,10 +51,19 @@ MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> 
             break;
     }
 
+    int new_position{current_position};
+
+    if (is_forward) {
+        new_position += 1;
+    } else {
+        new_position -= 1;
+    }
+
     Ref<editor::commands::MoveEditorPlaneCommand> move_command;
     move_command.instance();
-    move_command->set_is_forward(is_forward);
     move_command->set_plane_type(EditorPlane::PlaneType::EDITOR_DRAWER);
+    move_command->set_old_position(current_position);
+    move_command->set_new_position(new_position);
     commands.push_back(move_command);
 
     return commands;
