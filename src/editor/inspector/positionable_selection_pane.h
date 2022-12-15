@@ -3,7 +3,7 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include <modules/isometric_maps/src/resource/positionable_set.h>
+    #include "resource/positionable_set.h"
     #include <scene/gui/item_list.h>
     #include <scene/gui/label.h>
     #include <scene/gui/option_button.h>

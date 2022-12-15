@@ -1,13 +1,12 @@
 #ifdef TOOLS_ENABLED
-
     #include "delete_command_emitter.h"
+    #include "editor/commands/add_positionable_command.h"
+    #include "editor/commands/composite_command.h"
+    #include "editor/commands/revert_command.h"
+    #include "editor/commands/select_positionable_command.h"
+    #include "editor/isometric_editor_plugin.h"
+    #include "editor/positionable_selector_manager.h"
     #include <core/os/keyboard.h>
-    #include <modules/isometric_maps/src/editor/commands/add_positionable_command.h>
-    #include <modules/isometric_maps/src/editor/commands/composite_command.h>
-    #include <modules/isometric_maps/src/editor/commands/revert_command.h>
-    #include <modules/isometric_maps/src/editor/commands/select_positionable_command.h>
-    #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
-    #include <modules/isometric_maps/src/editor/positionable_selector_manager.h>
 
 using namespace editor::commands::emitters;
 

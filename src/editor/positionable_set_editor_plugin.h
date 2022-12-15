@@ -3,8 +3,8 @@
 
 #ifdef TOOLS_ENABLED
 
+    #include "editor/inspector/positionable_set_editor.h"
     #include <editor/editor_plugin.h>
-    #include <modules/isometric_maps/src/editor/inspector/positionable_set_editor.h>
 
 namespace editor {
     class PositionableSetEditorPlugin : public EditorPlugin {

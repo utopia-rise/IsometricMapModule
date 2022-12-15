@@ -1,7 +1,7 @@
 #include "isometric_server.h"
+#include "resource/isometric_configuration.h"
+#include "utils/isometric_maths.h"
 #include <core/os/os.h>
-#include <modules/isometric_maps/src/resource/isometric_configuration.h>
-#include <modules/isometric_maps/src/utils/isometric_maths.h>
 #include <scene/2d/canvas_item.h>
 
 using namespace data;

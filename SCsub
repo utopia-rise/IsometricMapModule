@@ -4,6 +4,10 @@ import os
 Import("env")
 
 module_env = env.Clone()
+
+# For header includes
+module_env.Append(CPPPATH=["src/"])
+
 module_env.add_source_files(module_env.modules_sources, "register_types.cpp")
 module_env.add_source_files(module_env.modules_sources, "src/*.cpp")
 module_env.add_source_files(module_env.modules_sources, "src/containers/*.cpp")

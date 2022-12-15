@@ -1,8 +1,8 @@
 #ifdef TOOLS_ENABLED
 
     #include "outline_drawer.h"
-    #include <modules/isometric_maps/src/isometric_server.h>
-    #include <modules/isometric_maps/src/utils/isometric_maths.h>
+    #include "isometric_server.h"
+    #include "utils/isometric_maths.h"
 
 using namespace editor;
 

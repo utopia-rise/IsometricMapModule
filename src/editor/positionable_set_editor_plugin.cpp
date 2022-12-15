@@ -1,7 +1,7 @@
 #ifdef TOOLS_ENABLED
 
     #include "positionable_set_editor_plugin.h"
-    #include <modules/isometric_maps/src/resource/positionable_set.h>
+    #include "resource/positionable_set.h"
 
 using namespace editor;
 

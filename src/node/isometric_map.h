@@ -1,9 +1,9 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_MAP_H
 #define ISOMETRIC_MAPS_ISOMETRIC_MAP_H
 
+#include "containers/grid_3d.h"
 #include "modules/isometric_maps/src/node/isometric_positionable.h"
-#include <modules/isometric_maps/src/containers/grid_3d.h>
-#include <modules/isometric_maps/src/resource/positionable_set.h>
+#include "resource/positionable_set.h"
 
 namespace node {
 

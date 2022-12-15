@@ -1,10 +1,10 @@
 #ifdef TOOLS_ENABLED
 
     #include "select_all_command_emitter.h"
+    #include "editor/commands/select_positionable_command.h"
+    #include "editor/isometric_editor_plugin.h"
+    #include "editor/positionable_selector_manager.h"
     #include <core/os/keyboard.h>
-    #include <modules/isometric_maps/src/editor/commands/select_positionable_command.h>
-    #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
-    #include <modules/isometric_maps/src/editor/positionable_selector_manager.h>
 
 using namespace editor::commands::emitters;
 

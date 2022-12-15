@@ -4,7 +4,7 @@
 #ifdef TOOLS_ENABLED
 
     #include "command_emitter.h"
-    #include <modules/isometric_maps/src/editor/commands/select_positionable_command.h>
+    #include "editor/commands/select_positionable_command.h"
 
 namespace editor {
     namespace commands {

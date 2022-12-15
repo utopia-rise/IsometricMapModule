@@ -4,7 +4,7 @@
 #ifdef TOOLS_ENABLED
 
     #include "command.h"
-    #include <modules/isometric_maps/src/editor/editor_plane.h>
+    #include "editor/editor_plane.h"
 
 namespace editor {
     namespace commands {

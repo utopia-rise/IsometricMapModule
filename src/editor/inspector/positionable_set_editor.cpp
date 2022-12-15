@@ -1,11 +1,11 @@
 #ifdef TOOLS_ENABLED
 
     #include "positionable_set_editor.h"
+    #include "editor/editor_utils.h"
+    #include "editor/positionable_scenes_cache_manager.h"
+    #include "editor/positionable_set_editor_plugin.h"
     #include <core/os/file_access.h>
     #include <editor/editor_node.h>
-    #include <modules/isometric_maps/src/editor/editor_utils.h>
-    #include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
-    #include <modules/isometric_maps/src/editor/positionable_set_editor_plugin.h>
     #include <scene/gui/button.h>
     #include <scene/gui/item_list.h>
     #include <scene/gui/label.h>

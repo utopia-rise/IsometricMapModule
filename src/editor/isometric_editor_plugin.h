@@ -4,19 +4,19 @@
 #ifdef TOOLS_ENABLED
 
     #include "edition_grid_drawer.h"
+    #include "editor/commands/emitters/delete_command_emitter.h"
+    #include "editor/commands/emitters/drag_and_drop_command_emitter.h"
+    #include "editor/commands/emitters/move_editor_grid_command_emitter.h"
+    #include "editor/commands/emitters/painting_command_emitter.h"
+    #include "editor/commands/emitters/rotate_editor_plane_command_emitter.h"
+    #include "editor/commands/emitters/select_all_command_emitter.h"
+    #include "editor/commands/emitters/select_command_emitter.h"
     #include "editor_plane.h"
     #include "modules/isometric_maps/src/editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
     #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
+    #include "node/isometric_map.h"
     #include <editor/editor_node.h>
     #include <editor/editor_plugin.h>
-    #include <modules/isometric_maps/src/editor/commands/emitters/delete_command_emitter.h>
-    #include <modules/isometric_maps/src/editor/commands/emitters/drag_and_drop_command_emitter.h>
-    #include <modules/isometric_maps/src/editor/commands/emitters/move_editor_grid_command_emitter.h>
-    #include <modules/isometric_maps/src/editor/commands/emitters/painting_command_emitter.h>
-    #include <modules/isometric_maps/src/editor/commands/emitters/rotate_editor_plane_command_emitter.h>
-    #include <modules/isometric_maps/src/editor/commands/emitters/select_all_command_emitter.h>
-    #include <modules/isometric_maps/src/editor/commands/emitters/select_command_emitter.h>
-    #include <modules/isometric_maps/src/node/isometric_map.h>
 
 namespace editor {
 

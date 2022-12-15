@@ -4,8 +4,8 @@
 #ifdef TOOLS_ENABLED
 
     #include "command_emitter.h"
-    #include <modules/isometric_maps/src/editor/commands/command.h>
-    #include <modules/isometric_maps/src/node/isometric_map.h>
+    #include "editor/commands/command.h"
+    #include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {

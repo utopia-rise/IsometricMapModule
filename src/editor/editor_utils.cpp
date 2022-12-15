@@ -1,15 +1,15 @@
 #ifdef TOOLS_ENABLED
 
     #include "editor_utils.h"
+    #include "logging.h"
+    #include "node/isometric_positionable.h"
     #include "positionable_scenes_cache_manager.h"
     #include "positionable_set_editor_plugin.h"
+    #include "resource/positionable_set.h"
     #include <core/os/dir_access.h>
     #include <core/os/file_access.h>
     #include <core/resource.h>
     #include <core/variant.h>
-    #include <modules/isometric_maps/src/logging.h>
-    #include <modules/isometric_maps/src/node/isometric_positionable.h>
-    #include <modules/isometric_maps/src/resource/positionable_set.h>
     #include <scene/resources/packed_scene.h>
 
 using namespace editor;

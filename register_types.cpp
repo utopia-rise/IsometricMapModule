@@ -1,15 +1,13 @@
 #include "register_types.h"
+#include "isometric_server.h"
+#include "node/isometric_map.h"
+#include "resource/isometric_configuration.h"
 #include <core/engine.h>
-#include <modules/isometric_maps/src/isometric_server.h>
-#include <modules/isometric_maps/src/node/isometric_map.h>
-#include <modules/isometric_maps/src/resource/isometric_configuration.h>
 
 #ifdef TOOLS_ENABLED
-#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
-#include <editor/editor_node.h>
-#include <modules/isometric_maps/src/resource/positionable_set.h>
-#include <modules/isometric_maps/src/editor/positionable_set_editor_plugin.h>
-#include <modules/isometric_maps/src/editor/isometric_tile_editor_plugin.h>
+    #include "editor/isometric_editor_plugin.h"
+    #include "editor/isometric_tile_editor_plugin.h"
+    #include "editor/positionable_set_editor_plugin.h"
 #endif
 
 #ifdef TOOLS_ENABLED

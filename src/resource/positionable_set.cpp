@@ -1,13 +1,13 @@
 #include "positionable_set.h"
-#include <modules/isometric_maps/src/logging.h>
-#include <modules/isometric_maps/src/node/isometric_positionable.h>
+#include "logging.h"
+#include "node/isometric_positionable.h"
 
 #ifdef TOOLS_ENABLED
 
+    #include "editor/editor_utils.h"
     #include <core/io/resource_saver.h>
     #include <core/os/dir_access.h>
     #include <core/os/file_access.h>
-    #include <modules/isometric_maps/src/editor/editor_utils.h>
 
 #endif
 

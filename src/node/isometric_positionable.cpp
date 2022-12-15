@@ -1,8 +1,8 @@
 #include "isometric_positionable.h"
+#include "editor/outline_drawer.h"
+#include "isometric_server.h"
+#include "utils/isometric_maths.h"
 #include <core/engine.h>
-#include <modules/isometric_maps/src/editor/outline_drawer.h>
-#include <modules/isometric_maps/src/isometric_server.h>
-#include <modules/isometric_maps/src/utils/isometric_maths.h>
 
 using namespace node;
 

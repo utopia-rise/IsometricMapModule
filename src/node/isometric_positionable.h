@@ -1,7 +1,7 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H
 #define ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H
 
-#include <modules/isometric_maps/src/editor/outline_data.h>
+#include "editor/outline_data.h"
 #include <scene/2d/node_2d.h>
 #include <scene/3d/collision_object.h>
 

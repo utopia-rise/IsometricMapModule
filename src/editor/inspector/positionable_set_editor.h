@@ -3,9 +3,9 @@
 
 #ifdef TOOLS_ENABLED
 
+    #include "resource/positionable_set.h"
     #include "scene/gui/check_box.h"
     #include "scene/gui/item_list.h"
-    #include <modules/isometric_maps/src/resource/positionable_set.h>
     #include <scene/gui/box_container.h>
     #include <scene/gui/file_dialog.h>
 

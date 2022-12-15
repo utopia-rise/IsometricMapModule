@@ -1,6 +1,6 @@
 #include "isometric_configuration.h"
-#include <modules/isometric_maps/src/data/isometric_parameters.h>
-#include <modules/isometric_maps/src/logging.h>
+#include "data/isometric_parameters.h"
+#include "logging.h"
 
 using namespace resource;
 

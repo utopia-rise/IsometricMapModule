@@ -1,9 +1,9 @@
 #ifdef TOOLS_ENABLED
 
     #include "rotate_editor_plane_command_emitter.h"
+    #include "editor/commands/rotate_editor_plane_command.h"
+    #include "editor/isometric_editor_plugin.h"
     #include <core/os/keyboard.h>
-    #include <modules/isometric_maps/src/editor/commands/rotate_editor_plane_command.h>
-    #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 
 using namespace editor::commands::emitters;
 

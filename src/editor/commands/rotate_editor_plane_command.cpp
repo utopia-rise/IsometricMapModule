@@ -1,7 +1,7 @@
 #ifdef TOOLS_ENABLED
 
     #include "rotate_editor_plane_command.h"
-    #include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
+    #include "editor/isometric_editor_plugin.h"
 
 using namespace editor::commands;
 
