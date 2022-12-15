@@ -2,8 +2,8 @@
 #define GODOT_POSITIONABLE_SCENES_CACHE_MANAGER_H
 
 #ifdef TOOLS_ENABLED
-
     #include "node/isometric_positionable.h"
+
     #include <core/hash_map.h>
     #include <core/reference.h>
     #include <scene/resources/packed_scene.h>

@@ -1,7 +1,9 @@
 #include "isometric_positionable.h"
+
 #include "editor/outline_drawer.h"
 #include "isometric_server.h"
 #include "utils/isometric_maths.h"
+
 #include <core/engine.h>
 
 using namespace node;
@@ -12,19 +14,19 @@ StringName IsometricPositionable::get_debug_group_name() {
 }
 
 IsometricPositionable::IsometricPositionable() :
-    Node2D(),
-    size({1, 1, 1}),
-    depth(1),
-    self(RID()),
-    is_dynamic(false),
-    collision_object_node_path(),
-    collision_object(nullptr),
-    world(RID()),
-    world_owner(false),
-    is_container {false}
+  Node2D(),
+  size({1, 1, 1}),
+  depth(1),
+  self(RID()),
+  is_dynamic(false),
+  collision_object_node_path(),
+  collision_object(nullptr),
+  world(RID()),
+  world_owner(false),
+  is_container {false}
 #ifdef TOOLS_ENABLED
-    ,
-    outline_data()
+  ,
+  outline_data()
 #endif
 {
     set_process(true);
@@ -37,7 +39,11 @@ void IsometricPositionable::_enter_tree() {
             collision_object = collider;
             _rebind_collision_object_position();
         } else {
-            LOG_ERROR(vformat("Positionable %s collision_object_node_path does not point to valid CollisionObject", this->get_instance_id()));
+            LOG_ERROR(vformat(
+              "Positionable %s collision_object_node_path does not point to "
+              "valid CollisionObject",
+              this->get_instance_id()
+            ));
         }
     }
 
@@ -120,7 +126,9 @@ Vector3 IsometricPositionable::get_global_position_3d() const {
 void IsometricPositionable::set_global_position_3d(const Vector3& p_position) {
     const Vector3& offset {p_position - get_global_position_3d()};
     set_local_position_3d(local_position + offset);
-    if (self.is_valid() && is_dynamic) { IsometricServer::get_instance()->isometric_element_set_position(self, get_global_position_3d()); }
+    if (self.is_valid() && is_dynamic) {
+        IsometricServer::get_instance()->isometric_element_set_position(self, get_global_position_3d());
+    }
 }
 
 Vector3 IsometricPositionable::get_size() const {
@@ -200,7 +208,9 @@ void IsometricPositionable::set_collision_object_node_path(const NodePath& p_nod
 void IsometricPositionable::_rebind_collision_object_position() const {
     if (!collision_object) { return; }
     const Vector3& global_position {get_global_position_3d()};
-    collision_object->set_global_transform({{1, 0, 0, 0, 1, 0, 0, 0, 1}, {global_position.x, global_position.z, global_position.y}});
+    collision_object->set_global_transform(
+      {{1, 0, 0, 0, 1, 0, 0, 0, 1}, {global_position.x, global_position.z, global_position.y}}
+    );
 }
 
 RID IsometricPositionable::get_rid() const {

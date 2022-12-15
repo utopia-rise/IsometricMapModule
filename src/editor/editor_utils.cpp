@@ -1,11 +1,13 @@
 #ifdef TOOLS_ENABLED
 
     #include "editor_utils.h"
+
     #include "logging.h"
     #include "node/isometric_positionable.h"
     #include "positionable_scenes_cache_manager.h"
     #include "positionable_set_editor_plugin.h"
     #include "resource/positionable_set.h"
+
     #include <core/os/dir_access.h>
     #include <core/os/file_access.h>
     #include <core/resource.h>
@@ -48,10 +50,12 @@ Error EditorUtils::find_all_positionables_in_path(const String& path, List<Strin
     return Error::OK;
 }
 
-void EditorUtils::refresh_item_list_containing_tiles_for_category(const String& category,
-                                                                  ItemList* item_list,
-                                                                  const Ref<resource::PositionableSet>& positionable_set,
-                                                                  Control* calling_control) {
+void EditorUtils::refresh_item_list_containing_tiles_for_category(
+  const String& category,
+  ItemList* item_list,
+  const Ref<resource::PositionableSet>& positionable_set,
+  Control* calling_control
+) {
     const Map<int, String>& scene_paths {positionable_set->get_scene_paths_for_category(category)};
 
     Vector<Ref<PackedScene>> scenes_to_add;
@@ -79,7 +83,8 @@ void EditorUtils::refresh_item_list_containing_tiles_for_category(const String& 
         const String& path {positionable_scene->get_path()};
 
         PositionableScenesCacheManager::get_instance().add_scene(calling_control, item_list->get_item_count(), positionable_scene);
-        Ref<Texture> icon_texture {PositionableScenesCacheManager::get_instance().get_icon(calling_control, item_list->get_item_count())};
+        Ref<Texture> icon_texture {
+          PositionableScenesCacheManager::get_instance().get_icon(calling_control, item_list->get_item_count())};
         item_list->add_item(path, icon_texture);
         item_list->set_item_metadata(item_list->get_item_count() - 1, scenes_to_add_metadata[i]);
     }

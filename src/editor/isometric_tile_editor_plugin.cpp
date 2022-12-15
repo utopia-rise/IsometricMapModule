@@ -1,16 +1,20 @@
 #ifdef TOOLS_ENABLED
 
     #include "isometric_tile_editor_plugin.h"
+
     #include "node/isometric_map.h"
     #include "node/isometric_positionable.h"
     #include "outline_drawer.h"
+
     #include <editor/editor_node.h>
 
 using namespace editor;
 
 IsometricTileEditorPlugin* IsometricTileEditorPlugin::get_instance() {
     static IsometricTileEditorPlugin* instance {nullptr};
-    if (unlikely(!instance && ObjectDB::instance_validate(EditorNode::get_undo_redo()))) { instance = memnew(IsometricTileEditorPlugin); }
+    if (unlikely(!instance && ObjectDB::instance_validate(EditorNode::get_undo_redo()))) {
+        instance = memnew(IsometricTileEditorPlugin);
+    }
     return instance;
 }
 

@@ -19,8 +19,9 @@ namespace utils {
     };
 
     static inline Vector2 from_3D_to_screen(const data::IsometricParameters& params, const Vector3& pos) {
-        return {(pos.x - pos.y) * static_cast<real_t>(params.diamond_width) * 0.5f,
-                (pos.x + pos.y) * static_cast<real_t>(params.diamond_height) * 0.5f - params.z_length * pos.z};
+        return {
+          (pos.x - pos.y) * static_cast<real_t>(params.diamond_width) * 0.5f,
+          (pos.x + pos.y) * static_cast<real_t>(params.diamond_height) * 0.5f - params.z_length * pos.z};
     }
 
     static Vector3 from_screen_to_3D(const data::IsometricParameters& params, const Vector2& pos, Vector3::Axis known_axis, real_t orth_known_axis) {
@@ -75,9 +76,7 @@ namespace utils {
         return get_hexagone_points(params, data->aabb);
     }
 
-    static bool are_elements_overlapping(const data::IsometricParameters& params,
-                                         const data::IsometricElement* data1,
-                                         const data::IsometricElement* data2) {
+    static bool are_elements_overlapping(const data::IsometricParameters& params, const data::IsometricElement* data1, const data::IsometricElement* data2) {
         Hexagone hex1 = get_hexagone_points(params, data1);
         Hexagone hex2 = get_hexagone_points(params, data2);
 

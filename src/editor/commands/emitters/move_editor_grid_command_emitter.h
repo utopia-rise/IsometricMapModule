@@ -2,7 +2,6 @@
 #define ISOMETRIC_MAPS_MOVE_EDITION_GRID_COMMAND_EMITTER_H
 
 #ifdef TOOLS_ENABLED
-
     #include "command_emitter.h"
     #include "editor/commands/command.h"
 

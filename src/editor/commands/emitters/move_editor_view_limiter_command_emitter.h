@@ -2,7 +2,6 @@
 #define ISOMETRIC_MAPS_MOVE_EDITOR_VIEW_LIMITER_COMMAND_EMITTER_H
 
 #ifdef TOOLS_ENABLED
-
     #include "command_emitter.h"
     #include "editor/commands/command.h"
     #include "editor/commands/composite_command.h"
@@ -14,11 +13,11 @@ namespace editor {
         namespace emitters {
             typedef
     #ifdef OSX_ENABLED
-                InputEventPanGesture
+              InputEventPanGesture
     #else
-                InputEventMouseButton
+              InputEventMouseButton
     #endif
-                    ScrollInputEvent;
+                ScrollInputEvent;
 
             class MoveEditorViewLimiterCommandEmitter : public CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent> {
                 friend class CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent>;

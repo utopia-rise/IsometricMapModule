@@ -2,8 +2,8 @@
 #define ISOMETRIC_MAPS_POSITIONABLE_SET_EDITOR_PLUGIN_H
 
 #ifdef TOOLS_ENABLED
-
     #include "editor/inspector/positionable_set_editor.h"
+
     #include <editor/editor_plugin.h>
 
 namespace editor {

@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
-
     #include "add_positionable_command.h"
+
     #include "editor/isometric_editor_plugin.h"
 
 using namespace editor::commands;
@@ -23,6 +23,9 @@ void AddPositionableCommand::set_positionable_id(int id) {
 
 void AddPositionableCommand::_bind_methods_impl() {}
 
-AddPositionableCommand::AddPositionableCommand() : Command(), aabb(), positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID) {}
+AddPositionableCommand::AddPositionableCommand() :
+  Command(),
+  aabb(),
+  positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID) {}
 
 #endif

@@ -118,13 +118,17 @@ namespace containers {
         int pos_y = static_cast<int>(position.y);
         int pos_z = static_cast<int>(position.z);
         return pos_x >= 0 && pos_x < width && pos_y >= 0 && pos_y < depth && pos_z >= 0 && pos_z < height
-                 ? internal_array[pos_x + width * pos_y + width * depth * pos_z]
-                 : default_value;
+               ? internal_array[pos_x + width * pos_y + width * depth * pos_z]
+               : default_value;
     }
 
     template<class T, T default_value>
     void Grid3D<T, default_value>::set_data(const Vector3& position, T data) {
-        internal_array.set(static_cast<int>(position.x) + width * static_cast<int>(position.y) + width * depth * static_cast<int>(position.z), data);
+        internal_array.set(
+          static_cast<int>(position.x) + width * static_cast<int>(position.y)
+            + width * depth * static_cast<int>(position.z),
+          data
+        );
     }
 
     template<class T, T default_value>
@@ -231,14 +235,16 @@ namespace containers {
 
     template<class T, T default_value>
     int Grid3D<T, default_value>::get_index_from_position(const Vector3& position) const {
-        return static_cast<int>(position.x) + width * static_cast<int>(position.y) + width * depth * static_cast<int>(position.z);
+        return static_cast<int>(position.x) + width * static_cast<int>(position.y)
+             + width * depth * static_cast<int>(position.z);
     }
 
     template<class T, T default_value>
     Vector3 Grid3D<T, default_value>::get_position_3d_from_index(int id) const {
-        return {static_cast<real_t>(id % width),
-                static_cast<real_t>((id / width) % depth),
-                static_cast<real_t>(static_cast<int>(id / (width * depth)))};
+        return {
+          static_cast<real_t>(id % width),
+          static_cast<real_t>((id / width) % depth),
+          static_cast<real_t>(static_cast<int>(id / (width * depth)))};
     }
 
     template<class T, T default_value>

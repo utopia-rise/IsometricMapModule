@@ -3,6 +3,7 @@
 
 #include "isometric_element.h"
 #include "isometric_parameters.h"
+
 #include <core/rid.h>
 
 namespace data {

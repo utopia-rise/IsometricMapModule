@@ -1,9 +1,10 @@
 #ifdef TOOLS_ENABLED
-
     #include "select_all_command_emitter.h"
+
     #include "editor/commands/select_positionable_command.h"
     #include "editor/isometric_editor_plugin.h"
     #include "editor/positionable_selector_manager.h"
+
     #include <core/os/keyboard.h>
 
 using namespace editor::commands::emitters;
@@ -19,13 +20,25 @@ Vector<Ref<editor::commands::Command>> SelectAllCommandEmitter::from_gui_input_t
     node::IsometricMap* map {IsometricEditorPlugin::get_instance()->get_selected_map()};
 
     Vector<node::IsometricPositionable*> positionables {map->get_positionables_in(
-        {{static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MIN_VIEW_LIMITER).get_position()),
-          static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER).get_position()),
-          static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER).get_position())},
-         {static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MAX_VIEW_LIMITER).get_position()),
-          static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER).get_position()),
-          static_cast<real_t>(
-              isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER).get_position())}})};
+      {{static_cast<real_t>(
+          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MIN_VIEW_LIMITER).get_position()
+        ),
+        static_cast<real_t>(
+          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER).get_position()
+        ),
+        static_cast<real_t>(
+          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER).get_position()
+        )},
+       {static_cast<real_t>(
+          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MAX_VIEW_LIMITER).get_position()
+        ),
+        static_cast<real_t>(
+          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER).get_position()
+        ),
+        static_cast<real_t>(
+          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER).get_position()
+        )}}
+    )};
 
     for (int i = 0; i < positionables.size(); ++i) {
         if (node::IsometricPositionable * positionable {positionables[i]}) {
@@ -43,6 +56,7 @@ Vector<Ref<editor::commands::Command>> SelectAllCommandEmitter::from_gui_input_t
     return commands;
 }
 
-SelectAllCommandEmitter::SelectAllCommandEmitter(UndoRedo* undo_redo) : CommandEmitter<SelectAllCommandEmitter, InputEventKey>(undo_redo) {}
+SelectAllCommandEmitter::SelectAllCommandEmitter(UndoRedo* undo_redo) :
+  CommandEmitter<SelectAllCommandEmitter, InputEventKey>(undo_redo) {}
 
 #endif

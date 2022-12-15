@@ -15,6 +15,7 @@
     #include "modules/isometric_maps/src/editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
     #include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
     #include "node/isometric_map.h"
+
     #include <editor/editor_node.h>
     #include <editor/editor_plugin.h>
 

@@ -1,6 +1,8 @@
 #include "isometric_server.h"
+
 #include "resource/isometric_configuration.h"
 #include "utils/isometric_maths.h"
+
 #include <core/os/os.h>
 #include <scene/2d/canvas_item.h>
 
@@ -8,7 +10,12 @@ using namespace data;
 
 IsometricServer* IsometricServer::_instance = nullptr;
 
-IsometricServer::IsometricServer() : state {ASYNC_DONE}, exit_thread(false), thread(), command_queue(true), is_debug(false) {
+IsometricServer::IsometricServer() :
+  state {ASYNC_DONE},
+  exit_thread(false),
+  thread(),
+  command_queue(true),
+  is_debug(false) {
     worlds.reserve(8);
     stack.reserve(32);
     thread.start(&IsometricServer::iteration, this);
@@ -101,7 +108,8 @@ const data::IsometricParameters* IsometricServer::space_get_configuration(const 
 void IsometricServer::isometric_element_set_position(const RID element_rid, const Vector3 global_position) {
     GET_ELEMENT_RID_DATA(element, element_rid);
     if (element->space && !element->is_dynamic) {
-        LOG_WARNING(vformat("A static element position can't be changed after being attached to a space."));
+        LOG_WARNING(vformat("A static element position can't be changed after "
+                            "being attached to a space."));
         return;
     }
     command_queue.push(this, &IsometricServer::command_isometric_element_set_position, element, global_position);
@@ -110,7 +118,8 @@ void IsometricServer::isometric_element_set_position(const RID element_rid, cons
 void IsometricServer::isometric_element_set_size(const RID element_rid, const Vector3 size) {
     GET_ELEMENT_RID_DATA(element, element_rid);
     if (element->space && !element->is_dynamic) {
-        LOG_WARNING(vformat("A static element size can't be changed after being attached to a space."));
+        LOG_WARNING(vformat("A static element size can't be changed after "
+                            "being attached to a space."));
         return;
     }
     command_queue.push(this, &IsometricServer::command_isometric_element_set_size, element, size);
@@ -119,7 +128,8 @@ void IsometricServer::isometric_element_set_size(const RID element_rid, const Ve
 void IsometricServer::isometric_element_set_depth(const RID element_rid, const int depth) {
     GET_ELEMENT_RID_DATA(element, element_rid);
     if (element->space && !element->is_dynamic) {
-        LOG_WARNING(vformat("A static element size can't be changed after being attached to a space."));
+        LOG_WARNING(vformat("A static element size can't be changed after "
+                            "being attached to a space."));
         return;
     }
     command_queue.push(this, &IsometricServer::command_isometric_element_set_depth, element, depth);
@@ -320,7 +330,11 @@ void IsometricServer::generate_topological_sorting_graph(data::IsometricSpace* p
                 IsometricElement* positionable {p_isometric_space->dynamic_elements[j]};
                 if (j != i && positionable) {
                     if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamicPositionable, positionable)) {
-                        if (utils::is_box_in_front(p_isometric_space->configuration, dynamicPositionable->aabb, positionable->aabb)) {
+                        if (utils::is_box_in_front(
+                              p_isometric_space->configuration,
+                              dynamicPositionable->aabb,
+                              positionable->aabb
+                            )) {
                             dynamicPositionable->behind_dynamics.push_back(positionable);
                         } else {
                             positionable->behind_dynamics.push_back(dynamicPositionable);
@@ -332,7 +346,11 @@ void IsometricServer::generate_topological_sorting_graph(data::IsometricSpace* p
             for (int j = 0; j < p_isometric_space->static_elements.size(); ++j) {
                 if (IsometricElement* positionable = p_isometric_space->static_elements[j]) {
                     if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamicPositionable, positionable)) {
-                        if (utils::is_box_in_front(p_isometric_space->configuration, dynamicPositionable->aabb, positionable->aabb)) {
+                        if (utils::is_box_in_front(
+                              p_isometric_space->configuration,
+                              dynamicPositionable->aabb,
+                              positionable->aabb
+                            )) {
                             dynamicPositionable->behind_statics.push_back(positionable);
                         } else {
                             positionable->behind_dynamics.push_back(dynamicPositionable);

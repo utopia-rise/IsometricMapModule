@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
-
     #include "positionable_set_editor_plugin.h"
+
     #include "resource/positionable_set.h"
 
 using namespace editor;
@@ -36,9 +36,9 @@ void PositionableSetEditorPlugin::edit(Object* p_object) {
 }
 
 PositionableSetEditorPlugin::PositionableSetEditorPlugin() :
-    EditorPlugin(),
-    positionable_set_editor(nullptr),
-    positionable_set_editor_button(nullptr) {}
+  EditorPlugin(),
+  positionable_set_editor(nullptr),
+  positionable_set_editor_button(nullptr) {}
 
 void PositionableSetEditorPlugin::_bind_methods() {}
 

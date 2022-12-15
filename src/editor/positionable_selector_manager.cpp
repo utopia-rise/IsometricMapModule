@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
-
     #include "positionable_selector_manager.h"
+
     #include "outline_drawer.h"
 
 using namespace editor;
@@ -58,7 +58,9 @@ bool PositionableSelectorManager::is_position_selected_for_map(node::IsometricMa
 void PositionableSelectorManager::refresh_outline_for_selected(node::IsometricMap* map) {
     const Vector<Vector3>& selected {map_to_selected_positions[map]};
     for (int i = 0; i < selected.size(); ++i) {
-        if (node::IsometricPositionable * positionable {map->get_positionable_at(selected[i])}) { show_outline(positionable); }
+        if (node::IsometricPositionable * positionable {map->get_positionable_at(selected[i])}) {
+            show_outline(positionable);
+        }
     }
 }
 

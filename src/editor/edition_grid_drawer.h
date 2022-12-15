@@ -2,9 +2,9 @@
 #define ISOMETRIC_MAPS_EDITION_GRID_DRAWER_H
 
 #ifdef TOOLS_ENABLED
-
     #include "../node/isometric_map.h"
     #include "editor_plane.h"
+
     #include <core/rid.h>
 
 namespace editor {

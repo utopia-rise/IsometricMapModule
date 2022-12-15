@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
-
     #include "set_positionable_visibility_command.h"
+
     #include "modules/isometric_maps/src/editor/isometric_editor_plugin.h"
 
 using namespace editor::commands;

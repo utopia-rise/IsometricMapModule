@@ -2,8 +2,8 @@
 #define ISOMETRIC_MAPS_POSITIONABLE_SELECTION_PANE_H
 
 #ifdef TOOLS_ENABLED
-
     #include "resource/positionable_set.h"
+
     #include <scene/gui/item_list.h>
     #include <scene/gui/label.h>
     #include <scene/gui/option_button.h>

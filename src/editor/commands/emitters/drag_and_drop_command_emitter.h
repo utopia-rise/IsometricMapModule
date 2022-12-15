@@ -2,7 +2,6 @@
 #define ISOMETRIC_MAPS_DRAG_AND_DROP_COMMAND_EMITTER_H
 
 #ifdef TOOLS_ENABLED
-
     #include "command_emitter.h"
     #include "editor/commands/command.h"
     #include "node/isometric_map.h"
@@ -30,9 +29,7 @@ namespace editor {
 
                 static AABB _calculate_real_aabb(const Vector3& initial_position, const Vector3& limit_position, const Vector3& positionable_size);
 
-                static Vector<Vector3> _calculate_positionables_positions(const Vector3& initial_position,
-                                                                          const Vector3& limit_position,
-                                                                          const Vector3& positionable_size);
+                static Vector<Vector3> _calculate_positionables_positions(const Vector3& initial_position, const Vector3& limit_position, const Vector3& positionable_size);
             };
         }// namespace emitters
     }// namespace commands

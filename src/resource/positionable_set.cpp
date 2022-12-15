@@ -1,14 +1,14 @@
 #include "positionable_set.h"
+
 #include "logging.h"
 #include "node/isometric_positionable.h"
 
 #ifdef TOOLS_ENABLED
-
     #include "editor/editor_utils.h"
+
     #include <core/io/resource_saver.h>
     #include <core/os/dir_access.h>
     #include <core/os/file_access.h>
-
 #endif
 
 using namespace resource;
@@ -252,15 +252,15 @@ void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifi
 }
 
 PositionableSet::PositionableSet() :
-    Resource(),
-    identifier_to_scene_path(),
-    identifier_to_loaded_scene(),
-    is_loaded(false)
+  Resource(),
+  identifier_to_scene_path(),
+  identifier_to_loaded_scene(),
+  is_loaded(false)
 #ifdef TOOLS_ENABLED
-    ,
-    categories(),
-    categories_to_identifiers(),
-    last_id()
+  ,
+  categories(),
+  categories_to_identifiers(),
+  last_id()
 #endif
 {
 }
@@ -269,32 +269,38 @@ void PositionableSet::_bind_methods() {
 #ifdef TOOLS_ENABLED
     ClassDB::bind_method(D_METHOD("set_categories", "p_categories"), &PositionableSet::set_categories);
     ClassDB::bind_method(D_METHOD("get_categories"), &PositionableSet::get_categories);
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "categories", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
-                 "set_categories",
-                 "get_categories");
+    ADD_PROPERTY(
+      PropertyInfo(Variant::ARRAY, "categories", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      "set_categories",
+      "get_categories"
+    );
     ADD_PROPERTY_DEFAULT("categories", PoolStringArray());
 
     ClassDB::bind_method(D_METHOD("_set_categories_to_identifiers", "p_categories_to_identifiers"), &PositionableSet::_set_categories_to_identifiers);
     ClassDB::bind_method(D_METHOD("_get_categories_to_identifiers"), &PositionableSet::_get_categories_to_identifiers);
     ADD_PROPERTY(
-        PropertyInfo(Variant::DICTIONARY, "categories_to_identifiers", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
-        "_set_categories_to_identifiers",
-        "_get_categories_to_identifiers");
+      PropertyInfo(Variant::DICTIONARY, "categories_to_identifiers", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      "_set_categories_to_identifiers",
+      "_get_categories_to_identifiers"
+    );
     ADD_PROPERTY_DEFAULT("categories_to_identifiers", Dictionary());
 
     ClassDB::bind_method(D_METHOD("_set_last_id", "p_last_id"), &PositionableSet::_set_last_id);
     ClassDB::bind_method(D_METHOD("_get_last_id"), &PositionableSet::_get_last_id);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "last_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
-                 "_set_last_id",
-                 "_get_last_id");
+    ADD_PROPERTY(
+      PropertyInfo(Variant::INT, "last_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      "_set_last_id",
+      "_get_last_id"
+    );
     ADD_PROPERTY_DEFAULT("last_id", 0);
 #endif
 
     ClassDB::bind_method(D_METHOD("_set_identifier_to_scene_path", "identifier_to_scene_path"), &PositionableSet::_set_identifier_to_scene_path);
     ClassDB::bind_method(D_METHOD("_get_identifier_to_scene_path"), &PositionableSet::_get_identifier_to_scene_path);
     ADD_PROPERTY(
-        PropertyInfo(Variant::DICTIONARY, "identifier_to_scene_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
-        "_set_identifier_to_scene_path",
-        "_get_identifier_to_scene_path");
+      PropertyInfo(Variant::DICTIONARY, "identifier_to_scene_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      "_set_identifier_to_scene_path",
+      "_get_identifier_to_scene_path"
+    );
     ADD_PROPERTY_DEFAULT("identifier_to_scene_path", Dictionary());
 }

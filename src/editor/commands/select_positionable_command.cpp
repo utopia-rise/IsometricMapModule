@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
-
     #include "select_positionable_command.h"
+
     #include "editor/isometric_editor_plugin.h"
     #include "editor/positionable_selector_manager.h"
 
@@ -29,7 +29,9 @@ void SelectPositionableCommand::undo() {
             editor::PositionableSelectorManager::get_instance().select_positionable_at(map, positionable);
         }
     }
-    if (should_deselect_first) { editor::PositionableSelectorManager::get_instance().set_selected_for_map(map, selected_cache); }
+    if (should_deselect_first) {
+        editor::PositionableSelectorManager::get_instance().set_selected_for_map(map, selected_cache);
+    }
 }
 
 void SelectPositionableCommand::set_position(const Vector3& p_position) {
@@ -40,7 +42,11 @@ void SelectPositionableCommand::set_should_deselect_first(bool p_should) {
     should_deselect_first = p_should;
 }
 
-SelectPositionableCommand::SelectPositionableCommand() : Command(), position(), should_deselect_first(false), selected_cache() {}
+SelectPositionableCommand::SelectPositionableCommand() :
+  Command(),
+  position(),
+  should_deselect_first(false),
+  selected_cache() {}
 
 void SelectPositionableCommand::_bind_methods_impl() {}
 

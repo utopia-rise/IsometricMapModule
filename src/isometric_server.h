@@ -6,6 +6,7 @@
 #include "data/isometric_element.h"
 #include "data/isometric_space.h"
 #include "logging.h"
+
 #include <core/os/thread.h>
 
 #define ISOMETRIC_SERVER IsometricServer::get_instance()

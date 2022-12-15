@@ -1,9 +1,10 @@
 #ifdef TOOLS_ENABLED
-
     #include "positionable_set_editor.h"
+
     #include "editor/editor_utils.h"
     #include "editor/positionable_scenes_cache_manager.h"
     #include "editor/positionable_set_editor_plugin.h"
+
     #include <core/os/file_access.h>
     #include <editor/editor_node.h>
     #include <scene/gui/button.h>
@@ -19,20 +20,20 @@ void PositionableSetEditor::set_positionable_set(const Ref<resource::Positionabl
 }
 
 PositionableSetEditor::PositionableSetEditor() :
-    VBoxContainer(),
-    category_selector(memnew(OptionButton)),
-    contained_tiles_list(memnew(ItemList)),
-    fix_path_button(memnew(Button)),
-    add_category_dialog(memnew(WindowDialog)),
-    add_category_dialog_line_edit(memnew(LineEdit)),
-    file_dialog(memnew(FileDialog)),
-    fix_path_dialog(memnew(FileDialog)),
-    alert_popup(memnew(AcceptDialog)),
-    remove_tile_alert_popup(memnew(WindowDialog)),
-    do_not_display_alert_remove_tile(memnew(CheckBox)),
-    remove_category_alert_popup(memnew(WindowDialog)),
-    do_not_display_alert_remove_category(memnew(CheckBox)),
-    current_set() {
+  VBoxContainer(),
+  category_selector(memnew(OptionButton)),
+  contained_tiles_list(memnew(ItemList)),
+  fix_path_button(memnew(Button)),
+  add_category_dialog(memnew(WindowDialog)),
+  add_category_dialog_line_edit(memnew(LineEdit)),
+  file_dialog(memnew(FileDialog)),
+  fix_path_dialog(memnew(FileDialog)),
+  alert_popup(memnew(AcceptDialog)),
+  remove_tile_alert_popup(memnew(WindowDialog)),
+  do_not_display_alert_remove_tile(memnew(CheckBox)),
+  remove_category_alert_popup(memnew(WindowDialog)),
+  do_not_display_alert_remove_category(memnew(CheckBox)),
+  current_set() {
     HBoxContainer* select_category_container {memnew(HBoxContainer)};
     Label* category_selector_label {memnew(Label)};
     category_selector_label->set_text("Categories:");
@@ -124,7 +125,8 @@ PositionableSetEditor::PositionableSetEditor() :
     add_child(remove_tile_alert_popup);
     remove_tile_alert_popup->set_visible(false);
 
-    Button* remove_category_alert_ok_button {_generate_alert_remove_dialog(remove_category_alert_popup, do_not_display_alert_remove_category)};
+    Button* remove_category_alert_ok_button {
+      _generate_alert_remove_dialog(remove_category_alert_popup, do_not_display_alert_remove_category)};
     add_child(remove_category_alert_popup);
     remove_category_alert_popup->set_visible(false);
 
@@ -241,8 +243,9 @@ void PositionableSetEditor::_on_fix_path_dialog_file_selected(const String& path
 
     if (positionables_in_path.empty()) return;
 
-    if (auto* metadata {
-            Object::cast_to<PositionableItemListMetadata>(contained_tiles_list->get_item_metadata(contained_tiles_list->get_selected_items()[0]))}) {
+    if (auto* metadata {Object::cast_to<PositionableItemListMetadata>(
+          contained_tiles_list->get_item_metadata(contained_tiles_list->get_selected_items()[0])
+        )}) {
         if (!current_set->add_or_update_positionable(metadata->positionable_id, positionables_in_path[0])) {
             alert_popup->set_text("Tile already exists in set !");
             alert_popup->popup_centered();
@@ -318,12 +321,17 @@ Button* PositionableSetEditor::_generate_alert_remove_dialog(WindowDialog* dialo
     dialog->set_title("Remove from positionable set");
     VBoxContainer* remove_alert_container {memnew(VBoxContainer)};
     Label* alert_remove_text {memnew(Label)};
-    alert_remove_text->set_text("You're going to remove tile(s) from set.\nMake sure those tiles are not used anymore in maps.\n"
-                                "If those are still in use, this will break you're map and you'll have to fix it.");
+    alert_remove_text->set_text("You're going to remove tile(s) from "
+                                "set.\nMake sure those tiles are not used "
+                                "anymore "
+                                "in maps.\n"
+                                "If those are still in use, this will break "
+                                "you're map and you'll have to fix it.");
     alert_remove_text->set_h_size_flags(SIZE_EXPAND_FILL);
     alert_remove_text->set_v_size_flags(SIZE_EXPAND_FILL);
     remove_alert_container->add_child(alert_remove_text);
-    do_not_display_alert_check_box->set_text("Do not display this message anymore.");
+    do_not_display_alert_check_box->set_text("Do not display this message "
+                                             "anymore.");
     remove_alert_container->add_child(do_not_display_alert_check_box);
     Button* remove_alert_ok_button {memnew(Button)};
     remove_alert_ok_button->set_text("Remove !");

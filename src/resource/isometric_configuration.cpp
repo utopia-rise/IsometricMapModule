@@ -1,4 +1,5 @@
 #include "isometric_configuration.h"
+
 #include "data/isometric_parameters.h"
 #include "logging.h"
 
@@ -7,7 +8,10 @@ using namespace resource;
 static RID_Owner<IsometricConfiguration> configurations_owner;
 
 // Todo: Change it so we can set the default values in the editor
-IsometricConfiguration::IsometricConfiguration() : tile_width(DEFAULT_WIDTH), angle(DEFAULT_ANGLE), topological_margin(DEFAULT_MARGIN) {
+IsometricConfiguration::IsometricConfiguration() :
+  tile_width(DEFAULT_WIDTH),
+  angle(DEFAULT_ANGLE),
+  topological_margin(DEFAULT_MARGIN) {
     configurations_owner.make_rid(this);
 }
 
