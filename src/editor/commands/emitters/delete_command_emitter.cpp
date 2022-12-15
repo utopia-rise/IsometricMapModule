@@ -10,8 +10,7 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event
-) {// NOLINT(performance-unnecessary-value-param)
+Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
     Vector<Ref<editor::commands::Command>> commands;
 
     if (!p_event->is_pressed()) { return commands; }

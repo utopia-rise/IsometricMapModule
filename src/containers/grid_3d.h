@@ -236,10 +236,9 @@ namespace containers {
 
     template<class T, T default_value>
     Vector3 Grid3D<T, default_value>::get_position_3d_from_index(int id) const {
-        return {
-            static_cast<real_t>(id % width),
-            static_cast<real_t>((id / width) % depth),
-            static_cast<real_t>(static_cast<int>(id / (width * depth)))};
+        return {static_cast<real_t>(id % width),
+                static_cast<real_t>((id / width) % depth),
+                static_cast<real_t>(static_cast<int>(id / (width * depth)))};
     }
 
     template<class T, T default_value>

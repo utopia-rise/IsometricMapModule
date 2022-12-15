@@ -24,8 +24,8 @@ Vector<Ref<editor::commands::Command>> SelectAllCommandEmitter::from_gui_input_t
           static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER).get_position())},
          {static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MAX_VIEW_LIMITER).get_position()),
           static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER).get_position()),
-          static_cast<real_t>(isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER).get_position())}}
-    )};
+          static_cast<real_t>(
+              isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER).get_position())}})};
 
     for (int i = 0; i < positionables.size(); ++i) {
         if (node::IsometricPositionable * positionable {positionables[i]}) {

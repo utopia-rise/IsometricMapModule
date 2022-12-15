@@ -8,8 +8,8 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event
-) {// NOLINT(performance-unnecessary-value-param)
+Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to_command_impl(
+    Ref<InputEventMouse> p_event) {// NOLINT(performance-unnecessary-value-param)
     Vector<Ref<Command>> commands;
 
     _clear_current_preview_node();
@@ -20,12 +20,10 @@ Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to
     const data::IsometricParameters* parameters {IsometricServer::get_instance()->space_get_configuration(map->get_space_RID())};
 
     EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
-    const Vector3& position {utils::from_screen_to_3D(
-        *parameters,
-        map->get_local_mouse_position(),
-        editor_plane.get_axis(),
-        static_cast<float>(editor_plane.get_position())
-    )};
+    const Vector3& position {utils::from_screen_to_3D(*parameters,
+                                                      map->get_local_mouse_position(),
+                                                      editor_plane.get_axis(),
+                                                      static_cast<float>(editor_plane.get_position()))};
 
     int selected_tile_id {isometric_editor_plugin->get_selection_pane()->get_selected_positionable_id()};
 
@@ -50,8 +48,7 @@ Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to
 
     if (!Input::get_singleton()->is_mouse_button_pressed(BUTTON_LEFT)) {
         current_preview_node = Object::cast_to<node::IsometricPositionable>(
-            map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
-        );
+            map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance());
 
         // TODO: Use the future container node to avoid flickering.
         current_preview_node->set_modulate(Color(1, 1, 1, 0.5));

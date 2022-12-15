@@ -269,11 +269,9 @@ void PositionableSet::_bind_methods() {
 #ifdef TOOLS_ENABLED
     ClassDB::bind_method(D_METHOD("set_categories", "p_categories"), &PositionableSet::set_categories);
     ClassDB::bind_method(D_METHOD("get_categories"), &PositionableSet::get_categories);
-    ADD_PROPERTY(
-        PropertyInfo(Variant::ARRAY, "categories", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
-        "set_categories",
-        "get_categories"
-    );
+    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "categories", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+                 "set_categories",
+                 "get_categories");
     ADD_PROPERTY_DEFAULT("categories", PoolStringArray());
 
     ClassDB::bind_method(D_METHOD("_set_categories_to_identifiers", "p_categories_to_identifiers"), &PositionableSet::_set_categories_to_identifiers);
@@ -281,17 +279,14 @@ void PositionableSet::_bind_methods() {
     ADD_PROPERTY(
         PropertyInfo(Variant::DICTIONARY, "categories_to_identifiers", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
         "_set_categories_to_identifiers",
-        "_get_categories_to_identifiers"
-    );
+        "_get_categories_to_identifiers");
     ADD_PROPERTY_DEFAULT("categories_to_identifiers", Dictionary());
 
     ClassDB::bind_method(D_METHOD("_set_last_id", "p_last_id"), &PositionableSet::_set_last_id);
     ClassDB::bind_method(D_METHOD("_get_last_id"), &PositionableSet::_get_last_id);
-    ADD_PROPERTY(
-        PropertyInfo(Variant::INT, "last_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
-        "_set_last_id",
-        "_get_last_id"
-    );
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "last_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+                 "_set_last_id",
+                 "_get_last_id");
     ADD_PROPERTY_DEFAULT("last_id", 0);
 #endif
 
@@ -300,7 +295,6 @@ void PositionableSet::_bind_methods() {
     ADD_PROPERTY(
         PropertyInfo(Variant::DICTIONARY, "identifier_to_scene_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
         "_set_identifier_to_scene_path",
-        "_get_identifier_to_scene_path"
-    );
+        "_get_identifier_to_scene_path");
     ADD_PROPERTY_DEFAULT("identifier_to_scene_path", Dictionary());
 }

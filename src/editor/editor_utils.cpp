@@ -48,9 +48,10 @@ Error EditorUtils::find_all_positionables_in_path(const String& path, List<Strin
     return Error::OK;
 }
 
-void EditorUtils::refresh_item_list_containing_tiles_for_category(
-    const String& category, ItemList* item_list, const Ref<resource::PositionableSet>& positionable_set, Control* calling_control
-) {
+void EditorUtils::refresh_item_list_containing_tiles_for_category(const String& category,
+                                                                  ItemList* item_list,
+                                                                  const Ref<resource::PositionableSet>& positionable_set,
+                                                                  Control* calling_control) {
     const Map<int, String>& scene_paths {positionable_set->get_scene_paths_for_category(category)};
 
     Vector<Ref<PackedScene>> scenes_to_add;
