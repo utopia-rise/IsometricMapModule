@@ -211,7 +211,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
             new_position = INT_MAX;
         }
     } else {
-        new_position = CLAMP(current_position - 1, 0, plane_max_position);
+        new_position = CLAMP(current_position - 1, 0, plane_max_position - 1);
     }
 
     Ref<editor::commands::MoveEditorPlaneCommand> move_command;
