@@ -1,6 +1,7 @@
 #ifdef TOOLS_ENABLED
 
 #include "move_editor_view_limiter_command_emitter.h"
+#include <modules/isometric_maps/src/constants.h>
 #include <modules/isometric_maps/src/editor/commands/composite_command.h>
 #include <modules/isometric_maps/src/editor/commands/set_positionable_visibility_command.h>
 #include <core/os/keyboard.h>
@@ -208,7 +209,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
             new_position += 1;
         }
         if (new_position >= plane_max_position && should_set_inf_on_max) {
-            new_position = INT_MAX;
+            new_position = Constants::int_max;
         }
     } else {
         new_position = CLAMP(current_position - 1, 0, plane_max_position - 1);

@@ -4,7 +4,7 @@
 #include <editor/editor_node.h>
 #include <modules/isometric_maps/src/editor/positionable_scenes_cache_manager.h>
 #include "positionable_selection_pane.h"
-#include <climits>
+#include "modules/isometric_maps/src/constants.h"
 #include <modules/isometric_maps/src/editor/editor_utils.h>
 
 using namespace editor::inspector;
@@ -77,7 +77,7 @@ PositionableSelectionPane::PositionableSelectionPane() : VSplitContainer(), top_
     add_child(top_container);
     top_container->add_child(category_selector);
     top_container->add_child(refresh_button);
-    top_container->set_split_offset(INT_MAX);
+    top_container->set_split_offset(Constants::int_max);
     top_container->clamp_split_offset();
     top_container->set_dragger_visibility(DraggerVisibility::DRAGGER_HIDDEN);
     add_child(item_list);

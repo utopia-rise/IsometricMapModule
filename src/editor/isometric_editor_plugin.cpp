@@ -5,6 +5,7 @@
 #include "positionable_selector_manager.h"
 #include "outline_drawer.h"
 #include "modules/isometric_maps/src/isometric_server.h"
+#include "modules/isometric_maps/src/constants.h"
 #include <scene/main/viewport.h>
 #include <core/os/keyboard.h>
 
@@ -299,11 +300,11 @@ IsometricEditorPlugin::MapHandlingData::MapHandlingData(const Vector3& p_map_siz
         editor_planes{
                 {0, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}},
                 {0, Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
-                {INT_MAX, Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
+                {Constants::int_max, Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
                 {0, Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
-                {INT_MAX, Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
+                {Constants::int_max, Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
                 {0, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}},
-                {INT_MAX, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}}
+                {Constants::int_max, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}}
         },
         plane_timers {
                 {nullptr},
