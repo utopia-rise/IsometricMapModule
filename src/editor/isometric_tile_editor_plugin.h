@@ -3,7 +3,7 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include <editor/editor_plugin.h>
+#include <editor/editor_plugin.h>
 
 namespace editor {
     class IsometricTileEditorPlugin : public EditorPlugin {

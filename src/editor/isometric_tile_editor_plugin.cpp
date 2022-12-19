@@ -1,12 +1,12 @@
 #ifdef TOOLS_ENABLED
 
-    #include "isometric_tile_editor_plugin.h"
+#include "isometric_tile_editor_plugin.h"
 
-    #include "node/isometric_map.h"
-    #include "node/isometric_positionable.h"
-    #include "outline_drawer.h"
+#include "node/isometric_map.h"
+#include "node/isometric_positionable.h"
+#include "outline_drawer.h"
 
-    #include <editor/editor_node.h>
+#include <editor/editor_node.h>
 
 using namespace editor;
 

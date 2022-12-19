@@ -1,8 +1,8 @@
 #ifdef TOOLS_ENABLED
-    #include "select_positionable_command.h"
+#include "select_positionable_command.h"
 
-    #include "editor/isometric_editor_plugin.h"
-    #include "editor/positionable_selector_manager.h"
+#include "editor/isometric_editor_plugin.h"
+#include "editor/positionable_selector_manager.h"
 
 using namespace editor::commands;
 

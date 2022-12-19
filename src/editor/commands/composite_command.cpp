@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
 
-    #include "composite_command.h"
+#include "composite_command.h"
 
 using namespace editor::commands;
 

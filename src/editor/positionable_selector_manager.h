@@ -3,9 +3,9 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include "containers/grid_3d.h"
-    #include "node/isometric_map.h"
-    #include "node/isometric_positionable.h"
+#include "containers/grid_3d.h"
+#include "node/isometric_map.h"
+#include "node/isometric_positionable.h"
 
 namespace editor {
     class PositionableSelectorManager {

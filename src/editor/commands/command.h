@@ -3,10 +3,10 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include <core/class_db.h>
-    #include <core/reference.h>
-    #include <core/resource.h>
-    #include <core/undo_redo.h>
+#include <core/class_db.h>
+#include <core/reference.h>
+#include <core/resource.h>
+#include <core/undo_redo.h>
 
 namespace editor {
     namespace commands {

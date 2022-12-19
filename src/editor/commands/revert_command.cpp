@@ -1,6 +1,6 @@
 #ifdef TOOLS_ENABLED
 
-    #include "revert_command.h"
+#include "revert_command.h"
 
 using namespace editor::commands;
 

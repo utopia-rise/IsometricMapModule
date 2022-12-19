@@ -1,10 +1,10 @@
 #ifdef TOOLS_ENABLED
-    #include "select_command_emitter.h"
+#include "select_command_emitter.h"
 
-    #include "data/isometric_parameters.h"
-    #include "editor/isometric_editor_plugin.h"
-    #include "isometric_server.h"
-    #include "utils/isometric_maths.h"
+#include "data/isometric_parameters.h"
+#include "editor/isometric_editor_plugin.h"
+#include "isometric_server.h"
+#include "utils/isometric_maths.h"
 
 using namespace editor::commands::emitters;
 

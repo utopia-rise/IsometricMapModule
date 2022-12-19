@@ -2,21 +2,21 @@
 #define ISOMETRIC_MAPS_MOVE_EDITOR_VIEW_LIMITER_COMMAND_EMITTER_H
 
 #ifdef TOOLS_ENABLED
-    #include "command_emitter.h"
-    #include "editor/commands/command.h"
-    #include "editor/commands/composite_command.h"
-    #include "editor/editor_plane.h"
-    #include "node/isometric_map.h"
+#include "command_emitter.h"
+#include "editor/commands/command.h"
+#include "editor/commands/composite_command.h"
+#include "editor/editor_plane.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {
         namespace emitters {
             typedef
-    #ifdef OSX_ENABLED
+#ifdef OSX_ENABLED
               InputEventPanGesture
-    #else
+#else
               InputEventMouseButton
-    #endif
+#endif
                 ScrollInputEvent;
 
             class MoveEditorViewLimiterCommandEmitter : public CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent> {
@@ -36,10 +36,10 @@ namespace editor {
                     NONE
                 };
 
-    #ifdef OSX_ENABLED
+#ifdef OSX_ENABLED
                 real_t cumulative_scroll_delta;
                 uint64_t cumulative_scroll_last_time;
-    #endif
+#endif
 
                 Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<ScrollInputEvent> p_event);
 

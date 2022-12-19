@@ -3,10 +3,10 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include "resource/positionable_set.h"
+#include "resource/positionable_set.h"
 
-    #include <core/ustring.h>
-    #include <scene/gui/item_list.h>
+#include <core/ustring.h>
+#include <scene/gui/item_list.h>
 
 namespace editor {
     struct PositionableItemListMetadata : public Reference {

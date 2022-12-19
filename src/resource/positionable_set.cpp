@@ -4,11 +4,11 @@
 #include "node/isometric_positionable.h"
 
 #ifdef TOOLS_ENABLED
-    #include "editor/editor_utils.h"
+#include "editor/editor_utils.h"
 
-    #include <core/io/resource_saver.h>
-    #include <core/os/dir_access.h>
-    #include <core/os/file_access.h>
+#include <core/io/resource_saver.h>
+#include <core/os/dir_access.h>
+#include <core/os/file_access.h>
 #endif
 
 using namespace resource;

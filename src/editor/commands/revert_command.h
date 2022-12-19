@@ -3,7 +3,7 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include "command.h"
+#include "command.h"
 
 namespace editor {
     namespace commands {

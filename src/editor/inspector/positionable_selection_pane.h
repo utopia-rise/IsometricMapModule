@@ -2,13 +2,13 @@
 #define ISOMETRIC_MAPS_POSITIONABLE_SELECTION_PANE_H
 
 #ifdef TOOLS_ENABLED
-    #include "resource/positionable_set.h"
+#include "resource/positionable_set.h"
 
-    #include <scene/gui/item_list.h>
-    #include <scene/gui/label.h>
-    #include <scene/gui/option_button.h>
-    #include <scene/gui/panel.h>
-    #include <scene/gui/split_container.h>
+#include <scene/gui/item_list.h>
+#include <scene/gui/label.h>
+#include <scene/gui/option_button.h>
+#include <scene/gui/panel.h>
+#include <scene/gui/split_container.h>
 
 namespace editor {
     namespace inspector {

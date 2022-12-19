@@ -1,11 +1,11 @@
 #ifdef TOOLS_ENABLED
-    #include "painting_command_emitter.h"
+#include "painting_command_emitter.h"
 
-    #include "editor/isometric_editor_plugin.h"
-    #include "isometric_server.h"
-    #include "utils/isometric_maths.h"
+#include "editor/isometric_editor_plugin.h"
+#include "isometric_server.h"
+#include "utils/isometric_maths.h"
 
-    #include <core/os/input.h>
+#include <core/os/input.h>
 
 using namespace editor::commands::emitters;
 

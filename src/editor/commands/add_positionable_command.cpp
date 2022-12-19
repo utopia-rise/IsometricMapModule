@@ -1,7 +1,7 @@
 #ifdef TOOLS_ENABLED
-    #include "add_positionable_command.h"
+#include "add_positionable_command.h"
 
-    #include "editor/isometric_editor_plugin.h"
+#include "editor/isometric_editor_plugin.h"
 
 using namespace editor::commands;
 

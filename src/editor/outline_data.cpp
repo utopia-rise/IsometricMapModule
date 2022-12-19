@@ -1,8 +1,8 @@
 #ifdef TOOLS_ENABLED
 
-    #include "outline_data.h"
+#include "outline_data.h"
 
-    #include <servers/visual_server.h>
+#include <servers/visual_server.h>
 
 using namespace editor;
 

@@ -3,7 +3,7 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include "node/isometric_positionable.h"
+#include "node/isometric_positionable.h"
 
 namespace editor {
     class OutlineDrawer {

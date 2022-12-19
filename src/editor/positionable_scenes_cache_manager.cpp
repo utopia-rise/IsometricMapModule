@@ -1,13 +1,13 @@
 #ifdef TOOLS_ENABLED
-    #include "positionable_scenes_cache_manager.h"
+#include "positionable_scenes_cache_manager.h"
 
-    #include "data/isometric_parameters.h"
-    #include "isometric_editor_plugin.h"
-    #include "node/isometric_positionable.h"
-    #include "utils/isometric_maths.h"
+#include "data/isometric_parameters.h"
+#include "isometric_editor_plugin.h"
+#include "node/isometric_positionable.h"
+#include "utils/isometric_maths.h"
 
-    #include <editor/editor_node.h>
-    #include <scene/2d/camera_2d.h>
+#include <editor/editor_node.h>
+#include <scene/2d/camera_2d.h>
 
 using namespace editor;
 

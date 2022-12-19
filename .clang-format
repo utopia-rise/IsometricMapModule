@@ -67,7 +67,7 @@ IncludeCategories:
     Priority: 3
 IndentAccessModifiers: false
 IndentCaseLabels: true
-IndentPPDirectives: BeforeHash
+IndentPPDirectives: None
 IndentWidth: 4
 IndentWrappedFunctionNames: false
 KeepEmptyLinesAtTheStartOfBlocks: false

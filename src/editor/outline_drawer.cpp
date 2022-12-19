@@ -1,9 +1,9 @@
 #ifdef TOOLS_ENABLED
 
-    #include "outline_drawer.h"
+#include "outline_drawer.h"
 
-    #include "isometric_server.h"
-    #include "utils/isometric_maths.h"
+#include "isometric_server.h"
+#include "utils/isometric_maths.h"
 
 using namespace editor;
 

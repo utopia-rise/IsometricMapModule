@@ -2,8 +2,8 @@
 #define ISOMETRIC_MAPS_SELECT_ALL_COMMAND_EMITTER_H
 
 #ifdef TOOLS_ENABLED
-    #include "command_emitter.h"
-    #include "editor/commands/command.h"
+#include "command_emitter.h"
+#include "editor/commands/command.h"
 
 namespace editor {
     namespace commands {

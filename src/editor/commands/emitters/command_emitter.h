@@ -2,10 +2,10 @@
 #define ISOMETRIC_MAPS_COMMAND_EMITTER_H
 
 #ifdef TOOLS_ENABLED
-    #include "../command.h"
+#include "../command.h"
 
-    #include <core/os/input_event.h>
-    #include <core/undo_redo.h>
+#include <core/os/input_event.h>
+#include <core/undo_redo.h>
 
 namespace editor {
     namespace commands {

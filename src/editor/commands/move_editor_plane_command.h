@@ -3,8 +3,8 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include "command.h"
-    #include "editor/editor_plane.h"
+#include "command.h"
+#include "editor/editor_plane.h"
 
 namespace editor {
     namespace commands {

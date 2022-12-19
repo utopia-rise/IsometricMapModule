@@ -3,10 +3,10 @@
 
 #ifdef TOOLS_ENABLED
 
-    #include "core/color.h"
-    #include "core/variant.h"
+#include "core/color.h"
+#include "core/variant.h"
 
-    #include <core/rid.h>
+#include <core/rid.h>
 
 namespace editor {
     struct OutlineData {

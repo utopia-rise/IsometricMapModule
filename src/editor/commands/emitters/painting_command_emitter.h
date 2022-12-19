@@ -2,9 +2,9 @@
 #define ISOMETRIC_MAPS_PAINTING_COMMAND_EMITTER_H
 
 #ifdef TOOLS_ENABLED
-    #include "command_emitter.h"
-    #include "editor/commands/add_positionable_command.h"
-    #include "node/isometric_map.h"
+#include "command_emitter.h"
+#include "editor/commands/add_positionable_command.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {

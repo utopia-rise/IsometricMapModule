@@ -1,8 +1,8 @@
 #ifdef TOOLS_ENABLED
 
-    #include "editor_plane.h"
+#include "editor_plane.h"
 
-    #include <servers/visual_server.h>
+#include <servers/visual_server.h>
 
 using namespace editor;
 
