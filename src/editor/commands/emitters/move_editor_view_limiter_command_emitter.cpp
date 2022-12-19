@@ -1,6 +1,7 @@
 #ifdef TOOLS_ENABLED
 
 #include "move_editor_view_limiter_command_emitter.h"
+#include <modules/isometric_maps/src/constants.h>
 #include <modules/isometric_maps/src/editor/commands/composite_command.h>
 #include <modules/isometric_maps/src/editor/commands/set_positionable_visibility_command.h>
 #include <core/os/keyboard.h>
@@ -37,23 +38,31 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
 
     EditorPlane::PlaneType plane_type;
     int plane_max_position;
+    const Vector3& map_size{IsometricEditorPlugin::get_instance()->get_selected_map()->get_size()};
     if (Input::get_singleton()->is_key_pressed(KeyList::KEY_1)) {
         plane_type = p_event->get_shift() ?
                 EditorPlane::PlaneType::X_MIN_VIEW_LIMITER :
                 EditorPlane::PlaneType::X_MAX_VIEW_LIMITER ;
-        plane_max_position = IsometricEditorPlugin::get_instance()->get_selected_map()->get_size().x;
+        plane_max_position = map_size.x;
     } else if (Input::get_singleton()->is_key_pressed(KeyList::KEY_2)) {
         plane_type = p_event->get_shift() ?
                      EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER :
                      EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER ;
-        plane_max_position = IsometricEditorPlugin::get_instance()->get_selected_map()->get_size().y;
+        plane_max_position = map_size.y;
     } else if (Input::get_singleton()->is_key_pressed(KeyList::KEY_3)) {
         plane_type = p_event->get_shift() ?
                      EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER :
                      EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER ;
-        plane_max_position = IsometricEditorPlugin::get_instance()->get_selected_map()->get_size().z;
+        plane_max_position = map_size.z;
     } else {
         return commands;
+    }
+
+    bool should_set_inf_on_max{false};
+    if (plane_type == EditorPlane::PlaneType::X_MAX_VIEW_LIMITER ||
+        plane_type == EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER ||
+        plane_type == EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER) {
+        should_set_inf_on_max = true;
     }
 
     const EditorPlane plane{IsometricEditorPlugin::get_instance()
@@ -62,23 +71,75 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
     auto editor_plane_position{static_cast<real_t>(plane.get_position())};
 
     bool is_forward{motion == EventMotion::FORWARD};
-    if ((editor_plane_position == 0 && !is_forward) || (editor_plane_position == plane_max_position && is_forward)) {
+    if ((editor_plane_position == 0 && !is_forward) || (editor_plane_position >= plane_max_position && is_forward)) {
         return commands;
     }
 
-    const EditorPlane& x_min_view_limiter{IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MIN_VIEW_LIMITER)};
-    const EditorPlane& x_max_view_limiter{IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MAX_VIEW_LIMITER)};
-    const EditorPlane& y_min_view_limiter{IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER)};
-    const EditorPlane& y_max_view_limiter{IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER)};
-    const EditorPlane& z_min_view_limiter{IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER)};
-    const EditorPlane& z_max_view_limiter{IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER)};
+    if (editor_plane_position >= plane_max_position) {
+        editor_plane_position = plane_max_position;
+    }
+
+    const int x_min_view_limiter_position{
+            CLAMP(
+                    IsometricEditorPlugin::get_instance()
+                            ->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MIN_VIEW_LIMITER)
+                            .get_position(),
+                    0,
+                    static_cast<int>(map_size.x)
+            )
+    };
+    const int x_max_view_limiter_position{
+            CLAMP(
+                    IsometricEditorPlugin::get_instance()
+                            ->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MAX_VIEW_LIMITER)
+                            .get_position(),
+                    0,
+                    static_cast<int>(map_size.x)
+            )
+    };
+    const int y_min_view_limiter_position{
+            CLAMP(
+                    IsometricEditorPlugin::get_instance()
+                            ->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER)
+                            .get_position(),
+                    0,
+                    static_cast<int>(map_size.y)
+                )
+    };
+    const int y_max_view_limiter_position{
+            CLAMP(
+                    IsometricEditorPlugin::get_instance()
+                            ->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER)
+                            .get_position(),
+                    0,
+                    static_cast<int>(map_size.y)
+            )
+    };
+    const int z_min_view_limiter_position{
+            CLAMP(
+                    IsometricEditorPlugin::get_instance()
+                            ->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER)
+                            .get_position(),
+                    0,
+                    static_cast<int>(map_size.z)
+            )
+    };
+    const int z_max_view_limiter_position{
+            CLAMP(
+                    IsometricEditorPlugin::get_instance()
+                            ->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER)
+                            .get_position(),
+                    0,
+                    static_cast<int>(map_size.z)
+            )
+    };
     real_t range_to_change_visibility_position{is_forward ? editor_plane_position : editor_plane_position - 1};
     Ref<CompositeCommand> composite_command;
     composite_command.instance();
     switch (plane.get_axis()) {
         case Vector3::AXIS_X: {
-            for (int y = y_min_view_limiter.get_position(); y < y_max_view_limiter.get_position(); ++y) {
-                for (int z = z_min_view_limiter.get_position(); z < z_max_view_limiter.get_position(); ++z) {
+            for (int y = y_min_view_limiter_position; y < y_max_view_limiter_position; ++y) {
+                for (int z = z_min_view_limiter_position; z < z_max_view_limiter_position; ++z) {
                     Vector3 position{
                             range_to_change_visibility_position,
                             static_cast<real_t>(y),
@@ -98,8 +159,8 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
         }
             break;
         case Vector3::AXIS_Y:
-            for (int x = x_min_view_limiter.get_position(); x < x_max_view_limiter.get_position(); ++x) {
-                for (int z = z_min_view_limiter.get_position(); z < z_max_view_limiter.get_position(); ++z) {
+            for (int x = x_min_view_limiter_position; x < x_max_view_limiter_position; ++x) {
+                for (int z = z_min_view_limiter_position; z < z_max_view_limiter_position; ++z) {
                     Vector3 position{
                             static_cast<real_t>(x),
                             range_to_change_visibility_position,
@@ -118,8 +179,8 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
             }
             break;
         case Vector3::AXIS_Z:
-            for (int x = x_min_view_limiter.get_position(); x < x_max_view_limiter.get_position(); ++x) {
-                for (int y = y_min_view_limiter.get_position(); y < y_max_view_limiter.get_position(); ++y) {
+            for (int x = x_min_view_limiter_position; x < x_max_view_limiter_position; ++x) {
+                for (int y = y_min_view_limiter_position; y < y_max_view_limiter_position; ++y) {
                     Vector3 position{
                             static_cast<real_t>(x),
                             static_cast<real_t>(y),
@@ -138,13 +199,27 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
             }
             break;
     }
-
     commands.push_back(composite_command);
+
+    int current_position{plane.get_position()};
+    int new_position{current_position};
+
+    if (is_forward) {
+        if (current_position < plane_max_position) {
+            new_position += 1;
+        }
+        if (new_position >= plane_max_position && should_set_inf_on_max) {
+            new_position = Constants::int_max;
+        }
+    } else {
+        new_position = CLAMP(current_position - 1, 0, plane_max_position - 1);
+    }
 
     Ref<editor::commands::MoveEditorPlaneCommand> move_command;
     move_command.instance();
-    move_command->set_is_forward(is_forward);
     move_command->set_plane_type(plane_type);
+    move_command->set_old_position(current_position);
+    move_command->set_new_position(new_position);
     commands.push_back(move_command);
 
     return commands;

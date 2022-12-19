@@ -107,6 +107,8 @@ namespace editor {
 
         void _on_plane_visibility_timeout(int p_plane_type);
 
+        void _on_map_size_changed();
+
         void _draw_edition_grid() const;
         void _draw_plane(EditorPlane::PlaneType p_plane_type);
         void _set_plane_timer(EditorPlane::PlaneType p_plane_type, float p_delay);

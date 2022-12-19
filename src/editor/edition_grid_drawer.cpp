@@ -23,11 +23,12 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
     Vector3 map_size{map->get_size()};
 
     Vector2 global_offset{0, static_cast<float>(-diamond_height) * 0.5f};
-    float editor_plane_position = static_cast<float>(editor_plane.get_position());
+
 
     switch (editor_plane.get_axis()) {
         case Vector3::AXIS_X:
             {
+                float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.x));
                 Vector2 offset{
                         -diamond_width * 0.5f * editor_plane_position,
                         -diamond_height * 0.5f * editor_plane_position
@@ -60,6 +61,7 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
             break;
         case Vector3::AXIS_Y:
             {
+                float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.y));
                 Vector2 offset{
                         diamond_width * 0.5f * editor_plane_position,
                         -diamond_height * 0.5f * editor_plane_position
@@ -92,6 +94,7 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
             break;
         case Vector3::AXIS_Z:
             {
+                float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.z));
                 Vector2 offset{
                         0,
                         IsometricServer::get_instance()->space_get_z_length(space_rid) *
@@ -148,6 +151,10 @@ void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_p
 
     switch (p_editor_plane.get_axis()) {
         case Vector3::AXIS_X:
+            if (editor_plane_position > map_size.x) {
+                editor_plane_position = map_size.x;
+            }
+
             {
                 Vector2 offset{
                         -diamond_width * 0.5f * editor_plane_position,
@@ -172,6 +179,10 @@ void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_p
             );
             break;
         case Vector3::AXIS_Y:
+            if (editor_plane_position > map_size.y) {
+                editor_plane_position = map_size.y;
+            }
+
             {
                 Vector2 offset{
                         diamond_width * 0.5f * editor_plane_position,
@@ -197,6 +208,10 @@ void editor::EditionGridDrawer::draw_plane(const editor::EditorPlane& p_editor_p
             );
             break;
         case Vector3::AXIS_Z:
+            if (editor_plane_position > map_size.z) {
+                editor_plane_position = map_size.z;
+            }
+
             {
                 Vector2 offset{
                         0,

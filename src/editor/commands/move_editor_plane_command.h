@@ -14,17 +14,17 @@ namespace editor {
             void redo() override;
             void undo() override;
 
-            void set_is_forward(bool p_is_forward);
+            void set_new_position(int p_new_position);
+            void set_old_position(int p_old_position);
             void set_plane_type(EditorPlane::PlaneType p_plane_type);
 
             MoveEditorPlaneCommand();
             ~MoveEditorPlaneCommand() override = default;
 
         private:
-            void act(bool p_is_forward);
-
-            bool is_forward;
             EditorPlane::PlaneType plane_type;
+            int new_position;
+            int old_position;
         };
     }
 }

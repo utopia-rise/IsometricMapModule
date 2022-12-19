@@ -5,6 +5,7 @@
 #include "positionable_selector_manager.h"
 #include "outline_drawer.h"
 #include "modules/isometric_maps/src/isometric_server.h"
+#include "modules/isometric_maps/src/constants.h"
 #include <scene/main/viewport.h>
 #include <core/os/keyboard.h>
 
@@ -110,6 +111,10 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     positionable_selection_pane->set_positionable_set(selected_map->get_positionable_set());
     if (!selected_map->is_connected("positional_set_changed", positionable_selection_pane, "set_positionable_set")) {
         selected_map->connect("positional_set_changed", positionable_selection_pane, "set_positionable_set");
+    }
+
+    if (!selected_map->is_connected(node::IsometricMap::SIZE_CHANGED_SIGNAL, this, "_on_map_size_changed")) {
+        selected_map->connect(node::IsometricMap::SIZE_CHANGED_SIGNAL, this, "_on_map_size_changed");
     }
 
     auto index{reinterpret_cast<uint64_t>(selected_map)};
@@ -295,11 +300,11 @@ IsometricEditorPlugin::MapHandlingData::MapHandlingData(const Vector3& p_map_siz
         editor_planes{
                 {0, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}},
                 {0, Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
-                {static_cast<int>(p_map_size.x), Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
+                {Constants::int_max, Vector3::Axis::AXIS_X, {p_map_size.y, p_map_size.z}},
                 {0, Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
-                {static_cast<int>(p_map_size.y), Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
+                {Constants::int_max, Vector3::Axis::AXIS_Y, {p_map_size.x, p_map_size.z}},
                 {0, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}},
-                {static_cast<int>(p_map_size.z), Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}}
+                {Constants::int_max, Vector3::Axis::AXIS_Z, {p_map_size.x, p_map_size.y}}
         },
         plane_timers {
                 {nullptr},
@@ -361,6 +366,10 @@ void IsometricEditorPlugin::_on_plane_visibility_timeout(int p_plane_type) {
     map_handling_data.plane_timers[p_plane_type] = Ref<SceneTreeTimer>();
 }
 
+void IsometricEditorPlugin::_on_map_size_changed() {
+    refresh(EditorPlane::PlaneType::EDITOR_DRAWER);
+}
+
 void IsometricEditorPlugin::_draw_edition_grid() const {
     auto index{reinterpret_cast<uint64_t>(selected_map)};
     const MapHandlingData& map_handling_data{handling_data_map[index]};
@@ -399,6 +408,7 @@ void IsometricEditorPlugin::_bind_methods() {
     ClassDB::bind_method("_on_frame_post_draw", &IsometricEditorPlugin::_on_frame_post_draw);
     ClassDB::bind_method("_on_edition_mode_changed", &IsometricEditorPlugin::_on_edition_mode_changed);
     ClassDB::bind_method(D_METHOD("_on_plane_visibility_timeout", "p_plane_type"), &IsometricEditorPlugin::_on_plane_visibility_timeout);
+    ClassDB::bind_method("_on_map_size_changed", &IsometricEditorPlugin::_on_map_size_changed);
 }
 
 #endif
