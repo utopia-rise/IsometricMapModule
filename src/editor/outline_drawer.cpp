@@ -115,20 +115,20 @@ void OutlineDrawer::draw_outline(node::IsometricPositionable* positionable) {
         const Color& color {outline_data.color};
         real_t line_size {outline_data.line_size};
 
-        //    Upper Lines
+        // Upper Lines
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[0], up_points[1], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[1], up_points[2], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[2], up_points[3], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[3], up_points[0], color, line_size);
 
-        //    Vertical Lines
+        // Vertical Lines
 
         // draw_line(up_p[0], down_p[0], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[1], down_points[1], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[2], down_points[2], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, up_points[3], down_points[3], color, line_size);
 
-        //    Lower Lines
+        // Lower Lines
         // draw_line(down_p[0], down_p[1], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, down_points[1], down_points[2], color, line_size);
         VisualServer::get_singleton()->canvas_item_add_line(outline_rid, down_points[2], down_points[3], color, line_size);

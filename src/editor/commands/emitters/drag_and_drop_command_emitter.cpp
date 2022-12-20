@@ -109,18 +109,18 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
 }
 
 void DragAndDropCommandEmitter::_clear_current_preview_nodes(int new_size) {
-    if (IsometricEditorPlugin * isometric_editor_plugin {IsometricEditorPlugin::get_instance()}) {
+    if (IsometricEditorPlugin* isometric_editor_plugin = IsometricEditorPlugin::get_instance()) {
         node::IsometricMap* map {isometric_editor_plugin->get_selected_map()};
 
         // Only remove but not delete nodes in the new range
         for (int i = 0; i < MIN(new_size, current_preview_nodes.size()); ++i) {
-            if (node::IsometricPositionable * current_preview_node {current_preview_nodes[i]}) {
+            if (node::IsometricPositionable* current_preview_node = current_preview_nodes[i]) {
                 map->remove_child(current_preview_node);
             }
         }
         // Remove and delete excess nodes.
         for (int i = new_size; i < current_preview_nodes.size(); ++i) {
-            if (node::IsometricPositionable * current_preview_node {current_preview_nodes[i]}) {
+            if (node::IsometricPositionable* current_preview_node = current_preview_nodes[i]) {
                 map->remove_child(current_preview_node);
                 memdelete(current_preview_node);
             }

@@ -5,6 +5,7 @@ AlignAfterOpenBracket: BlockIndent
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
 AlignTrailingComments: false
+
 #Allow
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
@@ -89,7 +90,7 @@ PenaltyReturnTypeOnItsOwnLine: 10000
 
 PointerAlignment: Left
 ReferenceAlignment: Left
-ReflowComments: false
+ReflowComments: true
 SeparateDefinitionBlocks: Always
 SortIncludes: CaseInsensitive
 SortUsingDeclarations: false
@@ -109,6 +110,9 @@ SpacesBeforeTrailingComments: 0
 SpacesInAngles: false
 SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: false
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: 1
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 
