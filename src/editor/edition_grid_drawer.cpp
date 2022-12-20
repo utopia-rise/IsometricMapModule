@@ -21,11 +21,13 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
     Vector2 global_offset {0, static_cast<float>(-diamond_height) * 0.5f};
 
     switch (editor_plane.get_axis()) {
-        case Vector3::AXIS_X: {
-            float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.x));
-            Vector2 offset {-diamond_width * 0.5f * editor_plane_position, -diamond_height * 0.5f * editor_plane_position};
-            VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
-        }
+        case Vector3::AXIS_X:
+            // draw grid along the X axis using the map size defined on Y and Z.
+            {
+                float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.x));
+                Vector2 offset {-diamond_width * 0.5f * editor_plane_position, -diamond_height * 0.5f * editor_plane_position};
+                VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
+            }
 
             for (int i = 0; i < static_cast<int>(map_size.y) + 1; i++) {
                 auto index = static_cast<float>(i);
@@ -42,11 +44,13 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
                 VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
             }
             break;
-        case Vector3::AXIS_Y: {
-            float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.y));
-            Vector2 offset {diamond_width * 0.5f * editor_plane_position, -diamond_height * 0.5f * editor_plane_position};
-            VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
-        }
+        case Vector3::AXIS_Y:
+            // draw grid along the Y axis using the map size defined on Y and X.
+            {
+                float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.y));
+                Vector2 offset {diamond_width * 0.5f * editor_plane_position, -diamond_height * 0.5f * editor_plane_position};
+                VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
+            }
 
             for (int i = 0; i < static_cast<int>(map_size.z) + 1; i++) {
                 auto index = static_cast<float>(i);
@@ -63,11 +67,13 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
                 VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
             }
             break;
-        case Vector3::AXIS_Z: {
-            float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.z));
-            Vector2 offset {0, IsometricServer::get_instance()->space_get_z_length(space_rid) * editor_plane_position};
-            VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
-        }
+        case Vector3::AXIS_Z:
+            // draw grid along the Z axis using the map size defined on X and Y.
+            {
+                float editor_plane_position = static_cast<float>(MIN(editor_plane.get_position(), map_size.z));
+                Vector2 offset {0, IsometricServer::get_instance()->space_get_z_length(space_rid) * editor_plane_position};
+                VisualServer::get_singleton()->canvas_item_set_transform(rid, Transform2D().translated(global_offset - offset));
+            }
 
             for (int i = 0; i < static_cast<int>(map_size.y) + 1; i++) {
                 auto index = static_cast<float>(i);
