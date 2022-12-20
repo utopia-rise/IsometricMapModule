@@ -1,21 +1,20 @@
 #ifdef TOOLS_ENABLED
 
-#include <core/os/keyboard.h>
-#include <modules/isometric_maps/src/editor/commands/move_editor_plane_command.h>
-#include <modules/isometric_maps/src/editor/isometric_editor_plugin.h>
 #include "move_editor_grid_command_emitter.h"
+
+#include "editor/commands/move_editor_plane_command.h"
+#include "editor/isometric_editor_plugin.h"
+
+#include <core/os/keyboard.h>
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>>
-MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
+Vector<Ref<editor::commands::Command>> MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
     Vector<Ref<editor::commands::Command>> commands;
 
-    if (!p_event->is_pressed()) {
-        return commands;
-    }
+    if (!p_event->is_pressed()) { return commands; }
 
-    bool is_forward{false};
+    bool is_forward {false};
     switch (p_event->get_scancode()) {
         case KeyList::KEY_UP:
             is_forward = true;
@@ -26,12 +25,12 @@ MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> 
             return commands;
     }
 
-    IsometricEditorPlugin* isometric_editor_plugin{IsometricEditorPlugin::get_instance()};
-    node::IsometricMap* map{isometric_editor_plugin->get_selected_map()};
-    EditorPlane& editor_plane{isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER)};
+    IsometricEditorPlugin* isometric_editor_plugin {IsometricEditorPlugin::get_instance()};
+    node::IsometricMap* map {isometric_editor_plugin->get_selected_map()};
+    EditorPlane& editor_plane {isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER)};
 
-    int current_position{editor_plane.get_position()};
-    int new_position{};
+    int current_position {editor_plane.get_position()};
+    int new_position {};
     switch (editor_plane.get_axis()) {
         case Vector3::AXIS_X:
             if ((current_position == 0 && !is_forward) || (current_position >= map->get_size().x - 1 && is_forward)) {
@@ -71,8 +70,6 @@ MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> 
     return commands;
 }
 
-MoveEditorGridCommandEmitter::MoveEditorGridCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {
-
-}
+MoveEditorGridCommandEmitter::MoveEditorGridCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {}
 
 #endif

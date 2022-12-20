@@ -12,8 +12,8 @@
 #include "editor/commands/emitters/select_all_command_emitter.h"
 #include "editor/commands/emitters/select_command_emitter.h"
 #include "editor_plane.h"
-#include "modules/isometric_maps/src/editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
-#include "modules/isometric_maps/src/editor/inspector/positionable_selection_pane.h"
+#include "editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
+#include "editor/inspector/positionable_selection_pane.h"
 #include "node/isometric_map.h"
 
 #include <editor/editor_node.h>

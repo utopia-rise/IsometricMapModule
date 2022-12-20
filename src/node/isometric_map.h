@@ -2,13 +2,13 @@
 #define ISOMETRIC_MAPS_ISOMETRIC_MAP_H
 
 #include "containers/grid_3d.h"
-#include "modules/isometric_maps/src/node/isometric_positionable.h"
+#include "node/isometric_positionable.h"
 #include "resource/positionable_set.h"
 
 namespace node {
 
     class IsometricMap : public IsometricPositionable {
-    GDCLASS(IsometricMap, IsometricPositionable)
+        GDCLASS(IsometricMap, IsometricPositionable)
 
     private:
         bool draw_tiles;
@@ -44,7 +44,7 @@ namespace node {
 
         bool is_overlapping(const AABB& aabb) const;
 
-        static constexpr const char* SIZE_CHANGED_SIGNAL{"size_changed"};
+        static constexpr const char* SIZE_CHANGED_SIGNAL {"size_changed"};
 #endif
 
         IsometricMap();
@@ -54,5 +54,5 @@ namespace node {
     protected:
         static void _bind_methods();
     };
-} // namespace positionable
-#endif //ISOMETRIC_MAPS_ISOMETRIC_MAP_H
+}// namespace node
+#endif// ISOMETRIC_MAPS_ISOMETRIC_MAP_H
