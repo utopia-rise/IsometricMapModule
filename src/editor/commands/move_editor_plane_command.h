@@ -1,11 +1,10 @@
+#ifndef ISOMETRIC_MAPS_MOVE_EDITION_GRID_COMMAND_H
+#define ISOMETRIC_MAPS_MOVE_EDITION_GRID_COMMAND_H
+
 #ifdef TOOLS_ENABLED
 
-#ifndef ISOMETRIC_MAPS_MOVE_EDITION_GRID_COMAND_H
-#define ISOMETRIC_MAPS_MOVE_EDITION_GRID_COMAND_H
-
-
-#include <modules/isometric_maps/src/editor/editor_plane.h>
 #include "command.h"
+#include "editor/editor_plane.h"
 
 namespace editor {
     namespace commands {
@@ -26,10 +25,8 @@ namespace editor {
             int new_position;
             int old_position;
         };
-    }
-}
-
-
-#endif //ISOMETRIC_MAPS_MOVE_EDITION_GRID_COMAND_H
+    }// namespace commands
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_MOVE_EDITION_GRID_COMMAND_H

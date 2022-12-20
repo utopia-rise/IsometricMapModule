@@ -1,12 +1,13 @@
 #ifdef TOOLS_ENABLED
-
-#include <scene/2d/camera_2d.h>
-#include <modules/isometric_maps/src/node/isometric_positionable.h>
-#include <editor/editor_node.h>
-#include <modules/isometric_maps/src/data/isometric_parameters.h>
-#include <modules/isometric_maps/src/utils/isometric_maths.h>
 #include "positionable_scenes_cache_manager.h"
+
+#include "data/isometric_parameters.h"
 #include "isometric_editor_plugin.h"
+#include "node/isometric_positionable.h"
+#include "utils/isometric_maths.h"
+
+#include <editor/editor_node.h>
+#include <scene/2d/camera_2d.h>
 
 using namespace editor;
 
@@ -16,7 +17,7 @@ PositionableScenesCacheManager& PositionableScenesCacheManager::get_instance() {
 }
 
 void PositionableScenesCacheManager::add_scene(Control* p_control, int index, Ref<PackedScene> scene) {
-    Viewport* scene_viewport{_get_icon_for_scene(scene)};
+    Viewport* scene_viewport {_get_icon_for_scene(scene)};
     if (scene_viewport) {
         EditorNode::get_singleton()->add_child(scene_viewport);
         drawing_viewport[p_control].set(index, scene_viewport);
@@ -37,15 +38,15 @@ Ref<Texture> PositionableScenesCacheManager::get_icon(Control* p_control, int in
 }
 
 void PositionableScenesCacheManager::copy_current_viewports_textures() {
-    Map<Control*, Vector<Viewport*>>::Element* current{drawing_viewport.front()};
+    Map<Control*, Vector<Viewport*>>::Element* current {drawing_viewport.front()};
     while (current) {
-        Control* control{current->key()};
-        const Vector<Viewport*>& viewports{current->value()};
+        Control* control {current->key()};
+        const Vector<Viewport*>& viewports {current->value()};
         for (int i = 0; i < viewports.size(); ++i) {
             Ref<ImageTexture> copy_texture;
             copy_texture.instance();
             copy_texture->create_from_image(viewports[i]->get_texture()->get_data());
-            CacheEntry copy{cache[control].get(i)};
+            CacheEntry copy {cache[control].get(i)};
             copy.icon = copy_texture;
             cache[control].set(i, copy);
         }
@@ -54,11 +55,11 @@ void PositionableScenesCacheManager::copy_current_viewports_textures() {
 }
 
 void PositionableScenesCacheManager::clear_current_viewports() {
-    Map<Control*, Vector<Viewport*>>::Element* current{drawing_viewport.front()};
+    Map<Control*, Vector<Viewport*>>::Element* current {drawing_viewport.front()};
     while (current) {
-        Vector<Viewport*>& viewports{current->value()};
+        Vector<Viewport*>& viewports {current->value()};
         for (int i = 0; i < viewports.size(); ++i) {
-            Viewport* viewport{viewports[i]};
+            Viewport* viewport {viewports[i]};
             EditorNode::get_singleton()->remove_child(viewport);
             viewport->queue_delete();
         }
@@ -93,7 +94,7 @@ void PositionableScenesCacheManager::end_adding(Control* p_control) {
 }
 
 bool PositionableScenesCacheManager::is_adding() const {
-    Map<Control*, bool>::Element* current{_is_adding.front()};
+    Map<Control*, bool>::Element* current {_is_adding.front()};
     while (current) {
         if (current->value()) return true;
         current = current->next();
@@ -102,7 +103,7 @@ bool PositionableScenesCacheManager::is_adding() const {
 }
 
 void PositionableScenesCacheManager::refresh_all_icons() const {
-    Map<Control*, StringName>::Element* current{refresh_icons_methods.front()};
+    Map<Control*, StringName>::Element* current {refresh_icons_methods.front()};
     while (current) {
         current->key()->call(current->value());
         current = current->next();
@@ -110,27 +111,24 @@ void PositionableScenesCacheManager::refresh_all_icons() const {
 }
 
 Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> scene) {
-    if (auto* positionable{Object::cast_to<node::IsometricPositionable>(scene->instance())}) {
-        const Vector2& original_scale{positionable->get_scale()};
+    if (auto* positionable {Object::cast_to<node::IsometricPositionable>(scene->instance())}) {
+        const Vector2& original_scale {positionable->get_scale()};
         positionable->set_scale(original_scale * Vector2(1, -1));
 
-        Viewport* viewport{memnew(Viewport)};
-        Camera2D* camera{memnew(Camera2D)};
+        Viewport* viewport {memnew(Viewport)};
+        Camera2D* camera {memnew(Camera2D)};
         viewport->add_child(camera);
         camera->add_child(positionable);
         viewport->set_update_mode(Viewport::UPDATE_ONCE);
-        const utils::Hexagone& hexagone_coordinates{
-            utils::get_hexagone_points(
-                    data::IsometricParameters::getDefaultConfiguration(),
-                    {positionable->get_local_position_3d(), positionable->get_size()}
-            )
-        };
-        Vector2 scene_size{
-            hexagone_coordinates.maxX - hexagone_coordinates.minX,
-            hexagone_coordinates.maxY - hexagone_coordinates.minY
-        };
+        const utils::Hexagone& hexagone_coordinates {utils::get_hexagone_points(
+          data::IsometricParameters::getDefaultConfiguration(),
+          {positionable->get_local_position_3d(), positionable->get_size()}
+        )};
+        Vector2 scene_size {
+          hexagone_coordinates.maxX - hexagone_coordinates.minX,
+          hexagone_coordinates.maxY - hexagone_coordinates.minY};
         positionable->set_scale(positionable->get_scale() / scene_size);
-        Vector2 viewport_size{128, 128};
+        Vector2 viewport_size {128, 128};
         camera->set_position(viewport_size / 2);
         viewport->set_size(viewport_size);
         return viewport;
@@ -138,9 +136,10 @@ Viewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene> s
     return nullptr;
 }
 
-PositionableScenesCacheManager::PositionableScenesCacheManager() : cache(), drawing_viewport(), _is_adding(),
-                                                                   refresh_icons_methods() {
-
-}
+PositionableScenesCacheManager::PositionableScenesCacheManager() :
+  cache(),
+  drawing_viewport(),
+  _is_adding(),
+  refresh_icons_methods() {}
 
 #endif

@@ -1,12 +1,7 @@
-//
-// Created by CedNaru on 14/02/2021.
-//
-
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_PARAMETERS_H
 #define ISOMETRIC_MAPS_ISOMETRIC_PARAMETERS_H
 
 #include <core/object.h>
-#include <core/resource.h>
 
 #define DEFAULT_ANGLE 30
 #define DEFAULT_WIDTH 256
@@ -14,7 +9,6 @@
 
 namespace data {
     struct IsometricParameters {
-
         int diamond_width;
         int diamond_height;
         float z_length;
@@ -27,5 +21,5 @@ namespace data {
 
         static IsometricParameters getDefaultConfiguration();
     };
-} // namespace data
-#endif //ISOMETRIC_MAPS_ISOMETRIC_PARAMETERS_H
+}// namespace data
+#endif// ISOMETRIC_MAPS_ISOMETRIC_PARAMETERS_H

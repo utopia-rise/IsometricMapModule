@@ -6,7 +6,7 @@
 #include <core/rid.h>
 
 namespace data {
-    //forward declaration
+    // forward declaration
     struct IsometricSpace;
 
     struct IsometricElement : public RID_Data {
@@ -16,8 +16,7 @@ namespace data {
         RID visual_rid = RID();
 
         //////Set by commands (isometric server thread)///////
-        AABB aabb  = AABB(Vector3(0., 0., 0.),Vector3( 1., 1., 1.));
-
+        AABB aabb = AABB(Vector3(0., 0., 0.), Vector3(1., 1., 1.));
 
         int depth = 1;
         int z_order = 0;
@@ -29,5 +28,5 @@ namespace data {
         bool in_stack = false;
         bool is_invalid = false;
     };
-} // namespace data
-#endif //ISOMETRIC_MAPS_ISOMETRIC_ELEMENT_H
+}// namespace data
+#endif// ISOMETRIC_MAPS_ISOMETRIC_ELEMENT_H

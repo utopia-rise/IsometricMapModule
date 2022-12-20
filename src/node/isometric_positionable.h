@@ -1,15 +1,15 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H
 #define ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H
 
+#include "editor/outline_data.h"
+
 #include <scene/2d/node_2d.h>
-#include <core/method_bind.h>
-#include <modules/isometric_maps/src/editor/outline_data.h>
 #include <scene/3d/collision_object.h>
 
 namespace node {
 
     class IsometricPositionable : public Node2D {
-    GDCLASS(IsometricPositionable, Node2D)
+        GDCLASS(IsometricPositionable, Node2D)
 
     public:
         static StringName get_debug_group_name();
@@ -28,7 +28,7 @@ namespace node {
         Vector3 local_position;
         int depth;
 
-        SlopeType slope_type =  SlopeType::NONE;
+        SlopeType slope_type = SlopeType::NONE;
 
         RID self;
         bool is_dynamic;
@@ -36,6 +36,7 @@ namespace node {
         CollisionObject* collision_object;
 
         void set_global_position_3d(const Vector3& p_position);
+
         void _rebind_collision_object_position() const;
 
 #ifdef TOOLS_ENABLED
@@ -53,8 +54,11 @@ namespace node {
         void _notification(int notif);
 
         virtual void _enter_tree();
+
         void _ready();
+
         void _physics_process();
+
         void _exit_tree();
 
     public:
@@ -81,23 +85,28 @@ namespace node {
         SlopeType get_slope_type() const;
 
         bool get_is_dynamic() const;
+
         void set_is_dynamic(bool p_is_dynamic);
 
         const NodePath& get_collision_object_node_path() const;
+
         void set_collision_object_node_path(const NodePath& p_node_path);
 
         RID get_rid() const;
 
 #ifdef TOOLS_ENABLED
+
         void set_debug_view(bool p_debug);
+
         editor::OutlineData& get_outline_data();
+
 #endif
 
     protected:
         static void _bind_methods();
     };
-} // namespace positionable
+}// namespace node
 
 MAKE_ENUM_TYPE_INFO(node::IsometricPositionable::SlopeType)
 
-#endif //ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H
+#endif// ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H

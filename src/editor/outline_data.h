@@ -1,8 +1,10 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_OUTLINE_DATA_H
 #define ISOMETRIC_MAPS_OUTLINE_DATA_H
 
+#ifdef TOOLS_ENABLED
+
+#include "core/color.h"
+#include "core/variant.h"
 
 #include <core/rid.h>
 
@@ -19,9 +21,8 @@ namespace editor {
         OutlineData();
         ~OutlineData() = default;
     };
-}
+}// namespace editor
 
-
-#endif //ISOMETRIC_MAPS_OUTLINE_DATA_H
+#endif// ISOMETRIC_MAPS_OUTLINE_DATA_H
 
 #endif

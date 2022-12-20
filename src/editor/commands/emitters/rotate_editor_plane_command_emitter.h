@@ -1,11 +1,9 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_ROTATE_EDITOR_PLANE_COMMAND_EMITTER_H
 #define ISOMETRIC_MAPS_ROTATE_EDITOR_PLANE_COMMAND_EMITTER_H
 
-
-#include <modules/isometric_maps/src/editor/commands/command.h>
+#ifdef TOOLS_ENABLED
 #include "command_emitter.h"
+#include "editor/commands/command.h"
 
 namespace editor {
     namespace commands {
@@ -15,17 +13,17 @@ namespace editor {
 
             public:
                 RotateEditorPlaneCommandEmitter() = delete;
+
                 explicit RotateEditorPlaneCommandEmitter(UndoRedo* undo_redo);
+
                 ~RotateEditorPlaneCommandEmitter() = default;
 
             private:
                 Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventKey> p_event);
             };
-        }
-    }
-}
-
-
-#endif //ISOMETRIC_MAPS_ROTATE_EDITOR_PLANE_COMMAND_EMITTER_H
+        }// namespace emitters
+    }// namespace commands
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_ROTATE_EDITOR_PLANE_COMMAND_EMITTER_H

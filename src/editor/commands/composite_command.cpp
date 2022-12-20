@@ -16,7 +16,7 @@ void CompositeCommand::undo() {
     }
 }
 
-void CompositeCommand::append_command(Ref<Command> command) { // NOLINT(performance-unnecessary-value-param)
+void CompositeCommand::append_command(Ref<Command> command) {// NOLINT(performance-unnecessary-value-param)
     commands.push_back(command);
 }
 

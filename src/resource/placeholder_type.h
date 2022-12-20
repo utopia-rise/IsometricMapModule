@@ -6,7 +6,7 @@
 namespace resource {
 
     class PlaceholderType : public Resource {
-    GDCLASS(PlaceholderType, Resource)
+        GDCLASS(PlaceholderType, Resource)
 
     private:
         String type_name;
@@ -15,7 +15,7 @@ namespace resource {
     public:
         String get_type_name() const;
 
-        void set_type_name(const String &name);
+        void set_type_name(const String& name);
 
         Color get_color() const;
 
@@ -25,6 +25,6 @@ namespace resource {
         static void _bind_methods();
     };
 
-} // namespace resource
+}// namespace resource
 
-#endif //ISOMETRIC_MAPS_PLACEHOLDER_TYPE_H
+#endif// ISOMETRIC_MAPS_PLACEHOLDER_TYPE_H

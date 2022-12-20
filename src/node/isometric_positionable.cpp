@@ -1,39 +1,54 @@
 #include "isometric_positionable.h"
-#include <modules/isometric_maps/src/isometric_server.h>
-#include <modules/isometric_maps/src/utils/isometric_maths.h>
-#include <modules/isometric_maps/src/editor/outline_drawer.h>
+
+#include "editor/outline_drawer.h"
+#include "isometric_server.h"
+#include "utils/isometric_maths.h"
+
 #include <core/engine.h>
 
 using namespace node;
 
 StringName IsometricPositionable::get_debug_group_name() {
-    static StringName debug_name{StringName("isometric_debug_view")};
+    static StringName debug_name {StringName("isometric_debug_view")};
     return debug_name;
 }
 
 IsometricPositionable::IsometricPositionable() :
-        Node2D(), size({1, 1, 1}), depth(1), self(RID()), is_dynamic(false), collision_object_node_path(),
-        collision_object(nullptr), world(RID()), world_owner(false), is_container{false}
+  Node2D(),
+  size({1, 1, 1}),
+  depth(1),
+  self(RID()),
+  is_dynamic(false),
+  collision_object_node_path(),
+  collision_object(nullptr),
+  world(RID()),
+  world_owner(false),
+  is_container {false}
 #ifdef TOOLS_ENABLED
-        , outline_data()
+  ,
+  outline_data()
 #endif
-        {
-            set_process(true);
+{
+    set_process(true);
 }
 
 void IsometricPositionable::_enter_tree() {
     add_to_group(get_debug_group_name());
     if (!collision_object_node_path.is_empty()) {
-        if (auto* collider{Object::cast_to<CollisionObject>(get_node(collision_object_node_path))}) {
+        if (auto* collider {Object::cast_to<CollisionObject>(get_node(collision_object_node_path))}) {
             collision_object = collider;
             _rebind_collision_object_position();
         } else {
-            LOG_ERROR(vformat("Positionable %s collision_object_node_path does not point to valid CollisionObject", this->get_instance_id()));
+            LOG_ERROR(vformat(
+              "Positionable %s collision_object_node_path does not point to "
+              "valid CollisionObject",
+              this->get_instance_id()
+            ));
         }
     }
 
-    if (const Node* parent{get_parent()}) {
-        if (auto positionable{cast_to<IsometricPositionable>(parent)}) {
+    if (const Node * parent {get_parent()}) {
+        if (auto positionable {cast_to<IsometricPositionable>(parent)}) {
             if (positionable->world != RID()) {
                 world = positionable->world;
                 world_owner = false;
@@ -41,12 +56,12 @@ void IsometricPositionable::_enter_tree() {
         }
     }
 
-    if (world == RID()){
+    if (world == RID()) {
         world = ISOMETRIC_SERVER->space_create();
         world_owner = true;
     }
 
-    if(!is_container){
+    if (!is_container) {
         self = ISOMETRIC_SERVER->isometric_element_create(is_dynamic, {get_global_position_3d(), size});
         ISOMETRIC_SERVER->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
         update_position();
@@ -55,17 +70,13 @@ void IsometricPositionable::_enter_tree() {
 }
 
 void IsometricPositionable::_ready() {
-    if (is_dynamic && collision_object && !Engine::get_singleton()->is_editor_hint()) {
-        set_physics_process(true);
-    }
+    if (is_dynamic && collision_object && !Engine::get_singleton()->is_editor_hint()) { set_physics_process(true); }
 }
 
 void IsometricPositionable::_physics_process() {
-    Vector3 collision_origin{collision_object->get_global_transform().origin};
+    Vector3 collision_origin {collision_object->get_global_transform().origin};
     collision_origin = {collision_origin.x, collision_origin.z, collision_origin.y};
-    if(!collision_origin.is_equal_approx(get_global_position_3d())) {
-        set_global_position_3d(collision_origin);
-    }
+    if (!collision_origin.is_equal_approx(get_global_position_3d())) { set_global_position_3d(collision_origin); }
 }
 
 void IsometricPositionable::_exit_tree() {
@@ -83,11 +94,9 @@ void IsometricPositionable::_exit_tree() {
 }
 
 void IsometricPositionable::update_position() {
-    if(self.is_valid()) {
-        ISOMETRIC_SERVER->isometric_element_set_position(self, get_global_position_3d());
-    }
+    if (self.is_valid()) { ISOMETRIC_SERVER->isometric_element_set_position(self, get_global_position_3d()); }
     if (world.is_valid()) {
-        const data::IsometricParameters *params = ISOMETRIC_SERVER->space_get_configuration(world);
+        const data::IsometricParameters* params = ISOMETRIC_SERVER->space_get_configuration(world);
         Vector2 position2D = utils::from_3D_to_screen(*params, local_position);
 
         Transform2D transform = get_transform();
@@ -110,16 +119,14 @@ Vector3 IsometricPositionable::get_global_position_3d() const {
     Vector3 global_position = local_position;
 
     auto* parent = Object::cast_to<IsometricPositionable>(get_parent());
-    if(parent){
-        global_position += parent->get_global_position_3d();
-    }
+    if (parent) { global_position += parent->get_global_position_3d(); }
     return global_position;
 }
 
 void IsometricPositionable::set_global_position_3d(const Vector3& p_position) {
-    const Vector3& offset{p_position - get_global_position_3d()};
+    const Vector3& offset {p_position - get_global_position_3d()};
     set_local_position_3d(local_position + offset);
-    if(self.is_valid() && is_dynamic) {
+    if (self.is_valid() && is_dynamic) {
         IsometricServer::get_instance()->isometric_element_set_position(self, get_global_position_3d());
     }
 }
@@ -130,7 +137,7 @@ Vector3 IsometricPositionable::get_size() const {
 
 void IsometricPositionable::set_size(Vector3 s) {
     size = s;
-    if(self.is_valid() && is_dynamic) {
+    if (self.is_valid() && is_dynamic) {
         IsometricServer::get_instance()->isometric_element_set_size(self, size);
 #ifdef TOOLS_ENABLED
         editor::OutlineDrawer::draw_outline(this);
@@ -143,11 +150,9 @@ int IsometricPositionable::get_depth() const {
     return depth;
 }
 
-void IsometricPositionable::set_depth(int p_depth){
+void IsometricPositionable::set_depth(int p_depth) {
     depth = p_depth;
-    if(self.is_valid() && is_dynamic){
-        ISOMETRIC_SERVER->isometric_element_set_depth(self, p_depth);
-    }
+    if (self.is_valid() && is_dynamic) { ISOMETRIC_SERVER->isometric_element_set_depth(self, p_depth); }
 }
 
 void IsometricPositionable::_notification(int notif) {
@@ -169,7 +174,7 @@ void IsometricPositionable::_notification(int notif) {
     }
 }
 
-RID IsometricPositionable::get_space_RID() const{
+RID IsometricPositionable::get_space_RID() const {
     return world;
 }
 
@@ -182,7 +187,7 @@ bool IsometricPositionable::get_is_dynamic() const {
 }
 
 void IsometricPositionable::set_is_dynamic(bool p_is_dynamic) {
-    if(self.is_valid() && p_is_dynamic != is_dynamic) {
+    if (self.is_valid() && p_is_dynamic != is_dynamic) {
         ISOMETRIC_SERVER->free_rid(self);
         self = ISOMETRIC_SERVER->isometric_element_create(is_dynamic, {get_global_position_3d(), size});
         ISOMETRIC_SERVER->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
@@ -201,15 +206,10 @@ void IsometricPositionable::set_collision_object_node_path(const NodePath& p_nod
 }
 
 void IsometricPositionable::_rebind_collision_object_position() const {
-    if (!collision_object) {
-        return;
-    }
-    const Vector3& global_position{get_global_position_3d()};
+    if (!collision_object) { return; }
+    const Vector3& global_position {get_global_position_3d()};
     collision_object->set_global_transform(
-            {
-                    {1, 0, 0, 0, 1, 0, 0, 0, 1},
-                    {global_position.x, global_position.z, global_position.y}
-            }
+      {{1, 0, 0, 0, 1, 0, 0, 0, 1}, {global_position.x, global_position.z, global_position.y}}
     );
 }
 
@@ -223,20 +223,16 @@ editor::OutlineData& IsometricPositionable::get_outline_data() {
     return outline_data;
 }
 
-void IsometricPositionable::set_debug_view(bool p_debug){
+void IsometricPositionable::set_debug_view(bool p_debug) {
     debug_view = p_debug;
-    if(is_container) { return; }
-    for(int i = 0; i < get_child_count(); i++){
-        CanvasItem* item{cast_to<CanvasItem>(get_child(i))};
-        if(item && !cast_to<IsometricPositionable>(item)){
-            item->set_visible(!p_debug);
-        }
+    if (is_container) { return; }
+    for (int i = 0; i < get_child_count(); i++) {
+        CanvasItem* item {cast_to<CanvasItem>(get_child(i))};
+        if (item && !cast_to<IsometricPositionable>(item)) { item->set_visible(!p_debug); }
     }
     outline_data.should_draw_polygons = p_debug;
     editor::OutlineDrawer::set_outline_visible(this, p_debug);
-    if(p_debug){
-        editor::OutlineDrawer::draw_outline(this);
-    }
+    if (p_debug) { editor::OutlineDrawer::draw_outline(this); }
     update();
 }
 

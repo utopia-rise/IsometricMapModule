@@ -1,17 +1,15 @@
-#ifdef TOOLS_ENABLED
-
 #ifndef ISOMETRIC_MAPS_DRAG_AND_DROP_COMMAND_EMITTER_H
 #define ISOMETRIC_MAPS_DRAG_AND_DROP_COMMAND_EMITTER_H
 
-#include <modules/isometric_maps/src/node/isometric_map.h>
-#include <modules/isometric_maps/src/editor/commands/command.h>
+#ifdef TOOLS_ENABLED
 #include "command_emitter.h"
+#include "editor/commands/command.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {
         namespace emitters {
             class DragAndDropCommandEmitter : public CommandEmitter<DragAndDropCommandEmitter, InputEventMouse> {
-
                 friend class CommandEmitter<DragAndDropCommandEmitter, InputEventMouse>;
 
             public:
@@ -29,17 +27,13 @@ namespace editor {
 
                 void _clear_current_preview_nodes(int new_size);
 
-                static AABB _calculate_real_aabb(const Vector3& initial_position, const Vector3& limit_position,
-                                                 const Vector3& positionable_size);
+                static AABB _calculate_real_aabb(const Vector3& initial_position, const Vector3& limit_position, const Vector3& positionable_size);
 
-                static Vector<Vector3> _calculate_positionables_positions(const Vector3& initial_position, const Vector3& limit_position,
-                                                                          const Vector3& positionable_size);
-
+                static Vector<Vector3> _calculate_positionables_positions(const Vector3& initial_position, const Vector3& limit_position, const Vector3& positionable_size);
             };
-        }
-    }
-}
-
-#endif //ISOMETRIC_MAPS_DRAG_AND_DROP_COMMAND_EMITTER_H
+        }// namespace emitters
+    }// namespace commands
+}// namespace editor
 
 #endif
+#endif// ISOMETRIC_MAPS_DRAG_AND_DROP_COMMAND_EMITTER_H
