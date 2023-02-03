@@ -64,6 +64,8 @@ IsometricTileEditorPlugin::IsometricTileEditorPlugin() :
   selected_positionable{nullptr},
   toolbar{ memnew(HBoxContainer) },
   color_picker_button{ memnew(ColorPickerButton) } {
+
+    toolbar->hide();
     color_picker_button->set_text(OUTLINE_COLOR_TITLE);
     color_picker_button->connect("color_changed", this, "_on_color_picker_change");
 }

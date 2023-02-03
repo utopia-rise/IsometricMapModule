@@ -81,6 +81,7 @@ namespace editor {
         ToolButton* positionable_pane_button;
         UndoRedo* undo_redo;
         HBoxContainer* toolbar;
+        ColorPickerButton* grid_color_picker_button;
         OptionButton* edition_mode_button;
         Button* debug_button;
 
@@ -108,6 +109,8 @@ namespace editor {
         void _on_plane_visibility_timeout(int p_plane_type);
 
         void _on_map_size_changed();
+
+        void _on_grid_color_picker_change(const Color& p_color);
 
         void _draw_edition_grid() const;
         void _draw_plane(EditorPlane::PlaneType p_plane_type);

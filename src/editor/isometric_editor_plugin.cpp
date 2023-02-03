@@ -19,6 +19,7 @@ static constexpr const char* NONE_EDITION_LABEL {"None"};
 static constexpr const char* SELECT_EDITION_LABEL {"Select"};
 static constexpr const char* PAINT_EDITION_LABEL {"Paint"};
 static constexpr const char* DRAG_AND_DROP_EDITION_LABEL {"Drag & Drop"};
+static constexpr const char* GRID_COLOR_PICKER_TITLE {"Grid color:"};
 
 editor::inspector::PositionableSelectionPane* IsometricEditorPlugin::get_selection_pane() const {
     return positionable_selection_pane;
@@ -29,6 +30,7 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
   toolbar {nullptr},
   positionable_selection_pane {nullptr},
   positionable_pane_button {nullptr},
+  grid_color_picker_button{ memnew(ColorPickerButton) },
   edition_mode_button(memnew(OptionButton)),
   debug_button {nullptr},
   selected_map {nullptr},
@@ -42,7 +44,11 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
   drag_and_drop_command_emitter(EditorNode::get_undo_redo()),
   move_editor_drawer_command_emitter(EditorNode::get_undo_redo()),
   rotate_editor_plane_command_emitter(EditorNode::get_undo_redo()),
-  plane_view_limiter_command_emitter(EditorNode::get_undo_redo()) {}
+  plane_view_limiter_command_emitter(EditorNode::get_undo_redo()) {
+
+    grid_color_picker_button->set_text(GRID_COLOR_PICKER_TITLE);
+    grid_color_picker_button->connect("color_changed", this, "_on_grid_color_picker_change");
+}
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
     PositionableScenesCacheManager::get_instance().clear();
@@ -77,6 +83,9 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         toolbar = memnew(HBoxContainer);
         toolbar->hide();
         add_control_to_container(CustomControlContainer::CONTAINER_CANVAS_EDITOR_MENU, toolbar);
+
+        toolbar->add_child(memnew(Label(GRID_COLOR_PICKER_TITLE)));
+        toolbar->add_child(grid_color_picker_button);
 
         edition_mode_button->add_item(NONE_EDITION_LABEL);
         edition_mode_button->add_item(SELECT_EDITION_LABEL);
@@ -327,10 +336,18 @@ void IsometricEditorPlugin::_on_map_size_changed() {
     refresh(EditorPlane::PlaneType::EDITOR_DRAWER);
 }
 
+void IsometricEditorPlugin::_on_grid_color_picker_change(const Color& p_color) {
+    _draw_edition_grid();
+}
+
 void IsometricEditorPlugin::_draw_edition_grid() const {
     auto index {reinterpret_cast<uint64_t>(selected_map)};
     const MapHandlingData& map_handling_data {handling_data_map[index]};
-    EditionGridDrawer::draw_grid(map_handling_data.editor_planes[EditorPlane::PlaneType::EDITOR_DRAWER], selected_map);
+    EditionGridDrawer::draw_grid(
+      map_handling_data.editor_planes[EditorPlane::PlaneType::EDITOR_DRAWER],
+      selected_map,
+      grid_color_picker_button->get_pick_color()
+    );
 }
 
 void IsometricEditorPlugin::_draw_plane(EditorPlane::PlaneType p_plane_type) {
@@ -366,6 +383,7 @@ void IsometricEditorPlugin::_bind_methods() {
     ClassDB::bind_method("_on_edition_mode_changed", &IsometricEditorPlugin::_on_edition_mode_changed);
     ClassDB::bind_method(D_METHOD("_on_plane_visibility_timeout", "p_plane_type"), &IsometricEditorPlugin::_on_plane_visibility_timeout);
     ClassDB::bind_method("_on_map_size_changed", &IsometricEditorPlugin::_on_map_size_changed);
+    ClassDB::bind_method(D_METHOD("_on_grid_color_picker_change", "p_color"), &IsometricEditorPlugin::_on_grid_color_picker_change);
 }
 
 #endif
