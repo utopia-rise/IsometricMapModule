@@ -100,6 +100,7 @@ namespace node {
 
         editor::OutlineData& get_outline_data();
 
+        static constexpr const char* SIZE_CHANGED_SIGNAL {"size_changed"};
 #endif
 
     protected:
