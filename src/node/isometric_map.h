@@ -43,8 +43,6 @@ namespace node {
         void set_size(Vector3 p_size) override;
 
         bool is_overlapping(const AABB& aabb) const;
-
-        static constexpr const char* SIZE_CHANGED_SIGNAL {"size_changed"};
 #endif
 
         IsometricMap();

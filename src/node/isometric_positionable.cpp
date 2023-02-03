@@ -144,6 +144,10 @@ void IsometricPositionable::set_size(Vector3 s) {
 #endif
     }
     _rebind_collision_object_position();
+
+#ifdef TOOLS_ENABLED
+    emit_signal(SIZE_CHANGED_SIGNAL);
+#endif
 }
 
 int IsometricPositionable::get_depth() const {
@@ -263,5 +267,6 @@ void IsometricPositionable::_bind_methods() {
 
 #ifdef TOOLS_ENABLED
     ClassDB::bind_method(D_METHOD("set_debug_view"), &IsometricPositionable::set_debug_view);
+    ADD_SIGNAL(MethodInfo(SIZE_CHANGED_SIGNAL));
 #endif
 }
