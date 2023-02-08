@@ -5,7 +5,7 @@
 #include "../isometric_server.h"
 #include "editor_plane.h"
 
-void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const node::IsometricMap* map) {
+void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const node::IsometricMap* map, const Color& p_color) {
     RID rid {editor_plane.get_rid()};
     VisualServer::get_singleton()->canvas_item_clear(rid);
     VisualServer::get_singleton()->canvas_item_set_parent(rid, map->get_canvas_item());
@@ -34,14 +34,14 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
 
                 Vector2 from {-diamond_width * 0.5f * index, diamond_height * 0.5f * index};
                 Vector2 to {-diamond_width * 0.5f * index, diamond_height * 0.5f * index - tile_z_length * map_size.z};
-                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, p_color, 2.0);
             }
             for (int i = 0; i < static_cast<int>(map_size.z) + 1; i++) {
                 auto index = static_cast<float>(i);
 
                 Vector2 from {0, -tile_z_length * index};
                 Vector2 to {-diamond_width * 0.5f * map_size.y, diamond_height * 0.5f * map_size.y - tile_z_length * index};
-                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, p_color, 2.0);
             }
             break;
         case Vector3::AXIS_Y:
@@ -57,14 +57,14 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
 
                 Vector2 from {0, -tile_z_length * index};
                 Vector2 to {diamond_width * 0.5f * (map_size.x), diamond_height * 0.5f * map_size.x - tile_z_length * index};
-                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, p_color, 2.0);
             }
             for (int i = 0; i < static_cast<int>(map_size.x) + 1; i++) {
                 auto index = static_cast<float>(i);
 
                 Vector2 from {diamond_width * 0.5f * index, diamond_height * 0.5f * index};
                 Vector2 to {diamond_width * 0.5f * index, diamond_height * 0.5f * index - tile_z_length * map_size.z};
-                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, p_color, 2.0);
             }
             break;
         case Vector3::AXIS_Z:
@@ -80,14 +80,14 @@ void editor::EditionGridDrawer::draw_grid(const EditorPlane& editor_plane, const
 
                 Vector2 from {-diamond_width * 0.5f * index, diamond_height * 0.5f * index};
                 Vector2 to {diamond_width * 0.5f * (map_size.x - index), diamond_height * 0.5f * (index + map_size.x)};
-                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, p_color, 2.0);
             }
             for (int i = 0; i < static_cast<int>(map_size.x) + 1; i++) {
                 auto index = static_cast<float>(i);
 
                 Vector2 from {diamond_width * 0.5f * index, diamond_height * 0.5f * index};
                 Vector2 to {diamond_width * 0.5f * (index - map_size.y), diamond_height * 0.5f * (map_size.y + index)};
-                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, Color(0, 0, 0), 2.0);
+                VisualServer::get_singleton()->canvas_item_add_line(rid, from, to, p_color, 2.0);
             }
             break;
     }
