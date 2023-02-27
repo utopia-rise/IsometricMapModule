@@ -17,5 +17,5 @@ Pierre-Thomas Meisels
 
 ## UX DESIGN
 
-Tiburce Coquillet
+Tiburce Coquillet  
 Susan Rescan
