@@ -18,3 +18,4 @@ Pierre-Thomas Meisels
 ## UX DESIGN
 
 Tiburce Coquillet
+Susan Rescan
