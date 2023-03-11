@@ -64,9 +64,9 @@ void IsometricPositionable::_enter_tree() {
     if (!is_container) {
         self = ISOMETRIC_SERVER->isometric_element_create(is_dynamic, {get_global_position_3d(), size});
         ISOMETRIC_SERVER->isometric_element_attach_canvas_item(self, get_canvas_item(), depth);
-        update_position();
         ISOMETRIC_SERVER->space_attach_isometric_element(world, self);
     }
+    update_position();
 }
 
 void IsometricPositionable::_ready() {
@@ -94,10 +94,9 @@ void IsometricPositionable::_exit_tree() {
 }
 
 void IsometricPositionable::update_position() {
-    if (self.is_valid()) { ISOMETRIC_SERVER->isometric_element_set_position(self, get_global_position_3d()); }
     if (world.is_valid()) {
         const data::IsometricParameters* params = ISOMETRIC_SERVER->space_get_configuration(world);
-        Vector2 position2D = utils::from_3D_to_screen(*params, get_global_position_3d());
+        Vector2 position2D = utils::from_3D_to_screen(*params, local_position);
 
         Transform2D transform = get_transform();
         transform.set_origin(position2D);
@@ -111,6 +110,9 @@ Vector3 IsometricPositionable::get_local_position_3d() const {
 
 void IsometricPositionable::set_local_position_3d(Vector3 p_local) {
     local_position = p_local;
+    if (self.is_valid() && is_dynamic) {
+        IsometricServer::get_instance()->isometric_element_set_position(self, get_global_position_3d());
+    }
     update_position();
     _rebind_collision_object_position();
 }
@@ -126,9 +128,6 @@ Vector3 IsometricPositionable::get_global_position_3d() const {
 void IsometricPositionable::set_global_position_3d(const Vector3& p_position) {
     const Vector3& offset {p_position - get_global_position_3d()};
     set_local_position_3d(local_position + offset);
-    if (self.is_valid() && is_dynamic) {
-        IsometricServer::get_instance()->isometric_element_set_position(self, get_global_position_3d());
-    }
 }
 
 Vector3 IsometricPositionable::get_size() const {

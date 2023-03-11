@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://maps/outerMap.tscn" type="PackedScene" id=1]
+
+[node name="IsometricPositionable" type="IsometricPositionable"]
+position = Vector2( 0, 256 )
+local_position_3d = Vector3( 2, 2, 0 )
+
+[node name="IsometricMap" parent="." instance=ExtResource( 1 )]
+position = Vector2( 0, 256 )
+local_position_3d = Vector3( 2, 2, 0 )
