@@ -1,13 +1,13 @@
 #include "register_types.h"
+
 #include "isometric_server.h"
 #include "node/isometric_map.h"
 #include "resource/isometric_configuration.h"
-#include <core/engine.h>
 
 #ifdef TOOLS_ENABLED
-    #include "editor/isometric_editor_plugin.h"
-    #include "editor/isometric_tile_editor_plugin.h"
-    #include "editor/positionable_set_editor_plugin.h"
+#include "editor/isometric_editor_plugin.h"
+#include "editor/isometric_tile_editor_plugin.h"
+#include "editor/positionable_set_editor_plugin.h"
 #endif
 
 #ifdef TOOLS_ENABLED
@@ -25,19 +25,24 @@ static EditorPlugin* isometric_tile_editor_plugin_creator_func(EditorNode* edito
 }
 #endif
 
-void register_isometric_maps_types() {
-    IsometricServer::create_server();
-    ClassDB::register_class<IsometricServer>();
-    Engine::get_singleton()->add_singleton(Engine::Singleton("IsometricServer", reinterpret_cast<Object *>(IsometricServer::get_instance())));
+void initialize_isometric_maps_module(ModuleInitializationLevel p_level) {
+    if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
+        IsometricServer::create_server();
+        ClassDB::register_class<IsometricServer>();
+        Engine::get_singleton()->add_singleton(
+          Engine::Singleton("IsometricServer", reinterpret_cast<Object*>(IsometricServer::get_instance()))
+        );
 
-    ClassDB::register_class<resource::IsometricConfiguration>();
+        ClassDB::register_class<resource::IsometricConfiguration>();
 
-    ClassDB::register_class<node::IsometricPositionable>();
-    ClassDB::register_class<node::IsometricMap>();
+        ClassDB::register_class<node::IsometricPositionable>();
+        ClassDB::register_class<node::IsometricMap>();
 
-    ClassDB::register_class<resource::PositionableSet>();
+        ClassDB::register_class<resource::PositionableSet>();
+    }
 
-    #ifdef TOOLS_ENABLED
+#ifdef TOOLS_ENABLED
+    if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
         ClassDB::register_class<editor::IsometricEditorPlugin>();
         ClassDB::register_class<editor::PositionableSetEditorPlugin>();
         ClassDB::register_class<editor::IsometricTileEditorPlugin>();
@@ -46,10 +51,10 @@ void register_isometric_maps_types() {
         EditorPlugins::add_create_func(isometric_tile_editor_plugin_creator_func);
         ClassDB::register_class<editor::inspector::PositionableSelectionPane>();
         ClassDB::register_class<editor::inspector::PositionableSetEditor>();
-    #endif
-
+    }
+#endif
 }
 
-void unregister_isometric_maps_types() {
-    IsometricServer::terminate_server();
+void uninitialize_isometric_maps_module(ModuleInitializationLevel p_level) {
+    if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) { IsometricServer::terminate_server(); }
 }
