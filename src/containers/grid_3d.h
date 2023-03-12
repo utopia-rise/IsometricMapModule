@@ -1,7 +1,8 @@
 #ifndef ISOMETRIC_MAPS_GRID_3D_H
 #define ISOMETRIC_MAPS_GRID_3D_H
 
-#include <core/array.h>
+#include "core/templates/vector.h"
+
 #include <core/math/aabb.h>
 #include <core/math/vector3.h>
 
