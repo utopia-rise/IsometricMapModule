@@ -25,8 +25,7 @@ void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& se
 #ifdef TOOLS_ENABLED
 
 void IsometricMap::add_positionable_if_nothing_present(const AABB& aabb, int id) {
-    if (instances_grid_3d.is_overlapping(aabb)) return;
-
+    if (instances_grid_3d.is_overlapping(aabb)) { return; }
     const Vector3& position {aabb.position};
     grid_3d.set_data(position, id);
     add_positionable_as_child(id, position);

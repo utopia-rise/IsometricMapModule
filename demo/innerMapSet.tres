@@ -1,0 +1,11 @@
+[gd_resource type="PositionableSet" format=2]
+
+[resource]
+categories = PoolStringArray( "InnerMap" )
+categories_to_identifiers = {
+"InnerMap": [ 1 ]
+}
+last_id = 1
+identifier_to_scene_path = {
+1: "res://maps/innerMap.tscn"
+}
