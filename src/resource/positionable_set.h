@@ -1,7 +1,6 @@
 #ifndef ISOMETRIC_MAPS_POSITIONABLE_SET_H
 #define ISOMETRIC_MAPS_POSITIONABLE_SET_H
 
-#include <core/resource.h>
 #include <scene/resources/packed_scene.h>
 
 namespace resource {
@@ -27,10 +26,10 @@ namespace resource {
         static constexpr int NONE_POSITIONABLE_ID = -1;
 
 #ifdef TOOLS_ENABLED
-        const PoolStringArray& get_categories() const;
-        void set_categories(const PoolStringArray& p_categories);
+        const PackedStringArray& get_categories() const;
+        void set_categories(const PackedStringArray& p_categories);
 
-        Map<int, String> get_scene_paths_for_category(const String& p_group) const;
+        HashMap<int, String> get_scene_paths_for_category(const String& p_group) const;
 
         bool add_category(const String& category);
         void remove_category(const String& category);
@@ -38,8 +37,6 @@ namespace resource {
         bool add_or_update_positionable(int id, const String& path);
         void remove_positionable(int id);
         bool has_category(const String& category) const;
-
-        Map<int, String>::Element* get_present_scenes_iterator();
 
         Vector<resource::PositionableSet::RemovedElement> get_removed_elements() const;
 
@@ -50,10 +47,10 @@ namespace resource {
 
     private:
         // exported, not is_visible in editor
-        Map<int, String> identifier_to_scene_path;
+        HashMap<int, String> identifier_to_scene_path;
 
         // Store loaded scenes
-        Map<int, Ref<PackedScene>> identifier_to_loaded_scene;
+        HashMap<int, Ref<PackedScene>> identifier_to_loaded_scene;
         bool is_loaded;
 
         void _load_positionable_scene(int id, const String& scene_path);
@@ -62,7 +59,7 @@ namespace resource {
 
 #ifdef TOOLS_ENABLED
         // exported and is_visible in editor
-        PoolStringArray categories;
+        PackedStringArray categories;
 
         // exported, not is_visible in editor, here for set inspection purpose
         HashMap<StringName, Vector<int>> categories_to_identifiers;

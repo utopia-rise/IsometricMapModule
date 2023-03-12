@@ -1,7 +1,7 @@
 #ifndef ISOMETRIC_MAPS_PLACEHOLDER_TYPE_H
 #define ISOMETRIC_MAPS_PLACEHOLDER_TYPE_H
 
-#include <core/resource.h>
+#include "core/io/resource.h"
 
 namespace resource {
 
