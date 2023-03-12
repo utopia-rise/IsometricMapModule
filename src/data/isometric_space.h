@@ -4,10 +4,8 @@
 #include "isometric_element.h"
 #include "isometric_parameters.h"
 
-#include <core/rid.h>
-
 namespace data {
-    struct IsometricSpace : public RID_Data {
+    struct IsometricSpace {
         //////Set by commands (isometric server thread)//////
         data::IsometricParameters configuration {data::IsometricParameters::getDefaultConfiguration()};
         LocalVector<data::IsometricElement*> static_elements;
