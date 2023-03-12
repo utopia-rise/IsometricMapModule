@@ -1,10 +1,8 @@
 #include "isometric_server.h"
 
 #include "resource/isometric_configuration.h"
+#include "servers/rendering_server.h"
 #include "utils/isometric_maths.h"
-
-#include <core/os/os.h>
-#include <scene/2d/canvas_item.h>
 
 using namespace data;
 
@@ -15,11 +13,15 @@ IsometricServer::IsometricServer() :
   exit_thread(false),
   thread(),
   command_queue(true),
-  is_debug(false) {
+  is_debug(false),
+  worlds_owner(),
+  elements_owner(),
+  worlds(),
+  stack() {
     worlds.reserve(8);
     stack.reserve(32);
     thread.start(&IsometricServer::iteration, this);
-    VisualServer::get_singleton()->connect("frame_pre_draw", this, "fetch_data_and_request_ordering");
+    RenderingServer::get_singleton()->connect(SNAME("frame_pre_draw"), callable_mp(this, &IsometricServer::fetch_data_and_request_ordering));
 }
 
 ///////////////STATIC//////////////////
@@ -36,7 +38,7 @@ void IsometricServer::iteration(void* p_udata) {
     auto* server {reinterpret_cast<IsometricServer*>(p_udata)};
 
     while (!server->exit_thread) {
-        server->command_queue.wait_and_flush_one();
+        server->command_queue.wait_and_flush();
     }
     server->command_queue.flush_all();
 }
@@ -171,13 +173,13 @@ void IsometricServer::fetch_data_and_request_ordering() {
 
 void IsometricServer::free_rid(const RID rid) {
     if (worlds_owner.owns(rid)) {
-        IsometricSpace* space {worlds_owner.get(rid)};
+        IsometricSpace* space {worlds_owner.get_or_null(rid)};
         worlds_owner.free(rid);
         command_queue.push(this, &IsometricServer::command_space_delete, space);
         return;
     }
     if (elements_owner.owns(rid)) {
-        IsometricElement* element {elements_owner.get(rid)};
+        IsometricElement* element {elements_owner.get_or_null(rid)};
         elements_owner.free(rid);
         command_queue.push(this, &IsometricServer::command_isometric_element_delete, element);
         return;
@@ -218,19 +220,17 @@ void IsometricServer::command_space_attach_isometric_element(data::IsometricSpac
 void IsometricServer::command_space_detach_isometric_element(data::IsometricElement* element) {
     IsometricSpace* space {element->space};
     if (space) {
-        if (space) {
-            space->dirty = true;
-            if (!element->is_dynamic) {
-                space->static_elements.erase(element);
-                for (int i = 0; i < space->static_elements.size(); i++) {
-                    space->static_elements[i]->behind_statics.erase(element);
-                }
-            } else {
-                space->dynamic_elements.erase(element);
+        space->dirty = true;
+        if (!element->is_dynamic) {
+            space->static_elements.erase(element);
+            for (int i = 0; i < space->static_elements.size(); i++) {
+                space->static_elements[i]->behind_statics.erase(element);
             }
-            element->behind_statics.clear();
-            element->behind_dynamics.clear();
+        } else {
+            space->dynamic_elements.erase(element);
         }
+        element->behind_statics.clear();
+        element->behind_dynamics.clear();
     }
 }
 
@@ -384,7 +384,7 @@ void IsometricServer::sort_isometric_element(IsometricElement* data) {
         if (IsometricElement * behind {data->behind_dynamics[i]}) { max_z = calculate_z_order(behind, max_z); }
     }
     data->in_stack = false;
-    stack.remove(stack.size() - 1);
+    stack.remove_at(stack.size() - 1);
     data->z_order = max_z;
 }
 
@@ -416,22 +416,22 @@ void IsometricServer::command_update_visual_server() {
             IsometricElement* positionable {world->static_elements[j]};
             RID visual_rid {positionable->visual_rid};
             if (!visual_rid.is_valid()) { continue; }
-            VisualServer::get_singleton()->canvas_item_set_z_index(visual_rid, positionable->z_order);
+            RenderingServer::get_singleton()->canvas_item_set_z_index(visual_rid, positionable->z_order);
             if (is_debug && positionable->is_invalid) {
-                VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.5, 0.5));
+                RenderingServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.5, 0.5));
             } else {
-                VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 1., 1.));
+                RenderingServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 1., 1.));
             }
         }
         for (int j = 0; j < world->dynamic_elements.size(); j++) {
             IsometricElement* positionable {world->dynamic_elements[j]};
             RID visual_rid {positionable->visual_rid};
             if (!visual_rid.is_valid()) { continue; }
-            VisualServer::get_singleton()->canvas_item_set_z_index(visual_rid, positionable->z_order);
+            RenderingServer::get_singleton()->canvas_item_set_z_index(visual_rid, positionable->z_order);
             if (is_debug && positionable->is_invalid) {
-                VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.5, 0.5));
+                RenderingServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.5, 0.5));
             } else {
-                VisualServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 1., 1.));
+                RenderingServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 1., 1.));
             }
         }
         world->fetched = true;
