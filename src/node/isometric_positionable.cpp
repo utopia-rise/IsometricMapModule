@@ -259,6 +259,6 @@ void IsometricPositionable::_bind_methods() {
 
 #ifdef TOOLS_ENABLED
     ClassDB::bind_method(D_METHOD("set_debug_view"), &IsometricPositionable::set_debug_view);
-    ADD_SIGNAL(MethodInfo(SIZE_CHANGED_SIGNAL));
+    ADD_SIGNAL(MethodInfo("size_changed"));
 #endif
 }

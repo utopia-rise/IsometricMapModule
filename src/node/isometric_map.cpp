@@ -122,7 +122,7 @@ void IsometricMap::_set_grid_3d(const Array& array) {
 void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3& position) {
     if (positionable_id == resource::PositionableSet::NONE_POSITIONABLE_ID) { return; }
     if (auto* positionable {
-          Object::cast_to<IsometricPositionable>(positionable_set->get_positionable_scene_for_id(positionable_id)->instance())}) {
+          Object::cast_to<IsometricPositionable>(positionable_set->get_positionable_scene_for_id(positionable_id)->instantiate())}) {
         positionable->set_local_position_3d(position);
         add_child(positionable);
 
