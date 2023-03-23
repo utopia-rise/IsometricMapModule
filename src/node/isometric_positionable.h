@@ -2,17 +2,16 @@
 #define ISOMETRIC_MAPS_ISOMETRIC_POSITIONABLE_H
 
 #include "editor/outline_data.h"
-
-#include <scene/2d/node_2d.h>
-#include <scene/3d/collision_object.h>
+#include "scene/2d/node_2d.h"
+#include "scene/3d/collision_object_3d.h"
 
 namespace node {
-
     class IsometricPositionable : public Node2D {
-        GDCLASS(IsometricPositionable, Node2D)
+        GDCLASS(IsometricPositionable, Node2D);
 
     public:
-        static StringName get_debug_group_name();
+        StringName debug_group_name { StaticCString::create("isometric_debug_view")};
+        StringName size_changed_signal { StaticCString::create("size_changed")};
 
         enum class SlopeType {
             NONE = 0,
@@ -33,7 +32,7 @@ namespace node {
         RID self;
         bool is_dynamic;
         NodePath collision_object_node_path;
-        CollisionObject* collision_object;
+        CollisionObject3D* collision_object;
 
         void set_global_position_3d(const Vector3& p_position);
 
@@ -54,44 +53,27 @@ namespace node {
         void _notification(int notif);
 
         virtual void _enter_tree();
-
         void _ready();
-
         void _physics_process();
-
         void _exit_tree();
 
     public:
         IsometricPositionable();
-
         ~IsometricPositionable() override = default;
 
         Vector3 get_local_position_3d() const;
-
         void set_local_position_3d(Vector3 p_local);
-
         Vector3 get_global_position_3d() const;
-
         virtual Vector3 get_size() const;
-
         virtual void set_size(Vector3 p_size);
-
         int get_depth() const;
-
         void set_depth(int p_depth);
-
         RID get_space_RID() const;
-
         SlopeType get_slope_type() const;
-
         bool get_is_dynamic() const;
-
         void set_is_dynamic(bool p_is_dynamic);
-
         const NodePath& get_collision_object_node_path() const;
-
         void set_collision_object_node_path(const NodePath& p_node_path);
-
         RID get_rid() const;
 
 #ifdef TOOLS_ENABLED
@@ -99,8 +81,6 @@ namespace node {
         void set_debug_view(bool p_debug);
 
         editor::OutlineData& get_outline_data();
-
-        static constexpr const char* SIZE_CHANGED_SIGNAL {"size_changed"};
 #endif
 
     protected:

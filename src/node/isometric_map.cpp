@@ -36,7 +36,7 @@ void IsometricMap::remove_positionable(const AABB& aabb) {
     grid_3d.set_data(aabb.position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
     instances_grid_3d.insert_box(aabb, nullptr, true);
     remove_child(element_to_remove);
-    element_to_remove->queue_delete();
+    element_to_remove->queue_free();
 }
 
 IsometricPositionable* IsometricMap::get_positionable_at(const Vector3& position) {
@@ -95,17 +95,11 @@ bool IsometricMap::is_overlapping(const AABB& aabb) const {
 void IsometricMap::_enter_tree() {
     IsometricPositionable::_enter_tree();
     if (child_positionable_initialized) { return; }
-#ifdef TOOLS_ENABLED
-    Node::set_human_readable_collision_renaming(false);
-#endif
     const Vector<int>& id_vector {grid_3d.get_internal_array()};
     for (int i = 0; i < id_vector.size(); ++i) {
         add_positionable_as_child(id_vector[i], grid_3d.get_position_3d_from_index(i));
     }
     child_positionable_initialized = true;
-#ifdef TOOLS_ENABLED
-    Node::set_human_readable_collision_renaming(true);
-#endif
 }
 
 Array IsometricMap::_get_grid_3d() const {
@@ -139,12 +133,12 @@ void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3&
 void IsometricMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_positionable_set"), &IsometricMap::get_positionable_set);
     ClassDB::bind_method(D_METHOD("set_positionable_set"), &IsometricMap::set_positionable_set);
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "positionable_set"), "set_positionable_set", "get_positionable_set");
-
     ClassDB::bind_method(D_METHOD("_get_grid_3d"), &IsometricMap::_get_grid_3d);
     ClassDB::bind_method(D_METHOD("_set_grid_3d"), &IsometricMap::_set_grid_3d);
+
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "positionable_set"), "set_positionable_set", "get_positionable_set");
     ADD_PROPERTY(
-      PropertyInfo(Variant::ARRAY, "grid_3d", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      PropertyInfo(Variant::ARRAY, "grid_3d", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL),
       "_set_grid_3d",
       "_get_grid_3d"
     );

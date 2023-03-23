@@ -8,7 +8,7 @@
 namespace node {
 
     class IsometricMap : public IsometricPositionable {
-        GDCLASS(IsometricMap, IsometricPositionable)
+        GDCLASS(IsometricMap, IsometricPositionable);
 
     private:
         bool draw_tiles;
@@ -24,24 +24,16 @@ namespace node {
 
     public:
         Ref<resource::PositionableSet> get_positionable_set() const;
-
         void set_positionable_set(const Ref<resource::PositionableSet>& set);
 
 #ifdef TOOLS_ENABLED
         void add_positionable_if_nothing_present(const AABB& aabb, int id);
-
         void remove_positionable(const AABB& aabb);
-
         IsometricPositionable* get_positionable_at(const Vector3& position);
-
         int get_positionable_id_for_position(const Vector3& position);
-
         Vector<IsometricPositionable*> get_positionables_in(const AABB& p_aabb) const;
-
         bool is_aabb_in_map(const AABB& aabb) const;
-
         void set_size(Vector3 p_size) override;
-
         bool is_overlapping(const AABB& aabb) const;
 #endif
 

@@ -4,14 +4,7 @@
 #include "isometric_server.h"
 #include "utils/isometric_maths.h"
 
-#include <core/engine.h>
-
 using namespace node;
-
-StringName IsometricPositionable::get_debug_group_name() {
-    static StringName debug_name {StringName("isometric_debug_view")};
-    return debug_name;
-}
 
 IsometricPositionable::IsometricPositionable() :
   Node2D(),
@@ -33,9 +26,9 @@ IsometricPositionable::IsometricPositionable() :
 }
 
 void IsometricPositionable::_enter_tree() {
-    add_to_group(get_debug_group_name());
+    add_to_group(debug_group_name);
     if (!collision_object_node_path.is_empty()) {
-        if (auto* collider {Object::cast_to<CollisionObject>(get_node(collision_object_node_path))}) {
+        if (auto* collider {Object::cast_to<CollisionObject3D>(get_node(collision_object_node_path))}) {
             collision_object = collider;
             _rebind_collision_object_position();
         } else {
@@ -90,7 +83,7 @@ void IsometricPositionable::_exit_tree() {
         world = RID();
         self = RID();
     }
-    remove_from_group(get_debug_group_name());
+    remove_from_group(debug_group_name);
 }
 
 void IsometricPositionable::update_position() {
@@ -145,7 +138,7 @@ void IsometricPositionable::set_size(Vector3 s) {
     _rebind_collision_object_position();
 
 #ifdef TOOLS_ENABLED
-    emit_signal(SIZE_CHANGED_SIGNAL);
+    emit_signal(size_changed_signal);
 #endif
 }
 
@@ -236,7 +229,7 @@ void IsometricPositionable::set_debug_view(bool p_debug) {
     outline_data.should_draw_polygons = p_debug;
     editor::OutlineDrawer::set_outline_visible(this, p_debug);
     if (p_debug) { editor::OutlineDrawer::draw_outline(this); }
-    update();
+    queue_redraw();
 }
 
 #endif
