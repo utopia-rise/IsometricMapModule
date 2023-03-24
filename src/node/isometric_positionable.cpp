@@ -6,6 +6,9 @@
 
 using namespace node;
 
+StringName IsometricPositionable::debug_group_name { StaticCString::create("isometric_debug_view")};
+StringName IsometricPositionable::size_changed_signal { StaticCString::create("size_changed")};
+
 IsometricPositionable::IsometricPositionable() :
   Node2D(),
   size({1, 1, 1}),

@@ -26,28 +26,26 @@ editor::inspector::PositionableSelectionPane* IsometricEditorPlugin::get_selecti
 }
 
 IsometricEditorPlugin::IsometricEditorPlugin() :
-  undo_redo {EditorNode::get_undo_redo()},
   toolbar {nullptr},
   positionable_selection_pane {nullptr},
   positionable_pane_button {nullptr},
-  grid_color_picker_button{ memnew(ColorPickerButton) },
+  grid_color_picker_button {memnew(ColorPickerButton)},
   edition_mode_button(memnew(OptionButton)),
   debug_button {nullptr},
   selected_map {nullptr},
   show_debug(false),
   current_mode(Mode::NONE),
   should_clear_buffer_on_next_frame(),
-  painting_command_emitter(EditorNode::get_undo_redo()),
-  select_command_emitter(EditorNode::get_undo_redo()),
-  select_all_command_emitter(EditorNode::get_undo_redo()),
-  delete_command_emitter(EditorNode::get_undo_redo()),
-  drag_and_drop_command_emitter(EditorNode::get_undo_redo()),
-  move_editor_drawer_command_emitter(EditorNode::get_undo_redo()),
-  rotate_editor_plane_command_emitter(EditorNode::get_undo_redo()),
-  plane_view_limiter_command_emitter(EditorNode::get_undo_redo()) {
-
+  painting_command_emitter(),
+  select_command_emitter(),
+  select_all_command_emitter(),
+  delete_command_emitter(),
+  drag_and_drop_command_emitter(),
+  move_editor_drawer_command_emitter(),
+  rotate_editor_plane_command_emitter(),
+  plane_view_limiter_command_emitter() {
     grid_color_picker_button->set_text(GRID_COLOR_PICKER_TITLE);
-    grid_color_picker_button->connect("color_changed", this, "_on_grid_color_picker_change");
+    grid_color_picker_button->connect("color_changed", Callable(this, "_on_grid_color_picker_change"));
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
@@ -56,7 +54,7 @@ IsometricEditorPlugin::~IsometricEditorPlugin() {
 
 IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
     static IsometricEditorPlugin* instance {nullptr};
-    if (unlikely(!instance && ObjectDB::instance_validate(EditorNode::get_undo_redo()))) {
+    if (unlikely(!instance)) {
         instance = memnew(IsometricEditorPlugin);
     }
     return instance;
@@ -64,7 +62,7 @@ IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
 
 void IsometricEditorPlugin::set_debug_mode(bool b) {
     show_debug = b;
-    get_tree()->call_group(node::IsometricPositionable::get_debug_group_name(), "set_debug_view", b);
+    get_tree()->call_group(node::IsometricPositionable::debug_group_name, "set_debug_view", b);
     ISOMETRIC_SERVER->set_debug(b);
     editor::OutlineDrawer::set_outline_visible(selected_map, b);
 }
@@ -92,12 +90,12 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         edition_mode_button->add_item(PAINT_EDITION_LABEL);
         edition_mode_button->add_item(DRAG_AND_DROP_EDITION_LABEL);
         edition_mode_button->set_flat(true);
-        edition_mode_button->connect("item_selected", this, "_on_edition_mode_changed");
+        edition_mode_button->connect("item_selected", Callable(this, "_on_edition_mode_changed"));
         toolbar->add_child(edition_mode_button);
 
         debug_button = memnew(Button);
         debug_button->set_flat(true);
-        debug_button->connect("toggled", this, "set_debug_mode");
+        debug_button->connect("toggled", Callable(this, "set_debug_mode"));
         debug_button->set_toggle_mode(true);
         debug_button->set_text("Debug");
         toolbar->add_child(debug_button);
@@ -107,23 +105,23 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         positionable_pane_button = add_control_to_bottom_panel(positionable_selection_pane, POSITIONABLE_PANE_BUTTON_TITLE);
         positionable_pane_button->set_visible(false);
 
-        VisualServer::get_singleton()->connect("frame_post_draw", this, "_on_frame_post_draw");
+        RenderingServer::get_singleton()->connect("frame_post_draw", Callable(this, "_on_frame_post_draw"));
     }
 }
 
 void IsometricEditorPlugin::edit(Object* p_object) {
     selected_map = cast_to<node::IsometricMap>(p_object);
 
-    if (!selected_map->is_connected("draw", this, "refresh")) {
-        selected_map->connect("draw", this, "refresh", varray(EditorPlane::PlaneType::EDITOR_DRAWER));
+    if (!selected_map->is_connected("draw", Callable(this, "refresh"))) {
+        selected_map->connect("draw", Callable(this, "refresh").bind(EditorPlane::PlaneType::EDITOR_DRAWER));
     }
     positionable_selection_pane->set_positionable_set(selected_map->get_positionable_set());
-    if (!selected_map->is_connected("positional_set_changed", positionable_selection_pane, "set_positionable_set")) {
-        selected_map->connect("positional_set_changed", positionable_selection_pane, "set_positionable_set");
+    if (!selected_map->is_connected("positional_set_changed", Callable(positionable_selection_pane, "set_positionable_set"))) {
+        selected_map->connect("positional_set_changed", Callable(positionable_selection_pane, "set_positionable_set"));
     }
 
-    if (!selected_map->is_connected(node::IsometricMap::SIZE_CHANGED_SIGNAL, this, "_on_map_size_changed")) {
-        selected_map->connect(node::IsometricMap::SIZE_CHANGED_SIGNAL, this, "_on_map_size_changed");
+    if (!selected_map->is_connected(node::IsometricMap::size_changed_signal, Callable(this, "_on_map_size_changed"))) {
+        selected_map->connect(node::IsometricMap::size_changed_signal, Callable(this, "_on_map_size_changed"));
     }
 
     auto index {reinterpret_cast<uint64_t>(selected_map)};
@@ -136,9 +134,11 @@ void IsometricEditorPlugin::edit(Object* p_object) {
 }
 
 void IsometricEditorPlugin::drop() {
-    if (selected_map && ObjectDB::instance_validate(selected_map)) {
+    if (selected_map) {
         editor::OutlineDrawer::set_outline_visible(selected_map, false);
-        if (selected_map->is_connected("draw", this, "refresh")) { selected_map->disconnect("draw", this, "refresh"); }
+        if (selected_map->is_connected("draw", Callable(this, "refresh"))) {
+            selected_map->disconnect("draw", Callable(this, "refresh"));
+        }
         auto index {reinterpret_cast<uint64_t>(selected_map)};
 
         const MapHandlingData& map_handling_data = handling_data_map[index];
@@ -163,28 +163,23 @@ void IsometricEditorPlugin::clear() {
 
 bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_event) {
     if (!selected_map) { return false; }
+    int id = EditorUndoRedoManager::get_singleton()->get_history_id_for_object(selected_map);
+    UndoRedo* undo_redo = EditorUndoRedoManager::get_singleton()->get_history_undo_redo(id);
 
     Ref<InputEventKey> keyboard_event {p_event};
     if (keyboard_event.is_valid() && keyboard_event->is_pressed()) {
-        bool is_ctrl {
-#ifdef APPLE_STYLE_KEYS
-          keyboard_event->get_command()
-#else
-          keyboard_event->get_control()
-#endif
-        };
-        if (is_ctrl) {
-            uint32_t key_pressed {keyboard_event->get_scancode()};
-            switch (key_pressed) {
-                case KEY_Z:
-                    if (keyboard_event->get_shift()) {
-                        EditorNode::get_undo_redo()->redo();
+        Key key = keyboard_event->get_keycode_with_modifiers();
+        if (keyboard_event->is_command_or_control_pressed()) {
+            switch (key) {
+                case Key::Z:
+                    if (keyboard_event->is_shift_pressed()) {
+                        undo_redo->redo();
                     } else {
-                        EditorNode::get_undo_redo()->undo();
+                        undo_redo->undo();
                     }
                     return true;
-                case KEY_Y:
-                    EditorNode::get_undo_redo()->redo();
+                case Key::Y:
+                    EditorUndoRedoManager::get_singleton()->redo();
                     return true;
                 default:
                     break;
@@ -196,21 +191,21 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
         case NONE:
             return false;
         case SELECT:
-            select_command_emitter.on_gui_input(p_event);
-            select_all_command_emitter.on_gui_input(p_event);
-            delete_command_emitter.on_gui_input(p_event);
+            select_command_emitter.on_gui_input(p_event, undo_redo);
+            select_all_command_emitter.on_gui_input(p_event, undo_redo);
+            delete_command_emitter.on_gui_input(p_event, undo_redo);
             break;
         case PAINT:
-            painting_command_emitter.on_gui_input(p_event);
+            painting_command_emitter.on_gui_input(p_event, undo_redo);
             break;
         case DRAG_AND_DROP:
-            drag_and_drop_command_emitter.on_gui_input(p_event);
+            drag_and_drop_command_emitter.on_gui_input(p_event, undo_redo);
             break;
     }
-    move_editor_drawer_command_emitter.on_gui_input(p_event);
-    rotate_editor_plane_command_emitter.on_gui_input(p_event);
+    move_editor_drawer_command_emitter.on_gui_input(p_event, undo_redo);
+    rotate_editor_plane_command_emitter.on_gui_input(p_event, undo_redo);
 
-    plane_view_limiter_command_emitter.on_gui_input(p_event);
+    plane_view_limiter_command_emitter.on_gui_input(p_event, undo_redo);
     return true;
 }
 
@@ -370,9 +365,7 @@ void IsometricEditorPlugin::_set_plane_timer(EditorPlane::PlaneType p_plane_type
     }
 
     Ref<SceneTreeTimer> timer {SceneTree::get_singleton()->create_timer(p_delay, false)};
-    Vector<Variant> parameters;
-    parameters.push_back(p_plane_type);
-    timer->connect(timeoutSignalName, this, "_on_plane_visibility_timeout", parameters);
+    timer->connect(timeoutSignalName, Callable(this, "_on_plane_visibility_timeout").bind(p_plane_type));
     map_handling_data.plane_timers[p_plane_type] = timer;
 }
 

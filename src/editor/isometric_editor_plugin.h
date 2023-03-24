@@ -3,18 +3,21 @@
 
 #ifdef TOOLS_ENABLED
 
+#include "core/object/undo_redo.h"
 #include "edition_grid_drawer.h"
 #include "editor/commands/emitters/delete_command_emitter.h"
 #include "editor/commands/emitters/drag_and_drop_command_emitter.h"
 #include "editor/commands/emitters/move_editor_grid_command_emitter.h"
+#include "editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
 #include "editor/commands/emitters/painting_command_emitter.h"
 #include "editor/commands/emitters/rotate_editor_plane_command_emitter.h"
 #include "editor/commands/emitters/select_all_command_emitter.h"
 #include "editor/commands/emitters/select_command_emitter.h"
-#include "editor_plane.h"
-#include "editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
+#include "editor/editor_undo_redo_manager.h"
 #include "editor/inspector/positionable_selection_pane.h"
+#include "editor_plane.h"
 #include "node/isometric_map.h"
+#include "scene/gui/color_picker.h"
 
 #include <editor/editor_node.h>
 #include <editor/editor_plugin.h>
@@ -78,8 +81,7 @@ namespace editor {
         };
 
         editor::inspector::PositionableSelectionPane* positionable_selection_pane;
-        ToolButton* positionable_pane_button;
-        UndoRedo* undo_redo;
+        Button* positionable_pane_button;
         HBoxContainer* toolbar;
         ColorPickerButton* grid_color_picker_button;
         OptionButton* edition_mode_button;

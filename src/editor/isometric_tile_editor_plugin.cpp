@@ -13,7 +13,7 @@ static constexpr const char* OUTLINE_COLOR_TITLE{"Outline color:"};
 
 IsometricTileEditorPlugin* IsometricTileEditorPlugin::get_instance() {
     static IsometricTileEditorPlugin* instance {nullptr};
-    if (unlikely(!instance && ObjectDB::instance_validate(EditorNode::get_undo_redo()))) {
+    if (unlikely(!instance)) {
         instance = memnew(IsometricTileEditorPlugin);
     }
     return instance;
@@ -42,8 +42,8 @@ void IsometricTileEditorPlugin::edit(Object* p_object) {
     OutlineDrawer::draw_outline(selected_positionable);
     OutlineDrawer::set_outline_visible(selected_positionable, true);
 
-    if (!selected_positionable->is_connected(node::IsometricPositionable::SIZE_CHANGED_SIGNAL, this, "_on_size_changed")) {
-        selected_positionable->connect(node::IsometricPositionable::SIZE_CHANGED_SIGNAL, this, "_on_size_changed");
+    if (!selected_positionable->is_connected(node::IsometricPositionable::size_changed_signal, Callable(this, "_on_size_changed"))) {
+        selected_positionable->connect(node::IsometricPositionable::size_changed_signal, Callable(this, "_on_size_changed"));
     }
 }
 
@@ -67,7 +67,7 @@ IsometricTileEditorPlugin::IsometricTileEditorPlugin() :
 
     toolbar->hide();
     color_picker_button->set_text(OUTLINE_COLOR_TITLE);
-    color_picker_button->connect("color_changed", this, "_on_color_picker_change");
+    color_picker_button->connect("color_changed", Callable(this, "_on_color_picker_change"));
 }
 
 void IsometricTileEditorPlugin::_bind_methods() {

@@ -24,7 +24,7 @@ namespace editor {
             OptionButton* category_selector;
             ItemList* contained_tiles_list;
             Button* fix_path_button;
-            WindowDialog* add_category_dialog;
+            Window* add_category_dialog;
             LineEdit* add_category_dialog_line_edit;
 
             FileDialog* file_dialog;
@@ -32,10 +32,10 @@ namespace editor {
 
             AcceptDialog* alert_popup;
 
-            WindowDialog* remove_tile_alert_popup;
+            Window* remove_tile_alert_popup;
             CheckBox* do_not_display_alert_remove_tile;
 
-            WindowDialog* remove_category_alert_popup;
+            Window* remove_category_alert_popup;
             CheckBox* do_not_display_alert_remove_category;
 
             Ref<resource::PositionableSet> current_set;
@@ -60,7 +60,7 @@ namespace editor {
             void _refresh_icons();
             void _refresh();
 
-            static Button* _generate_alert_remove_dialog(WindowDialog* dialog, CheckBox* do_not_display_alert_check_box);
+            static Button* _generate_alert_remove_dialog(Window* dialog, CheckBox* do_not_display_alert_check_box);
 
         public:
             static void _bind_methods();

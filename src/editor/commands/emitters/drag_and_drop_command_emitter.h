@@ -13,8 +13,7 @@ namespace editor {
                 friend class CommandEmitter<DragAndDropCommandEmitter, InputEventMouse>;
 
             public:
-                DragAndDropCommandEmitter() = delete;
-                explicit DragAndDropCommandEmitter(UndoRedo* undo_redo);
+                DragAndDropCommandEmitter();
                 ~DragAndDropCommandEmitter();
 
             private:

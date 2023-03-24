@@ -17,7 +17,7 @@ Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_c
 
     if (!p_event->is_pressed()) { return commands; }
 
-    if (p_event->get_scancode() != KeyList::KEY_BACKSPACE) { return commands; }
+    if (p_event->get_keycode() != Key::BACKSPACE) { return commands; }
 
     node::IsometricMap* map {IsometricEditorPlugin::get_instance()->get_selected_map()};
 
@@ -29,25 +29,25 @@ Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_c
             const Vector3& local_position {current->get_local_position_3d()};
 
             Ref<SelectPositionableCommand> select_command;
-            select_command.instance();
+            select_command.instantiate();
             select_command->set_should_deselect_first(false);
             select_command->set_position(position);
 
             Ref<RevertCommand> deselect_command;
-            deselect_command.instance();
+            deselect_command.instantiate();
             deselect_command->set_reverse_command(select_command);
 
             Ref<AddPositionableCommand> add_command;
-            add_command.instance();
+            add_command.instantiate();
             add_command->set_aabb({local_position, current->get_size()});
             add_command->set_positionable_id(map->get_positionable_id_for_position(local_position));
 
             Ref<RevertCommand> delete_command;
-            delete_command.instance();
+            delete_command.instantiate();
             delete_command->set_reverse_command(add_command);
 
             Ref<CompositeCommand> composite_command;
-            composite_command.instance();
+            composite_command.instantiate();
             composite_command->append_command(deselect_command);
             composite_command->append_command(delete_command);
 
@@ -57,7 +57,5 @@ Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_c
 
     return commands;
 }
-
-DeleteCommandEmitter::DeleteCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {}
 
 #endif

@@ -19,11 +19,11 @@ Vector<Ref<editor::commands::Command>> RotateEditorPlaneCommandEmitter::from_gui
 
     Ref<editor::commands::RotateEditorPlaneCommand> rotate_command;
     int new_axis;
-    switch (p_event->get_scancode()) {
-        case KeyList::KEY_LEFT:
+    switch (p_event->get_keycode()) {
+        case Key::LEFT:
             new_axis = current_axis - 1;
             break;
-        case KeyList::KEY_RIGHT:
+        case Key::RIGHT:
             new_axis = current_axis + 1;
             break;
         default:
@@ -33,7 +33,7 @@ Vector<Ref<editor::commands::Command>> RotateEditorPlaneCommandEmitter::from_gui
     const int axis_count = 3;
     new_axis = Math::posmod(new_axis, axis_count);
 
-    rotate_command.instance();
+    rotate_command.instantiate();
     rotate_command->set_former_axis(current_axis);
     rotate_command->set_former_position(editor_plane.get_position());
     rotate_command->set_new_axis(static_cast<Vector3::Axis>(new_axis));
@@ -41,7 +41,5 @@ Vector<Ref<editor::commands::Command>> RotateEditorPlaneCommandEmitter::from_gui
 
     return commands;
 }
-
-RotateEditorPlaneCommandEmitter::RotateEditorPlaneCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {}
 
 #endif

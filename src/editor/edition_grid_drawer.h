@@ -5,8 +5,6 @@
 #include "../node/isometric_map.h"
 #include "editor_plane.h"
 
-#include <core/rid.h>
-
 namespace editor {
     class EditionGridDrawer {
     public:

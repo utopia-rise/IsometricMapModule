@@ -22,6 +22,8 @@ namespace editor {
     };
 }// namespace editor
 
+#endif
+
 #endif// ISOMETRIC_MAPS_OUTLINE_DATA_H
 
-#endif
+

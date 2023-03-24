@@ -13,10 +13,7 @@ namespace editor {
                 friend class CommandEmitter<PaintingCommandEmitter, InputEventMouse>;
 
             public:
-                PaintingCommandEmitter() = delete;
-
-                explicit PaintingCommandEmitter(UndoRedo* undo_redo);
-
+                PaintingCommandEmitter();
                 ~PaintingCommandEmitter();
 
             private:

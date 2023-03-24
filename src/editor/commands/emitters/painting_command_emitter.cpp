@@ -5,8 +5,6 @@
 #include "isometric_server.h"
 #include "utils/isometric_maths.h"
 
-#include <core/os/input.h>
-
 using namespace editor::commands::emitters;
 
 Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event
@@ -34,7 +32,7 @@ Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to
 
     Vector3 size;
     if (auto* positionable {Object::cast_to<node::IsometricPositionable>(
-          map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
+          map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instantiate()
         )}) {
         size = positionable->get_size();
         memdelete(positionable);
@@ -50,9 +48,9 @@ Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to
 
     if (map->is_overlapping(aabb)) { return commands; }
 
-    if (!Input::get_singleton()->is_mouse_button_pressed(BUTTON_LEFT)) {
+    if (!Input::get_singleton()->is_mouse_button_pressed(MouseButton::LEFT)) {
         current_preview_node = Object::cast_to<node::IsometricPositionable>(
-          map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
+          map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instantiate()
         );
 
         // TODO: Use the future container node to avoid flickering.
@@ -65,7 +63,7 @@ Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to
     }
 
     Ref<editor::commands::AddPositionableCommand> add_command;
-    add_command.instance();
+    add_command.instantiate();
     add_command->set_aabb(aabb);
     add_command->set_positionable_id(selected_tile_id);
     commands.push_back(add_command);
@@ -81,8 +79,7 @@ void PaintingCommandEmitter::_clear_current_preview_node() {
     }
 }
 
-PaintingCommandEmitter::PaintingCommandEmitter(UndoRedo* undo_redo) :
-  CommandEmitter(undo_redo),
+PaintingCommandEmitter::PaintingCommandEmitter() :
   current_preview_node(nullptr) {}
 
 PaintingCommandEmitter::~PaintingCommandEmitter() {

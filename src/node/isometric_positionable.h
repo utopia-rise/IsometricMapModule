@@ -10,8 +10,8 @@ namespace node {
         GDCLASS(IsometricPositionable, Node2D);
 
     public:
-        StringName debug_group_name { StaticCString::create("isometric_debug_view")};
-        StringName size_changed_signal { StaticCString::create("size_changed")};
+        static StringName debug_group_name;
+        static StringName size_changed_signal;
 
         enum class SlopeType {
             NONE = 0,

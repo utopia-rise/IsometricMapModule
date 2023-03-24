@@ -13,8 +13,7 @@ namespace editor {
                 friend class CommandEmitter<DeleteCommandEmitter, InputEventKey>;
 
             public:
-                DeleteCommandEmitter() = delete;
-                explicit DeleteCommandEmitter(UndoRedo* undo_redo);
+                DeleteCommandEmitter() = default;
                 ~DeleteCommandEmitter() = default;
 
             private:

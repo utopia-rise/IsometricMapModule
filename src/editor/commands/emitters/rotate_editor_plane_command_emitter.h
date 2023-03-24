@@ -3,6 +3,7 @@
 
 #ifdef TOOLS_ENABLED
 #include "command_emitter.h"
+#include "core/input/input_event.h"
 #include "editor/commands/command.h"
 
 namespace editor {
@@ -12,10 +13,7 @@ namespace editor {
                 friend class CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey>;
 
             public:
-                RotateEditorPlaneCommandEmitter() = delete;
-
-                explicit RotateEditorPlaneCommandEmitter(UndoRedo* undo_redo);
-
+                RotateEditorPlaneCommandEmitter() = default;
                 ~RotateEditorPlaneCommandEmitter() = default;
 
             private:

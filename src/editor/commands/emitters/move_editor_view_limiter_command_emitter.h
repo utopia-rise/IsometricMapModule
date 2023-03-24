@@ -23,10 +23,7 @@ namespace editor {
                 friend class CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent>;
 
             public:
-                MoveEditorViewLimiterCommandEmitter() = delete;
-
-                explicit MoveEditorViewLimiterCommandEmitter(UndoRedo* undo_redo);
-
+                MoveEditorViewLimiterCommandEmitter();
                 ~MoveEditorViewLimiterCommandEmitter() = default;
 
             private:

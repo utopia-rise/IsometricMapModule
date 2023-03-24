@@ -12,10 +12,7 @@ namespace editor {
                 friend class CommandEmitter<SelectCommandEmitter, InputEventMouse>;
 
             public:
-                SelectCommandEmitter() = delete;
-
-                explicit SelectCommandEmitter(UndoRedo* undo_redo);
-
+                SelectCommandEmitter() = default;
                 ~SelectCommandEmitter() = default;
 
             private:

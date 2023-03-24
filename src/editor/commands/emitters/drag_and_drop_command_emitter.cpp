@@ -6,8 +6,6 @@
 #include "isometric_server.h"
 #include "utils/isometric_maths.h"
 
-#include <core/os/input.h>
-
 using namespace editor::commands::emitters;
 
 Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event
@@ -35,7 +33,7 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
 
     Vector3 positionable_size;
     if (auto* positionable {Object::cast_to<node::IsometricPositionable>(
-          map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
+          map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instantiate()
         )}) {
         positionable_size = positionable->get_size();
         memdelete(positionable);
@@ -43,7 +41,7 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
         return commands;
     }
 
-    if (Input::get_singleton()->is_mouse_button_pressed(BUTTON_LEFT)) {
+    if (Input::get_singleton()->is_mouse_button_pressed(MouseButton::LEFT)) {
         if (is_activated) {
             AABB real_aabb {_calculate_real_aabb(initial_position, mouse_position, positionable_size)};
             if (!map->is_aabb_in_map(real_aabb) || map->is_overlapping(real_aabb) || !isometric_editor_plugin->is_aabb_in_view_limiters(real_aabb)) {
@@ -79,7 +77,7 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
         // New nodes are added if the size grew.
         for (int i = current_preview_nodes.size(); i < new_size; ++i) {
             node::IsometricPositionable* preview_positionable {Object::cast_to<node::IsometricPositionable>(
-              map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instance()
+              map->get_positionable_set()->get_positionable_scene_for_id(selected_tile_id)->instantiate()
             )};
             current_preview_nodes.push_back(preview_positionable);
             preview_positionable->set_modulate(Color(1, 1, 1, 0.5));
@@ -95,7 +93,7 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
 
         for (int i = 0; i < all_positions.size(); ++i) {
             Ref<editor::commands::AddPositionableCommand> add_command;
-            add_command.instance();
+            add_command.instantiate();
             add_command->set_aabb({all_positions[i], positionable_size});
             add_command->set_positionable_id(selected_tile_id);
             commands.push_back(add_command);
@@ -198,8 +196,8 @@ Vector<Vector3> DragAndDropCommandEmitter::_calculate_positionables_positions(
     return r_ret;
 }
 
-DragAndDropCommandEmitter::DragAndDropCommandEmitter(UndoRedo* undo_redo) :
-  CommandEmitter(undo_redo),
+DragAndDropCommandEmitter::DragAndDropCommandEmitter() :
+  CommandEmitter(),
   current_preview_nodes(),
   initial_position(-1, -1, -1),
   limit_position(-1, -1, -1) {}
