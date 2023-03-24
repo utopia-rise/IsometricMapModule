@@ -12,15 +12,15 @@
 
 #ifdef TOOLS_ENABLED
 
-static EditorPlugin* isometric_editor_plugin_creator_func(EditorNode* editor_node) {
+static EditorPlugin* isometric_editor_plugin_creator_func() {
     return editor::IsometricEditorPlugin::get_instance();
 }
 
-static EditorPlugin* positionable_set_editor_plugin_creator_func(EditorNode* editor_node) {
+static EditorPlugin* positionable_set_editor_plugin_creator_func() {
     return editor::PositionableSetEditorPlugin::get_instance();
 }
 
-static EditorPlugin* isometric_tile_editor_plugin_creator_func(EditorNode* editor_node) {
+static EditorPlugin* isometric_tile_editor_plugin_creator_func() {
     return editor::IsometricTileEditorPlugin::get_instance();
 }
 #endif
