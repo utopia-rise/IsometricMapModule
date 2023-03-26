@@ -5,8 +5,6 @@
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_utils.h"
-
-#include <core/io/resource_saver.h>
 #endif
 
 using namespace resource;

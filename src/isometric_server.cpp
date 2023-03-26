@@ -201,7 +201,7 @@ void IsometricServer::command_space_attach_isometric_element(data::IsometricSpac
     space->dirty = true;
 
     if (!element->is_dynamic) {
-        for (int i = 0; i < space->static_elements.size(); i++) {
+        for (uint32_t i = 0; i < space->static_elements.size(); i++) {
             IsometricElement* static_element {space->static_elements[i]};
             if (utils::are_elements_overlapping(space->configuration, static_element, element)) {
                 if (utils::is_box_in_front(space->configuration, static_element->aabb, element->aabb)) {

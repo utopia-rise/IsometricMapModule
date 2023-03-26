@@ -3,6 +3,8 @@
 
 #ifdef TOOLS_ENABLED
 #include "../command.h"
+#include "core/input/input_event.h"
+#include "editor/editor_undo_redo_manager.h"
 
 namespace editor {
     namespace commands {

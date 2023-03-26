@@ -3,6 +3,7 @@
 
 #include <core/math/aabb.h>
 #include <core/math/transform_2d.h>
+#include <core/templates/rid.h>
 
 namespace data {
     // forward declaration

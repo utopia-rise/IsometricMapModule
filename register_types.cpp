@@ -27,18 +27,19 @@ static EditorPlugin* isometric_tile_editor_plugin_creator_func() {
 
 void initialize_isometric_maps_module(ModuleInitializationLevel p_level) {
     if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
+
+    }
+
+    if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+        ClassDB::register_class<resource::IsometricConfiguration>();
+        ClassDB::register_class<node::IsometricPositionable>();
+        ClassDB::register_class<node::IsometricMap>();
+        ClassDB::register_class<resource::PositionableSet>();
         IsometricServer::create_server();
         ClassDB::register_class<IsometricServer>();
         Engine::get_singleton()->add_singleton(
           Engine::Singleton("IsometricServer", reinterpret_cast<Object*>(IsometricServer::get_instance()))
         );
-
-        ClassDB::register_class<resource::IsometricConfiguration>();
-
-        ClassDB::register_class<node::IsometricPositionable>();
-        ClassDB::register_class<node::IsometricMap>();
-
-        ClassDB::register_class<resource::PositionableSet>();
     }
 
 #ifdef TOOLS_ENABLED
@@ -56,5 +57,10 @@ void initialize_isometric_maps_module(ModuleInitializationLevel p_level) {
 }
 
 void uninitialize_isometric_maps_module(ModuleInitializationLevel p_level) {
-    if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) { IsometricServer::terminate_server(); }
+    if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
+
+    }
+    if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+        IsometricServer::terminate_server();
+    }
 }

@@ -1,7 +1,6 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_API_H
 #define ISOMETRIC_MAPS_ISOMETRIC_API_H
 
-#include "../data/isometric_element.h"
 #include "core/io/resource.h"
 #include "core/templates/rid.h"
 

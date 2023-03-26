@@ -1,9 +1,11 @@
 #ifndef ISOMETRIC_MAPS_COMMAND_H
 #define ISOMETRIC_MAPS_COMMAND_H
 
-#include "core/object/ref_counted.h"
+
 #ifdef TOOLS_ENABLED
 
+#include "core/object/ref_counted.h"
+#include "editor/editor_undo_redo_manager.h"
 
 namespace editor {
     namespace commands {
