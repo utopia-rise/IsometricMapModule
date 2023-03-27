@@ -10,8 +10,6 @@ namespace node {
         GDCLASS(IsometricPositionable, Node2D);
 
     public:
-        static StringName debug_group_name;
-        static StringName size_changed_signal;
 
         enum class SlopeType {
             NONE = 0,

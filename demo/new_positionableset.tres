@@ -1,7 +1,7 @@
 [gd_resource type="PositionableSet" format=2]
 
 [resource]
-categories = PoolStringArray( "All" )
+categories = PackedStringArray( "All" )
 categories_to_identifiers = {
 "All": [ 1, 2 ]
 }

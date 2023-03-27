@@ -3,11 +3,9 @@
 #include "editor/outline_drawer.h"
 #include "isometric_server.h"
 #include "utils/isometric_maths.h"
+#include "isometric_string_names.h"
 
 using namespace node;
-
-StringName IsometricPositionable::debug_group_name { StaticCString::create("isometric_debug_view")};
-StringName IsometricPositionable::size_changed_signal { StaticCString::create("size_changed")};
 
 IsometricPositionable::IsometricPositionable() :
   Node2D(),
@@ -29,7 +27,7 @@ IsometricPositionable::IsometricPositionable() :
 }
 
 void IsometricPositionable::_enter_tree() {
-    add_to_group(debug_group_name);
+    add_to_group(IsometricStringNames::get_singleton()->debug_group_name);
     if (!collision_object_node_path.is_empty()) {
         if (auto* collider {Object::cast_to<CollisionObject3D>(get_node(collision_object_node_path))}) {
             collision_object = collider;
@@ -86,7 +84,7 @@ void IsometricPositionable::_exit_tree() {
         world = RID();
         self = RID();
     }
-    remove_from_group(debug_group_name);
+    remove_from_group(IsometricStringNames::get_singleton()->debug_group_name);
 }
 
 void IsometricPositionable::update_position() {
@@ -141,7 +139,7 @@ void IsometricPositionable::set_size(Vector3 s) {
     _rebind_collision_object_position();
 
 #ifdef TOOLS_ENABLED
-    emit_signal(size_changed_signal);
+    emit_signal(IsometricStringNames::get_singleton()->size_changed_signal);
 #endif
 }
 

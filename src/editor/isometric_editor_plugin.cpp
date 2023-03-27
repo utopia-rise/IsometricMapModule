@@ -4,6 +4,7 @@
 
 #include "constants.h"
 #include "isometric_server.h"
+#include "isometric_string_names.h"
 #include "outline_drawer.h"
 #include "positionable_scenes_cache_manager.h"
 #include "positionable_selector_manager.h"
@@ -62,7 +63,7 @@ IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
 
 void IsometricEditorPlugin::set_debug_mode(bool b) {
     show_debug = b;
-    get_tree()->call_group(node::IsometricPositionable::debug_group_name, "set_debug_view", b);
+    get_tree()->call_group(IsometricStringNames::get_singleton()->debug_group_name, "set_debug_view", b);
     ISOMETRIC_SERVER->set_debug(b);
     editor::OutlineDrawer::set_outline_visible(selected_map, b);
 }
@@ -120,8 +121,8 @@ void IsometricEditorPlugin::edit(Object* p_object) {
         selected_map->connect("positional_set_changed", Callable(positionable_selection_pane, "set_positionable_set"));
     }
 
-    if (!selected_map->is_connected(node::IsometricMap::size_changed_signal, Callable(this, "_on_map_size_changed"))) {
-        selected_map->connect(node::IsometricMap::size_changed_signal, Callable(this, "_on_map_size_changed"));
+    if (!selected_map->is_connected(IsometricStringNames::get_singleton()->size_changed_signal, Callable(this, "_on_map_size_changed"))) {
+        selected_map->connect(IsometricStringNames::get_singleton()->size_changed_signal, Callable(this, "_on_map_size_changed"));
     }
 
     auto index {reinterpret_cast<uint64_t>(selected_map)};

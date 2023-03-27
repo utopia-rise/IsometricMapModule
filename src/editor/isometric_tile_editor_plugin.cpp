@@ -2,10 +2,11 @@
 
 #include "isometric_tile_editor_plugin.h"
 
-#include <node/isometric_map.h>
+#include "isometric_string_names.h"
 #include "outline_drawer.h"
 
 #include <editor/editor_node.h>
+#include <node/isometric_map.h>
 
 using namespace editor;
 
@@ -42,8 +43,8 @@ void IsometricTileEditorPlugin::edit(Object* p_object) {
     OutlineDrawer::draw_outline(selected_positionable);
     OutlineDrawer::set_outline_visible(selected_positionable, true);
 
-    if (!selected_positionable->is_connected(node::IsometricPositionable::size_changed_signal, Callable(this, "_on_size_changed"))) {
-        selected_positionable->connect(node::IsometricPositionable::size_changed_signal, Callable(this, "_on_size_changed"));
+    if (!selected_positionable->is_connected(IsometricStringNames::get_singleton()->size_changed_signal, Callable(this, "_on_size_changed"))) {
+        selected_positionable->connect(IsometricStringNames::get_singleton()->size_changed_signal, Callable(this, "_on_size_changed"));
     }
 }
 
