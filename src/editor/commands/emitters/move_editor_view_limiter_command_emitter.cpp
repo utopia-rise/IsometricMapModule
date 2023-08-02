@@ -3,12 +3,9 @@
 #include "move_editor_view_limiter_command_emitter.h"
 
 #include "constants.h"
-#include "editor/commands/composite_command.h"
 #include "editor/commands/move_editor_plane_command.h"
 #include "editor/commands/set_positionable_visibility_command.h"
 #include "editor/isometric_editor_plugin.h"
-
-#include <core/os/keyboard.h>
 
 using namespace editor::commands::emitters;
 

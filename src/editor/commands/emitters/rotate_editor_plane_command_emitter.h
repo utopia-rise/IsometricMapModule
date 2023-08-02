@@ -9,8 +9,10 @@
 namespace editor {
     namespace commands {
         namespace emitters {
-            class RotateEditorPlaneCommandEmitter : public CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey> {
-                friend class CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey>;
+            static constexpr const char rotate_editor_plane_action_name[]{"Rotate editor plane"};
+
+            class RotateEditorPlaneCommandEmitter : public CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey, rotate_editor_plane_action_name> {
+                friend class CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey, rotate_editor_plane_action_name>;
 
             public:
                 RotateEditorPlaneCommandEmitter() = default;

@@ -7,9 +7,8 @@
 using namespace editor::commands;
 
 void Command::append_to_undoredo() {
-    EditorUndoRedoManager* undo_redo = EditorUndoRedoManager::get_singleton();
-    undo_redo->add_do_method(this, "redo");
-    undo_redo->add_undo_method(this, "undo");
+    EditorUndoRedoManager::get_singleton()->add_do_method(this, "redo");
+    EditorUndoRedoManager::get_singleton()->add_undo_method(this, "undo");
 }
 
 void Command::_bind_methods() {

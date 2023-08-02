@@ -8,8 +8,10 @@
 namespace editor {
     namespace commands {
         namespace emitters {
-            class SelectCommandEmitter : public CommandEmitter<SelectCommandEmitter, InputEventMouse> {
-                friend class CommandEmitter<SelectCommandEmitter, InputEventMouse>;
+            static constexpr const char select_action_name[]{"Select isometric element"};
+
+            class SelectCommandEmitter : public CommandEmitter<SelectCommandEmitter, InputEventMouse, select_action_name> {
+                friend class CommandEmitter<SelectCommandEmitter, InputEventMouse, select_action_name>;
 
             public:
                 SelectCommandEmitter() = default;

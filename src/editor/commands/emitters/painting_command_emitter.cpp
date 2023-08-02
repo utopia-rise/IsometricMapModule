@@ -7,7 +7,7 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event
+Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event
 ) {// NOLINT(performance-unnecessary-value-param)
     Vector<Ref<Command>> commands;
 

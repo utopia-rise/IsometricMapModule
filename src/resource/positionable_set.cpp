@@ -11,8 +11,8 @@ using namespace resource;
 
 void PositionableSet::preload_scenes() {
     identifier_to_loaded_scene.clear();
-    
-    for(KeyValue<int, String> entry : identifier_to_scene_path) {
+
+    for (KeyValue<int, String> entry : identifier_to_scene_path) {
         _load_positionable_scene(entry.key, entry.value);
     }
 
@@ -21,10 +21,6 @@ void PositionableSet::preload_scenes() {
 
 bool PositionableSet::is_set_loaded() const {
     return is_loaded;
-}
-
-String PositionableSet::get_positionable_scene_path_for_id(int id) const {
-    return identifier_to_scene_path[id];
 }
 
 Ref<PackedScene> PositionableSet::get_positionable_scene_for_id(int id) const {
@@ -57,7 +53,7 @@ HashMap<int, String> PositionableSet::get_scene_paths_for_category(const String&
 Vector<resource::PositionableSet::RemovedElement> PositionableSet::get_removed_elements() const {
     Vector<RemovedElement> removed_elements;
 
-    for(KeyValue<int, String> entry : identifier_to_scene_path) {
+    for (KeyValue<int, String> entry : identifier_to_scene_path) {
         Ref<FileAccess> file_access {FileAccess::create(FileAccess::ACCESS_RESOURCES)};
         if (!file_access->file_exists(entry.value)) { removed_elements.push_back({entry.key, entry.value}); }
     }
@@ -85,14 +81,14 @@ void PositionableSet::remove_category(const String& category) {
     categories_to_identifiers.erase(category);
 
     for (int i = 0; i < categories.size(); ++i) {
-        if (categories[i] != category) continue;
+        if (categories[i] != category) { continue; }
         categories.remove_at(i);
         break;
     }
 }
 
 bool PositionableSet::add_or_update_positionable(int id, const String& path) {
-    for(KeyValue<int, String> entry : identifier_to_scene_path) {
+    for (KeyValue<int, String> entry : identifier_to_scene_path) {
         if (entry.value == path) { return false; }
     }
     identifier_to_scene_path[id] = path;
@@ -104,7 +100,7 @@ bool PositionableSet::add_or_update_positionable(int id, const String& path) {
 
 void PositionableSet::remove_positionable(int id) {
     List<StringName> keys;
-    for(KeyValue<StringName, Vector<int>> entry : categories_to_identifiers) {
+    for (KeyValue<StringName, Vector<int>> entry : categories_to_identifiers) {
         Vector<int>& ids {entry.value};
         int id_index = -1;
         for (int j = 0; j < ids.size(); ++j) {
@@ -123,15 +119,8 @@ void PositionableSet::remove_positionable(int id) {
     identifier_to_scene_path.erase(id);
 }
 
-bool PositionableSet::has_category(const String& category) const {
-    for (int i = 0; i < categories.size(); ++i) {
-        if (categories[i] == category) { return true; }
-    }
-    return false;
-}
-
 void PositionableSet::insert_positionable_if_not_present(const String& category, const String& resource_path) {
-    for(KeyValue<int, String> entry : identifier_to_scene_path) {
+    for (KeyValue<int, String> entry : identifier_to_scene_path) {
         if (entry.value == resource_path) { return; }
     }
 
@@ -153,8 +142,8 @@ void PositionableSet::_insert_positionable_for_category_and_id(const StringName&
 Dictionary PositionableSet::_get_categories_to_identifiers() const {
     Dictionary converted;
 
-    for(KeyValue<StringName, Vector<int>> entry : categories_to_identifiers) {
-      Array arr;
+    for (KeyValue<StringName, Vector<int>> entry : categories_to_identifiers) {
+        Array arr;
         const Vector<int>& identifiers {entry.value};
         for (int j = 0; j < identifiers.size(); ++j) {
             arr.append(identifiers[j]);
@@ -201,7 +190,7 @@ void PositionableSet::_load_positionable_scene(int id, const String& scene_path)
 Dictionary PositionableSet::_get_identifier_to_scene_path() const {
     Dictionary converted;
 
-    for(KeyValue<int, String> entry : identifier_to_scene_path) {
+    for (const KeyValue<int, String>& entry : identifier_to_scene_path) {
         converted[entry.key] = entry.value;
     }
 
@@ -211,22 +200,20 @@ Dictionary PositionableSet::_get_identifier_to_scene_path() const {
 void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path) {
     identifier_to_scene_path = HashMap<int, String>();
 
-    for(KeyValue<int, String> entry : identifier_to_scene_path) {
-        int id {entry.key};
-        String value {entry.value};
+    const Array& keys {p_identifier_to_scene_path.keys()};
+    const Array& values {p_identifier_to_scene_path.values()};
+
+    for (int i = 0; i < p_identifier_to_scene_path.size(); ++i) {
+        int id {keys[i]};
+        String value {values[i]};
         identifier_to_scene_path[id] = value;
     }
 }
 
 PositionableSet::PositionableSet() :
-  Resource(),
-  identifier_to_scene_path(),
-  identifier_to_loaded_scene(),
   is_loaded(false)
 #ifdef TOOLS_ENABLED
   ,
-  categories(),
-  categories_to_identifiers(),
   last_id()
 #endif
 {

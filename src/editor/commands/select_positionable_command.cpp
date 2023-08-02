@@ -42,11 +42,7 @@ void SelectPositionableCommand::set_should_deselect_first(bool p_should) {
     should_deselect_first = p_should;
 }
 
-SelectPositionableCommand::SelectPositionableCommand() :
-  Command(),
-  position(),
-  should_deselect_first(false),
-  selected_cache() {}
+SelectPositionableCommand::SelectPositionableCommand() : should_deselect_first(false) {}
 
 void SelectPositionableCommand::_bind_methods_impl() {}
 

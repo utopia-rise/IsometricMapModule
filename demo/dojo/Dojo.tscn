@@ -1,30 +1,28 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=5 format=3 uid="uid://b4066x3op6sr6"]
 
-[ext_resource path="res://maps/dojomap.tscn" type="PackedScene" id=1]
-[ext_resource path="res://DojoCamera.gd" type="Script" id=2]
-[ext_resource path="res://Character.tscn" type="PackedScene" id=3]
-[ext_resource path="res://maps/paradox.tscn" type="PackedScene" id=4]
+[ext_resource type="PackedScene" path="res://maps/dojomap.tscn" id="1"]
+[ext_resource type="Script" path="res://DojoCamera.gd" id="2"]
+[ext_resource type="PackedScene" uid="uid://bsdp741c2enwi" path="res://Character.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://maps/paradox.tscn" id="4"]
 
 [node name="Dojo" type="Node2D"]
 
-[node name="IsometricMap" parent="." instance=ExtResource( 1 )]
+[node name="IsometricMap" parent="." instance=ExtResource("1")]
 
-[node name="Character" parent="IsometricMap" instance=ExtResource( 3 )]
+[node name="Character" parent="IsometricMap" instance=ExtResource("3")]
 unique_name_in_owner = true
-position = Vector2( 0, -214.302 )
-local_position_3d = Vector3( 2, 2, 3 )
+position = Vector2(0, -214.302)
+local_position_3d = Vector3(2, 2, 3)
 
 [node name="Camera2D" type="Camera2D" parent="IsometricMap/Character"]
-position = Vector2( 0, 214.302 )
-current = true
-zoom = Vector2( 2, 2 )
+zoom = Vector2(2, 2)
 
-[node name="IsometricMap" parent="IsometricMap" instance=ExtResource( 4 )]
-position = Vector2( 0, 1635.23 )
-local_position_3d = Vector3( 14, 14, 1 )
+[node name="IsometricMap" parent="IsometricMap" instance=ExtResource("4")]
+position = Vector2(0, 1635.23)
+local_position_3d = Vector3(14, 14, 1)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
-script = ExtResource( 2 )
+script = ExtResource("2")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
 offset_right = 40.0
@@ -32,23 +30,16 @@ offset_bottom = 40.0
 
 [node name="FPS" type="Label" parent="CanvasLayer/VBoxContainer"]
 unique_name_in_owner = true
-offset_right = 40.0
-offset_bottom = 14.0
+layout_mode = 2
 
 [node name="Debug" type="Label" parent="CanvasLayer/VBoxContainer"]
 unique_name_in_owner = true
-offset_top = 18.0
-offset_right = 40.0
-offset_bottom = 32.0
+layout_mode = 2
 
 [node name="Sync" type="Label" parent="CanvasLayer/VBoxContainer"]
 unique_name_in_owner = true
-offset_top = 36.0
-offset_right = 40.0
-offset_bottom = 50.0
+layout_mode = 2
 
 [node name="PlayerPosition" type="Label" parent="CanvasLayer/VBoxContainer"]
 unique_name_in_owner = true
-offset_top = 54.0
-offset_right = 40.0
-offset_bottom = 68.0
+layout_mode = 2

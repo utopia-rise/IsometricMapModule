@@ -3,8 +3,8 @@ extends CharacterBody3D
 
 var linear_velocity: Vector3
 
-@export var gravity: float: float = ProjectSettings.get_setting("physics/2d/default_gravity")
-@export var speed: int: int = 1
+@export var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
+@export var speed: int = 1
 
 
 func _physics_process(delta):

@@ -19,7 +19,6 @@ void PositionableSetEditor::set_positionable_set(const Ref<resource::Positionabl
 }
 
 PositionableSetEditor::PositionableSetEditor() :
-  VBoxContainer(),
   category_selector(memnew(OptionButton)),
   contained_tiles_list(memnew(ItemList)),
   fix_path_button(memnew(Button)),
@@ -31,8 +30,7 @@ PositionableSetEditor::PositionableSetEditor() :
   remove_tile_alert_popup(memnew(Window)),
   do_not_display_alert_remove_tile(memnew(CheckBox)),
   remove_category_alert_popup(memnew(Window)),
-  do_not_display_alert_remove_category(memnew(CheckBox)),
-  current_set() {
+  do_not_display_alert_remove_category(memnew(CheckBox)) {
     HBoxContainer* select_category_container {memnew(HBoxContainer)};
     Label* category_selector_label {memnew(Label)};
     category_selector_label->set_text("Categories:");
@@ -257,7 +255,7 @@ void PositionableSetEditor::_on_fix_path_dialog_file_selected(const String& path
 void PositionableSetEditor::_refresh_categories() {
     category_selector->clear();
     if (current_set.is_valid()) {
-        const PackedStringArray & paths {current_set->get_categories()};
+        const PackedStringArray& paths {current_set->get_categories()};
         for (int i = 0; i < paths.size(); ++i) {
             category_selector->add_item(paths[i]);
         }

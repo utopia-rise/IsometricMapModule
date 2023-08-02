@@ -8,20 +8,12 @@
 using namespace node;
 
 IsometricPositionable::IsometricPositionable() :
-  Node2D(),
   size({1, 1, 1}),
   depth(1),
-  self(RID()),
   is_dynamic(false),
-  collision_object_node_path(),
   collision_object(nullptr),
-  world(RID()),
   world_owner(false),
   is_container {false}
-#ifdef TOOLS_ENABLED
-  ,
-  outline_data()
-#endif
 {
     set_process(true);
 }

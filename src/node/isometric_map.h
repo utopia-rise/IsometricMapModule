@@ -11,7 +11,6 @@ namespace node {
         GDCLASS(IsometricMap, IsometricPositionable);
 
     private:
-        bool draw_tiles;
         containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID> grid_3d;
         containers::Grid3D<IsometricPositionable*, nullptr> instances_grid_3d;
         Ref<resource::PositionableSet> positionable_set;
@@ -20,7 +19,7 @@ namespace node {
         void _enter_tree() override;
         Array _get_grid_3d() const;
         void _set_grid_3d(const Array& array);
-        void add_positionable_as_child(int positionable_id, const Vector3& position);
+        void add_positionable_as_child(int positionable_id, const Vector3& p_position);
 
     public:
         Ref<resource::PositionableSet> get_positionable_set() const;
@@ -29,8 +28,8 @@ namespace node {
 #ifdef TOOLS_ENABLED
         void add_positionable_if_nothing_present(const AABB& aabb, int id);
         void remove_positionable(const AABB& aabb);
-        IsometricPositionable* get_positionable_at(const Vector3& position);
-        int get_positionable_id_for_position(const Vector3& position);
+        IsometricPositionable* get_positionable_at(const Vector3& p_position);
+        int get_positionable_id_for_position(const Vector3& p_position);
         Vector<IsometricPositionable*> get_positionables_in(const AABB& p_aabb) const;
         bool is_aabb_in_map(const AABB& aabb) const;
         void set_size(Vector3 p_size) override;

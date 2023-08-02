@@ -33,6 +33,8 @@ namespace editor {
         bool is_adding() const;
         void refresh_all_icons() const;
 
+        void shutdown();
+
         PositionableScenesCacheManager(const PositionableScenesCacheManager&) = delete;
         PositionableScenesCacheManager& operator=(const PositionableScenesCacheManager&) = delete;
 

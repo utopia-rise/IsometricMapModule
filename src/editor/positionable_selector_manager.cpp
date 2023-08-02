@@ -72,6 +72,6 @@ void PositionableSelectorManager::show_outline(node::IsometricPositionable* posi
     editor::OutlineDrawer::set_outline_visible(positionable, true);
 }
 
-PositionableSelectorManager::PositionableSelectorManager() : map_to_selected_positions() {}
+PositionableSelectorManager::PositionableSelectorManager() {}
 
 #endif

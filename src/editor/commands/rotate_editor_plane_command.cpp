@@ -36,4 +36,6 @@ void RotateEditorPlaneCommand::set_axis_and_position(Vector3::Axis p_axis, int p
     isometric_editor_plugin->refresh(EditorPlane::PlaneType::EDITOR_DRAWER);
 }
 
+RotateEditorPlaneCommand::RotateEditorPlaneCommand() : new_axis(), former_axis(), former_position() {}
+
 #endif

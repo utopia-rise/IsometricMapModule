@@ -6,9 +6,8 @@
 #include "node/isometric_positionable.h"
 #include "positionable_scenes_cache_manager.h"
 #include "positionable_set_editor_plugin.h"
-#include "resource/positionable_set.h"
 
-#include <scene/resources/packed_scene.h>
+#include <editor/editor_interface.h>
 
 using namespace editor;
 
@@ -34,7 +33,7 @@ Error EditorUtils::find_all_positionables_in_path(const String& path, List<Strin
         }
         file_access->close();
     } else {
-        for( String item : dir_access->get_directories()){
+        for (String item : dir_access->get_directories()) {
             if (item == "." || item == "..") { continue; }
             find_all_positionables_in_path(path.path_join(item), r_value);
         }
@@ -102,9 +101,9 @@ bool EditorUtils::item_from_list_has_metadata(ItemList* item_list, int index) {
 }
 
 bool EditorUtils::item_from_list_has_valid_tile_metadata(ItemList* item_list, int index) {
-    if (!item_from_list_has_metadata(item_list, index)) return false;
+    if (!item_from_list_has_metadata(item_list, index)) { return false; }
     if (auto* metadata {Object::cast_to<PositionableItemListMetadata>(item_list->get_item_metadata(index))}) {
-        if (!metadata->is_valid) return false;
+        if (!metadata->is_valid) { return false; }
         return true;
     }
     return false;
@@ -112,7 +111,7 @@ bool EditorUtils::item_from_list_has_valid_tile_metadata(ItemList* item_list, in
 
 void EditorUtils::refresh_positionable_icons_for_item_list(ItemList* item_list, Control* registered_in_manager) {
     for (int i = 0; i < item_list->get_item_count(); ++i) {
-        if (!item_from_list_has_valid_tile_metadata(item_list, i)) continue;
+        if (!item_from_list_has_valid_tile_metadata(item_list, i)) { continue; }
         item_list->set_item_icon(i, PositionableScenesCacheManager::get_instance().get_icon(registered_in_manager, i));
     }
 }

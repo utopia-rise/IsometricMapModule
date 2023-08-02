@@ -20,7 +20,6 @@ namespace resource {
     public:
         void preload_scenes();
         bool is_set_loaded() const;
-        String get_positionable_scene_path_for_id(int id) const;
         Ref<PackedScene> get_positionable_scene_for_id(int id) const;
 
         static constexpr int NONE_POSITIONABLE_ID = -1;
@@ -36,7 +35,6 @@ namespace resource {
         void insert_positionable_if_not_present(const String& category, const String& resource_path);
         bool add_or_update_positionable(int id, const String& path);
         void remove_positionable(int id);
-        bool has_category(const String& category) const;
 
         Vector<resource::PositionableSet::RemovedElement> get_removed_elements() const;
 

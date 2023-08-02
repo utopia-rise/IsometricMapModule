@@ -19,6 +19,6 @@ void SetPositionableVisibilityCommand::set_position(const Vector3& p_position) {
     position = p_position;
 }
 
-SetPositionableVisibilityCommand::SetPositionableVisibilityCommand() : Command(), position() {}
+SetPositionableVisibilityCommand::SetPositionableVisibilityCommand() {}
 
 #endif

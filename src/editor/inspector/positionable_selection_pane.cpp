@@ -27,14 +27,18 @@ int PositionableSelectionPane::get_selected_positionable_id() const {
 
 void PositionableSelectionPane::refresh_path_selector() {
     category_selector->clear();
-    if (positionable_set.is_valid()) {
-        EditorNode::get_singleton()->save_resource(positionable_set);
-        const PackedStringArray & paths {positionable_set->get_categories()};
-        for (int i = 0; i < paths.size(); ++i) {
-            category_selector->add_item(paths[i]);
-        }
-        _select_item_from_path_selector(category_selector->get_selected());
+
+    if (positionable_set.is_null()) {
+        item_list->clear();
+        return;
     }
+
+    EditorNode::get_singleton()->save_resource(positionable_set);
+    const PackedStringArray & paths {positionable_set->get_categories()};
+    for (int i = 0; i < paths.size(); ++i) {
+        category_selector->add_item(paths[i]);
+    }
+    _select_item_from_path_selector(category_selector->get_selected());
 }
 
 void PositionableSelectionPane::_notification(int notif) {
@@ -62,12 +66,11 @@ void PositionableSelectionPane::_refresh_icons() {
 }
 
 PositionableSelectionPane::PositionableSelectionPane() :
-  VSplitContainer(),
   top_container(memnew(HSplitContainer)),
   category_selector(memnew(OptionButton)),
   refresh_button(memnew(Button)),
-  item_list(memnew(ItemList)),
-  positionable_set() {
+  item_list(memnew(ItemList))
+  {
     refresh_button->set_text("refresh");
     add_child(top_container);
     top_container->add_child(category_selector);

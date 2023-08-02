@@ -47,7 +47,6 @@ namespace editor {
         void set_debug_mode(bool b);
         void set_should_clear_buffer_on_next_frame(bool should);
 
-        void refresh_positionable_selection_pane();
         void refresh(int p_plane_type);
 
         node::IsometricMap* get_selected_map() const;
@@ -112,11 +111,13 @@ namespace editor {
 
         void _on_map_size_changed();
 
-        void _on_grid_color_picker_change(const Color& p_color);
+        void _on_grid_color_picker_change([[maybe_unused]] const Color& p_color);
 
         void _draw_edition_grid() const;
         void _draw_plane(EditorPlane::PlaneType p_plane_type);
         void _set_plane_timer(EditorPlane::PlaneType p_plane_type, float p_delay);
+
+        void _editp(const NodePath& p_path);
 
     public:
         static void _bind_methods();

@@ -37,20 +37,18 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
   show_debug(false),
   current_mode(Mode::NONE),
   should_clear_buffer_on_next_frame(),
-  painting_command_emitter(),
   select_command_emitter(),
   select_all_command_emitter(),
   delete_command_emitter(),
-  drag_and_drop_command_emitter(),
   move_editor_drawer_command_emitter(),
-  rotate_editor_plane_command_emitter(),
-  plane_view_limiter_command_emitter() {
+  rotate_editor_plane_command_emitter()
+  {
     grid_color_picker_button->set_text(GRID_COLOR_PICKER_TITLE);
     grid_color_picker_button->connect("color_changed", Callable(this, "_on_grid_color_picker_change"));
 }
 
 IsometricEditorPlugin::~IsometricEditorPlugin() {
-    PositionableScenesCacheManager::get_instance().clear();
+    PositionableScenesCacheManager::get_instance().shutdown();
 }
 
 IsometricEditorPlugin* IsometricEditorPlugin::get_instance() {
@@ -70,10 +68,6 @@ void IsometricEditorPlugin::set_debug_mode(bool b) {
 
 void IsometricEditorPlugin::set_should_clear_buffer_on_next_frame(bool should) {
     should_clear_buffer_on_next_frame = should;
-}
-
-void IsometricEditorPlugin::refresh_positionable_selection_pane() {
-    positionable_selection_pane->refresh_path_selector();
 }
 
 void IsometricEditorPlugin::_notification(int p_notification) {
@@ -111,11 +105,28 @@ void IsometricEditorPlugin::_notification(int p_notification) {
 }
 
 void IsometricEditorPlugin::edit(Object* p_object) {
-    selected_map = cast_to<node::IsometricMap>(p_object);
+    if (!p_object) {
+        return;
+    }
 
+    auto map{cast_to<node::IsometricMap>(p_object)};
+    EditorUndoRedoManager* undo_redo {get_undo_redo()};
+    undo_redo->create_action("Edit IsometricMap", UndoRedo::MERGE_ALL, map);
+    undo_redo->add_do_method(
+      this,
+      "_editp",
+      map->get_path().rel_path_to(get_tree()->get_edited_scene_root()->get_path())
+    );
+    undo_redo->commit_action();
+}
+
+void IsometricEditorPlugin::_editp(const NodePath& p_path) {
+    selected_map = cast_to<node::IsometricMap>(get_tree()->get_edited_scene_root()->get_node(p_path));
+    
     if (!selected_map->is_connected("draw", Callable(this, "refresh"))) {
         selected_map->connect("draw", Callable(this, "refresh").bind(EditorPlane::PlaneType::EDITOR_DRAWER));
     }
+    positionable_selection_pane->refresh_path_selector();
     positionable_selection_pane->set_positionable_set(selected_map->get_positionable_set());
     if (!selected_map->is_connected("positional_set_changed", Callable(positionable_selection_pane, "set_positionable_set"))) {
         selected_map->connect("positional_set_changed", Callable(positionable_selection_pane, "set_positionable_set"));
@@ -164,8 +175,6 @@ void IsometricEditorPlugin::clear() {
 
 bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_event) {
     if (!selected_map) { return false; }
-    int id = EditorUndoRedoManager::get_singleton()->get_history_id_for_object(selected_map);
-    UndoRedo* undo_redo = EditorUndoRedoManager::get_singleton()->get_history_undo_redo(id);
 
     Ref<InputEventKey> keyboard_event {p_event};
     if (keyboard_event.is_valid() && keyboard_event->is_pressed()) {
@@ -174,9 +183,9 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
             switch (key) {
                 case Key::Z:
                     if (keyboard_event->is_shift_pressed()) {
-                        undo_redo->redo();
+                        EditorUndoRedoManager::get_singleton()->redo();
                     } else {
-                        undo_redo->undo();
+                        EditorUndoRedoManager::get_singleton()->undo();
                     }
                     return true;
                 case Key::Y:
@@ -192,21 +201,21 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
         case NONE:
             return false;
         case SELECT:
-            select_command_emitter.on_gui_input(p_event, undo_redo);
-            select_all_command_emitter.on_gui_input(p_event, undo_redo);
-            delete_command_emitter.on_gui_input(p_event, undo_redo);
+            select_command_emitter.on_gui_input(p_event, selected_map);
+            select_all_command_emitter.on_gui_input(p_event, selected_map);
+            delete_command_emitter.on_gui_input(p_event, selected_map);
             break;
         case PAINT:
-            painting_command_emitter.on_gui_input(p_event, undo_redo);
+            painting_command_emitter.on_gui_input(p_event, selected_map);
             break;
         case DRAG_AND_DROP:
-            drag_and_drop_command_emitter.on_gui_input(p_event, undo_redo);
+            drag_and_drop_command_emitter.on_gui_input(p_event, selected_map);
             break;
     }
-    move_editor_drawer_command_emitter.on_gui_input(p_event, undo_redo);
-    rotate_editor_plane_command_emitter.on_gui_input(p_event, undo_redo);
+    move_editor_drawer_command_emitter.on_gui_input(p_event, selected_map);
+    rotate_editor_plane_command_emitter.on_gui_input(p_event, selected_map);
 
-    plane_view_limiter_command_emitter.on_gui_input(p_event, undo_redo);
+    plane_view_limiter_command_emitter.on_gui_input(p_event, selected_map);
     return true;
 }
 
@@ -332,7 +341,7 @@ void IsometricEditorPlugin::_on_map_size_changed() {
     refresh(EditorPlane::PlaneType::EDITOR_DRAWER);
 }
 
-void IsometricEditorPlugin::_on_grid_color_picker_change(const Color& p_color) {
+void IsometricEditorPlugin::_on_grid_color_picker_change([[maybe_unused]] const Color& p_color) {
     _draw_edition_grid();
 }
 
@@ -378,6 +387,7 @@ void IsometricEditorPlugin::_bind_methods() {
     ClassDB::bind_method(D_METHOD("_on_plane_visibility_timeout", "p_plane_type"), &IsometricEditorPlugin::_on_plane_visibility_timeout);
     ClassDB::bind_method("_on_map_size_changed", &IsometricEditorPlugin::_on_map_size_changed);
     ClassDB::bind_method(D_METHOD("_on_grid_color_picker_change", "p_color"), &IsometricEditorPlugin::_on_grid_color_picker_change);
+    ClassDB::bind_method(D_METHOD("_editp", "p_path"), &IsometricEditorPlugin::_editp);
 }
 
 #endif

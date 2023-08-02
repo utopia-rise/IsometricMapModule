@@ -3,6 +3,7 @@
 #include "isometric_tile_editor_plugin.h"
 
 #include "isometric_string_names.h"
+#include "logging.h"
 #include "outline_drawer.h"
 
 #include <editor/editor_node.h>
@@ -36,7 +37,17 @@ void IsometricTileEditorPlugin::_notification(int p_notification) {
 }
 
 void IsometricTileEditorPlugin::edit(Object* p_object) {
+    if (!p_object) {
+        return;
+    }
+
     selected_positionable = cast_to<node::IsometricPositionable>(p_object);
+
+    LOG_INFO(selected_positionable);
+    LOG_INFO(get_tree()->get_edited_scene_root()->get_node(selected_positionable->get_path().rel_path_to(get_tree()->get_edited_scene_root()->get_path())));
+
+    LOG_INFO(selected_positionable->get_path().rel_path_to(get_tree()->get_edited_scene_root()->get_path()));
+
     OutlineData& outline_data {selected_positionable->get_outline_data()};
     outline_data.line_size = 1.0;
     _on_color_picker_change(color_picker_button->get_pick_color());

@@ -3,10 +3,8 @@
 
 #include "data/isometric_parameters.h"
 #include "isometric_editor_plugin.h"
-#include "node/isometric_positionable.h"
 #include "utils/isometric_maths.h"
 
-#include <editor/editor_node.h>
 #include <scene/2d/camera_2d.h>
 
 using namespace editor;
@@ -20,6 +18,9 @@ void PositionableScenesCacheManager::add_scene(Control* p_control, int index, Re
     SubViewport* scene_viewport {_get_icon_for_scene(scene)};
     if (scene_viewport) {
         EditorNode::get_singleton()->add_child(scene_viewport);
+        if (!drawing_viewport.has(p_control)) {
+            return;
+        }
         drawing_viewport[p_control].set(index, scene_viewport);
         cache[p_control].set(index, {scene, scene_viewport->get_texture()});
     }
@@ -42,23 +43,22 @@ void PositionableScenesCacheManager::copy_current_viewports_textures() {
         Control* control {entry.key};
         const Vector<SubViewport*>& viewports {entry.value};
         for (int i = 0; i < viewports.size(); ++i) {
-            Ref<ImageTexture> copy_texture;
-            copy_texture.instantiate();
-            copy_texture->create_from_image(viewports[i]->get_texture()->get_image());
             CacheEntry copy {cache[control].get(i)};
-            copy.icon = copy_texture;
+            Ref<Image> texture_image {viewports[i]->get_texture()->get_image()};
+            texture_image->flip_y();
+            copy.icon = ImageTexture::create_from_image(texture_image);
             cache[control].set(i, copy);
         }
     }
 }
 
 void PositionableScenesCacheManager::clear_current_viewports() {
-    for (KeyValue<Control*, Vector<SubViewport*>> entry : drawing_viewport) {
+    for (KeyValue<Control*, Vector<SubViewport*>>& entry : drawing_viewport) {
         Vector<SubViewport*>& viewports {entry.value};
         for (int i = 0; i < viewports.size(); ++i) {
             Viewport* viewport {viewports[i]};
             EditorNode::get_singleton()->remove_child(viewport);
-            viewport->queue_free();
+            memdelete(viewport);
         }
         viewports.clear();
     }
@@ -73,6 +73,10 @@ void PositionableScenesCacheManager::register_control(Control* p_control, const 
 
 void PositionableScenesCacheManager::unregister_control(Control* p_control) {
     cache.erase(p_control);
+    for (SubViewport* viewport : drawing_viewport[p_control]) {
+        EditorNode::get_singleton()->remove_child(viewport);
+        memdelete(viewport);
+    }
     drawing_viewport.erase(p_control);
     _is_adding.erase(p_control);
     refresh_icons_methods.erase(p_control);
@@ -126,6 +130,13 @@ SubViewport* PositionableScenesCacheManager::_get_icon_for_scene(Ref<PackedScene
         return viewport;
     }
     return nullptr;
+}
+
+void PositionableScenesCacheManager::shutdown() {
+    clear_current_viewports();
+    cache.clear();
+    _is_adding.clear();
+    refresh_icons_methods.clear();
 }
 
 PositionableScenesCacheManager::PositionableScenesCacheManager() {}

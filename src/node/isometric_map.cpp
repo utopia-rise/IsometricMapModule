@@ -2,13 +2,7 @@
 
 using namespace node;
 
-IsometricMap::IsometricMap() :
-  IsometricPositionable(),
-  draw_tiles(true),
-  grid_3d(),
-  instances_grid_3d(),
-  positionable_set(),
-  child_positionable_initialized(false) {
+IsometricMap::IsometricMap() : child_positionable_initialized(false) {
     is_container = true;
 }
 
@@ -26,9 +20,10 @@ void IsometricMap::set_positionable_set(const Ref<resource::PositionableSet>& se
 
 void IsometricMap::add_positionable_if_nothing_present(const AABB& aabb, int id) {
     if (instances_grid_3d.is_overlapping(aabb)) { return; }
-    const Vector3& position {aabb.position};
-    grid_3d.set_data(position, id);
-    add_positionable_as_child(id, position);
+
+    const Vector3& aabb_position {aabb.position};
+    grid_3d.set_data(aabb_position, id);
+    add_positionable_as_child(id, aabb_position);
 }
 
 void IsometricMap::remove_positionable(const AABB& aabb) {
@@ -39,23 +34,21 @@ void IsometricMap::remove_positionable(const AABB& aabb) {
     element_to_remove->queue_free();
 }
 
-IsometricPositionable* IsometricMap::get_positionable_at(const Vector3& position) {
-    return instances_grid_3d.get_data(position);
+IsometricPositionable* IsometricMap::get_positionable_at(const Vector3& p_position) {
+    return instances_grid_3d.get_data(p_position);
 }
 
-int IsometricMap::get_positionable_id_for_position(const Vector3& position) {
-    return grid_3d.get_data(position);
+int IsometricMap::get_positionable_id_for_position(const Vector3& p_position) {
+    return grid_3d.get_data(p_position);
 }
 
 Vector<IsometricPositionable*> IsometricMap::get_positionables_in(const AABB& p_aabb) const {
     Vector<IsometricPositionable*> ret;
 
-    const Vector3& position {p_aabb.position};
-
     for (int x = 0; x < static_cast<int>(p_aabb.size.x); ++x) {
         for (int y = 0; y < static_cast<int>(p_aabb.size.y); ++y) {
             for (int z = 0; z < static_cast<int>(p_aabb.size.z); ++z) {
-                ret.push_back(instances_grid_3d.get_data(position + Vector3(x, y, z)));
+                ret.push_back(instances_grid_3d.get_data(p_aabb.position + Vector3(x, y, z)));
             }
         }
     }
@@ -64,14 +57,14 @@ Vector<IsometricPositionable*> IsometricMap::get_positionables_in(const AABB& p_
 }
 
 bool IsometricMap::is_aabb_in_map(const AABB& aabb) const {
-    const Vector3& position {aabb.position};
-    const Vector3& size {aabb.size};
-    int pos_x {static_cast<int>(position.x)};
-    int pos_y {static_cast<int>(position.y)};
-    int pos_z {static_cast<int>(position.z)};
-    int max_x {pos_x + static_cast<int>(size.x) - 1};
-    int max_y {pos_y + static_cast<int>(size.y) - 1};
-    int max_z {pos_z + static_cast<int>(size.z) - 1};
+    const Vector3& aabb_position {aabb.position};
+    const Vector3& aabb_size {aabb.size};
+    int pos_x {static_cast<int>(aabb_position.x)};
+    int pos_y {static_cast<int>(aabb_position.y)};
+    int pos_z {static_cast<int>(aabb_position.z)};
+    int max_x {pos_x + static_cast<int>(aabb_size.x) - 1};
+    int max_y {pos_y + static_cast<int>(aabb_size.y) - 1};
+    int max_z {pos_z + static_cast<int>(aabb_size.z) - 1};
 
     if (pos_x < 0 || pos_y < 0 || pos_z < 0 || max_x >= grid_3d.get_width() || max_y >= grid_3d.get_depth()
         || max_z >= grid_3d.get_height()) {
@@ -119,14 +112,14 @@ void IsometricMap::_set_grid_3d(const Array& array) {
     grid_3d.set_internal_array(internal_array);
 }
 
-void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3& position) {
+void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3& p_position) {
     if (positionable_id == resource::PositionableSet::NONE_POSITIONABLE_ID) { return; }
     if (auto* positionable {
           Object::cast_to<IsometricPositionable>(positionable_set->get_positionable_scene_for_id(positionable_id)->instantiate())}) {
-        positionable->set_local_position_3d(position);
+        positionable->set_local_position_3d(p_position);
         add_child(positionable);
 
-        instances_grid_3d.insert_box({position, positionable->get_size()}, positionable);
+        instances_grid_3d.insert_box({p_position, positionable->get_size()}, positionable);
     }
 }
 

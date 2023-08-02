@@ -22,8 +22,6 @@ void AddPositionableCommand::set_positionable_id(int id) {
 }
 
 AddPositionableCommand::AddPositionableCommand() :
-  Command(),
-  aabb(),
   positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID) {}
 
 #endif

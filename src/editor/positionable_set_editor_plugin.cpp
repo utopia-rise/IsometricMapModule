@@ -36,7 +36,6 @@ void PositionableSetEditorPlugin::edit(Object* p_object) {
 }
 
 PositionableSetEditorPlugin::PositionableSetEditorPlugin() :
-  EditorPlugin(),
   positionable_set_editor(nullptr),
   positionable_set_editor_button(nullptr) {}
 
