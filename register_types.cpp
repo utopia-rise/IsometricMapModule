@@ -3,13 +3,12 @@
 #include "isometric_server.h"
 #include "node/isometric_map.h"
 #include "resource/isometric_configuration.h"
+#include "isometric_string_names.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/isometric_editor_plugin.h"
 #include "editor/isometric_tile_editor_plugin.h"
-#include "editor/positionable_scenes_cache_manager.h"
 #include "editor/positionable_set_editor_plugin.h"
-#include "isometric_string_names.h"
 #endif
 
 #ifdef TOOLS_ENABLED

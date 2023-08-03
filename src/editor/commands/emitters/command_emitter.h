@@ -5,6 +5,7 @@
 #include "../command.h"
 #include "core/input/input_event.h"
 #include "editor/editor_undo_redo_manager.h"
+#include <scene/main/node.h>
 
 namespace editor {
     namespace commands {
