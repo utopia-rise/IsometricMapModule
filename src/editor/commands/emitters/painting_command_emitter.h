@@ -9,20 +9,19 @@
 namespace editor {
     namespace commands {
         namespace emitters {
-            class PaintingCommandEmitter : public CommandEmitter<PaintingCommandEmitter, InputEventMouse> {
-                friend class CommandEmitter<PaintingCommandEmitter, InputEventMouse>;
+            static constexpr const char painting_action_name[]{"Paint isometric elements"};
+
+            class PaintingCommandEmitter : public CommandEmitter<PaintingCommandEmitter, InputEventMouse, painting_action_name> {
+                friend class CommandEmitter<PaintingCommandEmitter, InputEventMouse, painting_action_name>;
 
             public:
-                PaintingCommandEmitter() = delete;
-
-                explicit PaintingCommandEmitter(UndoRedo* undo_redo);
-
+                PaintingCommandEmitter();
                 ~PaintingCommandEmitter();
 
             private:
                 node::IsometricPositionable* current_preview_node;
 
-                Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
+                Vector<Ref<Command>> from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event);
 
                 void _clear_current_preview_node();
             };

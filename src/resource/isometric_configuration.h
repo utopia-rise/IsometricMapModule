@@ -1,16 +1,12 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_API_H
 #define ISOMETRIC_MAPS_ISOMETRIC_API_H
 
-#include "../data/isometric_element.h"
-
-#include <core/object.h>
-#include <core/resource.h>
-#include <core/rid.h>
+#include "core/io/resource.h"
+#include "core/templates/rid.h"
 
 namespace resource {
 
-    class IsometricConfiguration : public Resource,
-                                   public RID_Data {
+    class IsometricConfiguration : public Resource {
         GDCLASS(IsometricConfiguration, Resource)
 
     private:
@@ -21,8 +17,6 @@ namespace resource {
 
     public:
         IsometricConfiguration();
-
-        IsometricConfiguration(const IsometricConfiguration&) = default;
 
         ~IsometricConfiguration() override;
 

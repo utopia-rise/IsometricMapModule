@@ -2,10 +2,12 @@
 
 #include "isometric_tile_editor_plugin.h"
 
-#include <node/isometric_map.h>
+#include "isometric_string_names.h"
+#include "logging.h"
 #include "outline_drawer.h"
 
 #include <editor/editor_node.h>
+#include <node/isometric_map.h>
 
 using namespace editor;
 
@@ -13,7 +15,7 @@ static constexpr const char* OUTLINE_COLOR_TITLE{"Outline color:"};
 
 IsometricTileEditorPlugin* IsometricTileEditorPlugin::get_instance() {
     static IsometricTileEditorPlugin* instance {nullptr};
-    if (unlikely(!instance && ObjectDB::instance_validate(EditorNode::get_undo_redo()))) {
+    if (unlikely(!instance)) {
         instance = memnew(IsometricTileEditorPlugin);
     }
     return instance;
@@ -35,15 +37,25 @@ void IsometricTileEditorPlugin::_notification(int p_notification) {
 }
 
 void IsometricTileEditorPlugin::edit(Object* p_object) {
+    if (!p_object) {
+        return;
+    }
+
     selected_positionable = cast_to<node::IsometricPositionable>(p_object);
+
+    LOG_INFO(selected_positionable);
+    LOG_INFO(get_tree()->get_edited_scene_root()->get_node(selected_positionable->get_path().rel_path_to(get_tree()->get_edited_scene_root()->get_path())));
+
+    LOG_INFO(selected_positionable->get_path().rel_path_to(get_tree()->get_edited_scene_root()->get_path()));
+
     OutlineData& outline_data {selected_positionable->get_outline_data()};
     outline_data.line_size = 1.0;
     _on_color_picker_change(color_picker_button->get_pick_color());
     OutlineDrawer::draw_outline(selected_positionable);
     OutlineDrawer::set_outline_visible(selected_positionable, true);
 
-    if (!selected_positionable->is_connected(node::IsometricPositionable::SIZE_CHANGED_SIGNAL, this, "_on_size_changed")) {
-        selected_positionable->connect(node::IsometricPositionable::SIZE_CHANGED_SIGNAL, this, "_on_size_changed");
+    if (!selected_positionable->is_connected(IsometricStringNames::get_singleton()->size_changed_signal, Callable(this, "_on_size_changed"))) {
+        selected_positionable->connect(IsometricStringNames::get_singleton()->size_changed_signal, Callable(this, "_on_size_changed"));
     }
 }
 
@@ -67,7 +79,7 @@ IsometricTileEditorPlugin::IsometricTileEditorPlugin() :
 
     toolbar->hide();
     color_picker_button->set_text(OUTLINE_COLOR_TITLE);
-    color_picker_button->connect("color_changed", this, "_on_color_picker_change");
+    color_picker_button->connect("color_changed", Callable(this, "_on_color_picker_change"));
 }
 
 void IsometricTileEditorPlugin::_bind_methods() {

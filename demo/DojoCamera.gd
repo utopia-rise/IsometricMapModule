@@ -3,10 +3,10 @@ extends CanvasLayer
 var debug: bool = false;
 var sync_mode: bool = false;
 
-onready var fps_label : Node = get_node("%FPS")
-onready var debug_label : Node = get_node("%Debug")
-onready var sync_label : Node = get_node("%Sync")
-onready var player_label : Node = get_node("%PlayerPosition")
+@onready var fps_label : Node = get_node("%FPS")
+@onready var debug_label : Node = get_node("%Debug")
+@onready var sync_label : Node = get_node("%Sync")
+@onready var player_label : Node = get_node("%PlayerPosition")
 
 func _ready():
 	debug_label.text = "Debug: " + str(debug)

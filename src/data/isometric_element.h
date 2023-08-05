@@ -3,13 +3,13 @@
 
 #include <core/math/aabb.h>
 #include <core/math/transform_2d.h>
-#include <core/rid.h>
+#include <core/templates/rid.h>
 
 namespace data {
     // forward declaration
     struct IsometricSpace;
 
-    struct IsometricElement : public RID_Data {
+    struct IsometricElement {
         ////////Set by API calls (main thread)//////
         IsometricSpace* space = nullptr;
         bool is_dynamic = false;

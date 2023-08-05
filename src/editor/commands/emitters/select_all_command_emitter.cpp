@@ -5,14 +5,12 @@
 #include "editor/isometric_editor_plugin.h"
 #include "editor/positionable_selector_manager.h"
 
-#include <core/os/keyboard.h>
-
 using namespace editor::commands::emitters;
 
 Vector<Ref<editor::commands::Command>> SelectAllCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
     Vector<Ref<Command>> commands;
 
-    if (!p_event->is_pressed() || p_event->get_scancode() != KeyList::KEY_A || !(p_event->get_control() || p_event->get_command())) {
+    if (!p_event->is_pressed() || p_event->get_keycode() != Key::A || !p_event->is_command_or_control_pressed()) {
         return commands;
     }
 
@@ -46,7 +44,7 @@ Vector<Ref<editor::commands::Command>> SelectAllCommandEmitter::from_gui_input_t
                 continue;
             }
             Ref<editor::commands::SelectPositionableCommand> command;
-            command.instance();
+            command.instantiate();
             command->set_position(positionable->get_local_position_3d());
             command->set_should_deselect_first(false);
             commands.push_back(command);
@@ -55,8 +53,5 @@ Vector<Ref<editor::commands::Command>> SelectAllCommandEmitter::from_gui_input_t
 
     return commands;
 }
-
-SelectAllCommandEmitter::SelectAllCommandEmitter(UndoRedo* undo_redo) :
-  CommandEmitter<SelectAllCommandEmitter, InputEventKey>(undo_redo) {}
 
 #endif

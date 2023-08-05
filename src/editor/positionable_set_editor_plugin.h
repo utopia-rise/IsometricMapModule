@@ -26,7 +26,7 @@ namespace editor {
 
     private:
         inspector::PositionableSetEditor* positionable_set_editor;
-        ToolButton* positionable_set_editor_button;
+        Button* positionable_set_editor_button;
 
     public:
         static void _bind_methods();

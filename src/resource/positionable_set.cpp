@@ -5,10 +5,6 @@
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_utils.h"
-
-#include <core/io/resource_saver.h>
-#include <core/os/dir_access.h>
-#include <core/os/file_access.h>
 #endif
 
 using namespace resource;
@@ -16,10 +12,8 @@ using namespace resource;
 void PositionableSet::preload_scenes() {
     identifier_to_loaded_scene.clear();
 
-    Map<int, String>::Element* current {identifier_to_scene_path.front()};
-    while (current) {
-        _load_positionable_scene(current->key(), current->value());
-        current = current->next();
+    for (KeyValue<int, String> entry : identifier_to_scene_path) {
+        _load_positionable_scene(entry.key, entry.value);
     }
 
     if (!is_loaded) { is_loaded = true; }
@@ -29,30 +23,26 @@ bool PositionableSet::is_set_loaded() const {
     return is_loaded;
 }
 
-String PositionableSet::get_positionable_scene_path_for_id(int id) const {
-    return identifier_to_scene_path[id];
-}
-
 Ref<PackedScene> PositionableSet::get_positionable_scene_for_id(int id) const {
     return identifier_to_loaded_scene[id];
 }
 
 #ifdef TOOLS_ENABLED
 
-const PoolStringArray& PositionableSet::get_categories() const {
+const PackedStringArray& PositionableSet::get_categories() const {
     return categories;
 }
 
-void PositionableSet::set_categories(const PoolStringArray& p_categories) {
+void PositionableSet::set_categories(const PackedStringArray& p_categories) {
     categories = p_categories;
 }
 
-Map<int, String> PositionableSet::get_scene_paths_for_category(const String& p_group) const {
+HashMap<int, String> PositionableSet::get_scene_paths_for_category(const String& p_group) const {
     if (!categories_to_identifiers.has(p_group)) { return {}; }
 
     const Vector<int>& ids {categories_to_identifiers[p_group]};
 
-    Map<int, String> paths_for_category;
+    HashMap<int, String> paths_for_category;
     for (int i = 0; i < ids.size(); ++i) {
         const Variant& path {identifier_to_scene_path[ids[i]]};
         if (path.get_type() == Variant::STRING) { paths_for_category[ids[i]] = path; }
@@ -63,23 +53,12 @@ Map<int, String> PositionableSet::get_scene_paths_for_category(const String& p_g
 Vector<resource::PositionableSet::RemovedElement> PositionableSet::get_removed_elements() const {
     Vector<RemovedElement> removed_elements;
 
-    List<StringName> keys;
-    categories_to_identifiers.get_key_list(&keys);
-
-    Map<int, String>::Element* current {identifier_to_scene_path.front()};
-    while (current) {
-        int id {current->key()};
-        const String& path {current->value()};
-        FileAccessRef file_access {FileAccess::create(FileAccess::ACCESS_RESOURCES)};
-        if (!file_access->file_exists(path)) { removed_elements.push_back({id, path}); }
-        current = current->next();
+    for (KeyValue<int, String> entry : identifier_to_scene_path) {
+        Ref<FileAccess> file_access {FileAccess::create(FileAccess::ACCESS_RESOURCES)};
+        if (!file_access->file_exists(entry.value)) { removed_elements.push_back({entry.key, entry.value}); }
     }
 
     return removed_elements;
-}
-
-Map<int, String>::Element* PositionableSet::get_present_scenes_iterator() {
-    return identifier_to_scene_path.front();
 }
 
 bool PositionableSet::add_category(const String& category) {
@@ -102,17 +81,15 @@ void PositionableSet::remove_category(const String& category) {
     categories_to_identifiers.erase(category);
 
     for (int i = 0; i < categories.size(); ++i) {
-        if (categories[i] != category) continue;
-        categories.remove(i);
+        if (categories[i] != category) { continue; }
+        categories.remove_at(i);
         break;
     }
 }
 
 bool PositionableSet::add_or_update_positionable(int id, const String& path) {
-    Map<int, String>::Element* current {identifier_to_scene_path.front()};
-    while (current) {
-        if (current->value() == path) { return false; }
-        current = current->next();
+    for (KeyValue<int, String> entry : identifier_to_scene_path) {
+        if (entry.value == path) { return false; }
     }
     identifier_to_scene_path[id] = path;
 
@@ -123,10 +100,8 @@ bool PositionableSet::add_or_update_positionable(int id, const String& path) {
 
 void PositionableSet::remove_positionable(int id) {
     List<StringName> keys;
-    categories_to_identifiers.get_key_list(&keys);
-    for (int i = 0; i < keys.size(); ++i) {
-        StringName& key {keys[i]};
-        Vector<int>& ids {categories_to_identifiers[key]};
+    for (KeyValue<StringName, Vector<int>> entry : categories_to_identifiers) {
+        Vector<int>& ids {entry.value};
         int id_index = -1;
         for (int j = 0; j < ids.size(); ++j) {
             int current_id {ids[j]};
@@ -136,7 +111,7 @@ void PositionableSet::remove_positionable(int id) {
             }
         }
         if (id_index >= 0) {
-            ids.remove(id_index);
+            ids.remove_at(id_index);
             break;
         }
     }
@@ -144,19 +119,9 @@ void PositionableSet::remove_positionable(int id) {
     identifier_to_scene_path.erase(id);
 }
 
-bool PositionableSet::has_category(const String& category) const {
-    for (int i = 0; i < categories.size(); ++i) {
-        if (categories[i] == category) { return true; }
-    }
-    return false;
-}
-
 void PositionableSet::insert_positionable_if_not_present(const String& category, const String& resource_path) {
-    bool contained {false};
-    Map<int, String>::Element* current {identifier_to_scene_path.front()};
-    while (current) {
-        if (current->value() == resource_path) { return; }
-        current = current->next();
+    for (KeyValue<int, String> entry : identifier_to_scene_path) {
+        if (entry.value == resource_path) { return; }
     }
 
     StringName category_hash {category};
@@ -175,19 +140,15 @@ void PositionableSet::_insert_positionable_for_category_and_id(const StringName&
 }
 
 Dictionary PositionableSet::_get_categories_to_identifiers() const {
-    List<StringName> keys;
-    categories_to_identifiers.get_key_list(&keys);
     Dictionary converted;
 
-    for (int i = 0; i < keys.size(); ++i) {
-        StringName key {keys[i]};
-
-        Array entry;
-        const Vector<int>& identifiers {categories_to_identifiers[key]};
+    for (KeyValue<StringName, Vector<int>> entry : categories_to_identifiers) {
+        Array arr;
+        const Vector<int>& identifiers {entry.value};
         for (int j = 0; j < identifiers.size(); ++j) {
-            entry.append(identifiers[j]);
+            arr.append(identifiers[j]);
         }
-        converted[key.operator String()] = entry;
+        converted[entry.key.operator String()] = arr;
     }
 
     return converted;
@@ -229,17 +190,15 @@ void PositionableSet::_load_positionable_scene(int id, const String& scene_path)
 Dictionary PositionableSet::_get_identifier_to_scene_path() const {
     Dictionary converted;
 
-    Map<int, String>::Element* current {identifier_to_scene_path.front()};
-    while (current) {
-        converted[current->key()] = current->value();
-        current = current->next();
+    for (const KeyValue<int, String>& entry : identifier_to_scene_path) {
+        converted[entry.key] = entry.value;
     }
 
     return converted;
 }
 
 void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifier_to_scene_path) {
-    identifier_to_scene_path = Map<int, String>();
+    identifier_to_scene_path = HashMap<int, String>();
 
     const Array& keys {p_identifier_to_scene_path.keys()};
     const Array& values {p_identifier_to_scene_path.values()};
@@ -252,14 +211,9 @@ void PositionableSet::_set_identifier_to_scene_path(const Dictionary& p_identifi
 }
 
 PositionableSet::PositionableSet() :
-  Resource(),
-  identifier_to_scene_path(),
-  identifier_to_loaded_scene(),
   is_loaded(false)
 #ifdef TOOLS_ENABLED
   ,
-  categories(),
-  categories_to_identifiers(),
   last_id()
 #endif
 {
@@ -270,16 +224,16 @@ void PositionableSet::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_categories", "p_categories"), &PositionableSet::set_categories);
     ClassDB::bind_method(D_METHOD("get_categories"), &PositionableSet::get_categories);
     ADD_PROPERTY(
-      PropertyInfo(Variant::ARRAY, "categories", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      PropertyInfo(Variant::ARRAY, "categories", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL),
       "set_categories",
       "get_categories"
     );
-    ADD_PROPERTY_DEFAULT("categories", PoolStringArray());
+    ADD_PROPERTY_DEFAULT("categories", PackedStringArray());
 
     ClassDB::bind_method(D_METHOD("_set_categories_to_identifiers", "p_categories_to_identifiers"), &PositionableSet::_set_categories_to_identifiers);
     ClassDB::bind_method(D_METHOD("_get_categories_to_identifiers"), &PositionableSet::_get_categories_to_identifiers);
     ADD_PROPERTY(
-      PropertyInfo(Variant::DICTIONARY, "categories_to_identifiers", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      PropertyInfo(Variant::DICTIONARY, "categories_to_identifiers", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL),
       "_set_categories_to_identifiers",
       "_get_categories_to_identifiers"
     );
@@ -288,7 +242,7 @@ void PositionableSet::_bind_methods() {
     ClassDB::bind_method(D_METHOD("_set_last_id", "p_last_id"), &PositionableSet::_set_last_id);
     ClassDB::bind_method(D_METHOD("_get_last_id"), &PositionableSet::_get_last_id);
     ADD_PROPERTY(
-      PropertyInfo(Variant::INT, "last_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      PropertyInfo(Variant::INT, "last_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL),
       "_set_last_id",
       "_get_last_id"
     );
@@ -298,7 +252,7 @@ void PositionableSet::_bind_methods() {
     ClassDB::bind_method(D_METHOD("_set_identifier_to_scene_path", "identifier_to_scene_path"), &PositionableSet::_set_identifier_to_scene_path);
     ClassDB::bind_method(D_METHOD("_get_identifier_to_scene_path"), &PositionableSet::_get_identifier_to_scene_path);
     ADD_PROPERTY(
-      PropertyInfo(Variant::DICTIONARY, "identifier_to_scene_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+      PropertyInfo(Variant::DICTIONARY, "identifier_to_scene_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL),
       "_set_identifier_to_scene_path",
       "_get_identifier_to_scene_path"
     );

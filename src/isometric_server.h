@@ -1,8 +1,12 @@
 #ifndef ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
 #define ISOMETRIC_MAPS_ISOMETRIC_SERVER_H
 
-#include "core/command_queue_mt.h"
+#include "core/object/object.h"
+#include "core/object/class_db.h"
 #include "core/os/spin_lock.h"
+#include "core/templates/command_queue_mt.h"
+#include "core/templates/local_vector.h"
+#include "core/templates/rid_owner.h"
 #include "data/isometric_element.h"
 #include "data/isometric_space.h"
 #include "logging.h"
@@ -12,7 +16,7 @@
 #define ISOMETRIC_SERVER IsometricServer::get_instance()
 
 class IsometricServer : public Object {
-    GDCLASS(IsometricServer, Object)
+    GDCLASS(IsometricServer, Object);
 
 private:
     static IsometricServer* _instance;
@@ -30,8 +34,8 @@ private:
     RequestType state;
     bool is_debug;
 
-    mutable RID_Owner<data::IsometricSpace> worlds_owner;
-    mutable RID_Owner<data::IsometricElement> elements_owner;
+    mutable RID_PtrOwner<data::IsometricSpace> worlds_owner = 0;
+    mutable RID_PtrOwner<data::IsometricElement> elements_owner = 0;
 
     LocalVector<data::IsometricSpace*> worlds;
 
@@ -113,7 +117,7 @@ private:
         LOG_WARNING(vformat("This is not a valid isometric element RID: %s", element_rid.get_id())); \
         return ret;                                                                                  \
     }                                                                                                \
-    IsometricElement* element {elements_owner.get(element_rid)};                                     \
+    IsometricElement* element {elements_owner.get_or_null(element_rid)};                                     \
     do {                                                                                             \
     } while (false)
 
@@ -124,7 +128,7 @@ private:
         LOG_WARNING(vformat("This is not a valid isometric element RID: %s", space_rid.get_id())); \
         return ret;                                                                                \
     }                                                                                              \
-    IsometricSpace* space {worlds_owner.get(space_rid)};                                           \
+    IsometricSpace* space {worlds_owner.get_or_null(space_rid)};                                           \
     do {                                                                                           \
     } while (false)
 

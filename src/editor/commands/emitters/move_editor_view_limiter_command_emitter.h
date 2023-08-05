@@ -19,14 +19,13 @@ namespace editor {
 #endif
                 ScrollInputEvent;
 
-            class MoveEditorViewLimiterCommandEmitter : public CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent> {
-                friend class CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent>;
+            static constexpr const char move_view_limiter_action_name[]{"Move view limiter"};
+
+            class MoveEditorViewLimiterCommandEmitter : public CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent, move_view_limiter_action_name> {
+                friend class CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent, move_view_limiter_action_name>;
 
             public:
-                MoveEditorViewLimiterCommandEmitter() = delete;
-
-                explicit MoveEditorViewLimiterCommandEmitter(UndoRedo* undo_redo);
-
+                MoveEditorViewLimiterCommandEmitter();
                 ~MoveEditorViewLimiterCommandEmitter() = default;
 
             private:
@@ -51,6 +50,6 @@ namespace editor {
     }// namespace commands
 }// namespace editor
 
-#endif// ISOMETRIC_MAPS_MOVE_EDITOR_VIEW_LIMITER_COMMAND_EMITTER_H
-
 #endif
+
+#endif// ISOMETRIC_MAPS_MOVE_EDITOR_VIEW_LIMITER_COMMAND_EMITTER_H

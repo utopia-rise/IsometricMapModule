@@ -18,7 +18,7 @@ void PositionableSelectionPane::set_positionable_set(const Ref<resource::Positio
 
 int PositionableSelectionPane::get_selected_positionable_id() const {
     const Vector<int>& selected_items {item_list->get_selected_items()};
-    if (selected_items.empty()) { return resource::PositionableSet::NONE_POSITIONABLE_ID; }
+    if (selected_items.is_empty()) { return resource::PositionableSet::NONE_POSITIONABLE_ID; }
     if (auto* metadata {Object::cast_to<PositionableItemListMetadata>(item_list->get_item_metadata(selected_items[0]))}) {
         return metadata->positionable_id;
     }
@@ -27,14 +27,18 @@ int PositionableSelectionPane::get_selected_positionable_id() const {
 
 void PositionableSelectionPane::refresh_path_selector() {
     category_selector->clear();
-    if (positionable_set.is_valid()) {
-        EditorNode::get_singleton()->save_resource(positionable_set);
-        const PoolStringArray& paths {positionable_set->get_categories()};
-        for (int i = 0; i < paths.size(); ++i) {
-            category_selector->add_item(paths[i]);
-        }
-        _select_item_from_path_selector(category_selector->get_selected());
+
+    if (positionable_set.is_null()) {
+        item_list->clear();
+        return;
     }
+
+    EditorNode::get_singleton()->save_resource(positionable_set);
+    const PackedStringArray & paths {positionable_set->get_categories()};
+    for (int i = 0; i < paths.size(); ++i) {
+        category_selector->add_item(paths[i]);
+    }
+    _select_item_from_path_selector(category_selector->get_selected());
 }
 
 void PositionableSelectionPane::_notification(int notif) {
@@ -42,8 +46,8 @@ void PositionableSelectionPane::_notification(int notif) {
 }
 
 void PositionableSelectionPane::_ready() {
-    category_selector->connect("item_selected", this, "_select_item_from_path_selector");
-    refresh_button->connect("pressed", this, "refresh_path_selector");
+    category_selector->connect("item_selected", Callable(this, "_select_item_from_path_selector"));
+    refresh_button->connect("pressed", Callable(this, "refresh_path_selector"));
 }
 
 void PositionableSelectionPane::_select_item_from_path_selector(int index) {
@@ -62,12 +66,11 @@ void PositionableSelectionPane::_refresh_icons() {
 }
 
 PositionableSelectionPane::PositionableSelectionPane() :
-  VSplitContainer(),
   top_container(memnew(HSplitContainer)),
   category_selector(memnew(OptionButton)),
   refresh_button(memnew(Button)),
-  item_list(memnew(ItemList)),
-  positionable_set() {
+  item_list(memnew(ItemList))
+  {
     refresh_button->set_text("refresh");
     add_child(top_container);
     top_container->add_child(category_selector);

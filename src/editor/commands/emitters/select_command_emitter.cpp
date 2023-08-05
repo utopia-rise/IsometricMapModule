@@ -31,16 +31,13 @@ Vector<Ref<editor::commands::Command>> SelectCommandEmitter::from_gui_input_to_c
     if (!map->get_positionable_at(position)) { return commands; }
 
     Ref<editor::commands::SelectPositionableCommand> command;
-    command.instance();
+    command.instantiate();
     command->set_position(position);
-    command->set_should_deselect_first(!p_event->get_control() && !p_event->get_command());
+    command->set_should_deselect_first(!p_event->is_command_or_control_pressed());
 
     commands.push_back(command);
 
     return commands;
 }
-
-SelectCommandEmitter::SelectCommandEmitter(UndoRedo* undo_redo) :
-  CommandEmitter<SelectCommandEmitter, InputEventMouse>(undo_redo) {}
 
 #endif

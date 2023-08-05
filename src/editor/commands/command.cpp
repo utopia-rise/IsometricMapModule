@@ -2,11 +2,13 @@
 
 #include "command.h"
 
+
+
 using namespace editor::commands;
 
-void Command::append_to_undoredo(UndoRedo* undo_redo) {
-    undo_redo->add_do_method(this, "redo");
-    undo_redo->add_undo_method(this, "undo");
+void Command::append_to_undoredo() {
+    EditorUndoRedoManager::get_singleton()->add_do_method(this, "redo");
+    EditorUndoRedoManager::get_singleton()->add_undo_method(this, "undo");
 }
 
 void Command::_bind_methods() {

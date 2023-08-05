@@ -3,9 +3,9 @@
 
 #ifdef TOOLS_ENABLED
 #include "node/isometric_positionable.h"
+#include "scene/gui/control.h"
+#include "scene/main/viewport.h"
 
-#include <core/hash_map.h>
-#include <core/reference.h>
 #include <scene/resources/packed_scene.h>
 
 namespace editor {
@@ -33,18 +33,20 @@ namespace editor {
         bool is_adding() const;
         void refresh_all_icons() const;
 
+        void shutdown();
+
         PositionableScenesCacheManager(const PositionableScenesCacheManager&) = delete;
         PositionableScenesCacheManager& operator=(const PositionableScenesCacheManager&) = delete;
 
     private:
-        Map<Control*, Vector<CacheEntry>> cache;
-        Map<Control*, Vector<Viewport*>> drawing_viewport;
+        HashMap<Control*, Vector<CacheEntry>> cache;
+        HashMap<Control*, Vector<SubViewport*>> drawing_viewport;
 
-        Map<Control*, bool> _is_adding;
+        HashMap<Control*, bool> _is_adding;
 
-        Map<Control*, StringName> refresh_icons_methods;
+        HashMap<Control*, StringName> refresh_icons_methods;
 
-        static Viewport* _get_icon_for_scene(Ref<PackedScene> scene);
+        static SubViewport* _get_icon_for_scene(Ref<PackedScene> scene);
 
         PositionableScenesCacheManager();
         ~PositionableScenesCacheManager() = default;

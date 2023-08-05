@@ -3,9 +3,10 @@
 
 #ifdef TOOLS_ENABLED
 
+#include "core/templates/rid.h"
+
 #include <core/math/vector2.h>
 #include <core/math/vector3.h>
-#include <core/rid.h>
 
 namespace editor {
 

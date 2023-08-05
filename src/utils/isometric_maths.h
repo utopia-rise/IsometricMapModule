@@ -112,7 +112,7 @@ namespace utils {
         return distance.dot(cameraVector) >= 0;
     }
 
-    static PoolVector2Array get_bounding_box(const data::IsometricParameters& params, Vector3 size) {
+    static PackedVector2Array get_bounding_box(const data::IsometricParameters& params, Vector3 size) {
         real_t w {size.x};
         real_t d {size.y};
         real_t h {size.z};
@@ -122,7 +122,7 @@ namespace utils {
 
         Vector2 offset(0, -tile_height_float * 0.5f);
 
-        PoolVector2Array points;
+        PackedVector2Array points;
 
         // Lower points
         points.push_back(Vector2(0, 0) + offset);

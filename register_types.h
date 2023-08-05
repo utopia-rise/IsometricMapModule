@@ -1,7 +1,9 @@
 #ifndef ISOMETRIC_MAPS_REGISTER_TYPES_H
 #define ISOMETRIC_MAPS_REGISTER_TYPES_H
 
-void register_isometric_maps_types();
-void unregister_isometric_maps_types();
+#include "modules/register_module_types.h"
+
+void initialize_isometric_maps_module(ModuleInitializationLevel p_level);
+void uninitialize_isometric_maps_module(ModuleInitializationLevel p_level);
 
 #endif //ISOMETRIC_MAPS_REGISTER_TYPES_H

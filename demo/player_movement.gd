@@ -1,10 +1,10 @@
-extends KinematicBody
+extends CharacterBody3D
 
 
 var linear_velocity: Vector3
 
-export(float) var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
-export(int) var speed: int = 1
+@export var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
+@export var speed: int = 1
 
 
 func _physics_process(delta):
@@ -23,4 +23,7 @@ func _physics_process(delta):
 
 
 	linear_velocity = horizontal_velocity + vertical_velocity
-	linear_velocity = move_and_slide(linear_velocity, Vector3(0, 1, 0))
+	set_velocity(linear_velocity)
+	set_up_direction(Vector3(0, 1, 0))
+	move_and_slide()
+	linear_velocity = velocity

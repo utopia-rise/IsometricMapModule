@@ -1,9 +1,9 @@
-[gd_resource type="PositionableSet" format=2]
+[gd_resource type="PositionableSet" format=3 uid="uid://ddbnveutdcqs"]
 
 [resource]
-categories = PoolStringArray( "All" )
+categories = PackedStringArray("All")
 categories_to_identifiers = {
-"All": [ 1, 2 ]
+"All": [1, 2]
 }
 last_id = 2
 identifier_to_scene_path = {

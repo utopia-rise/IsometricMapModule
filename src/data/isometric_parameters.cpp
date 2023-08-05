@@ -1,13 +1,15 @@
 #include "isometric_parameters.h"
 
+#include "core/math/math_funcs.h"
+
 using namespace data;
 
 int calculate_tile_height(int tile_width, int angle) {
-    return static_cast<int>(round(tile_width * sin(Math::deg2rad(static_cast<double>(angle)))));
+    return static_cast<int>(round(tile_width * sin(Math::deg_to_rad(static_cast<double>(angle)))));
 }
 
 float calculate_ez(int tile_width, int angle) {
-    return static_cast<float>((tile_width / sqrt(2)) * cos(Math::deg2rad(static_cast<double>(angle))));
+    return static_cast<float>((tile_width / Math::sqrt(2.0)) * cos(Math::deg_to_rad(static_cast<double>(angle))));
 }
 
 IsometricParameters::IsometricParameters(int p_tile_width, int p_angle, float p_topological_margin) :

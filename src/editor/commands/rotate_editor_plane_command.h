@@ -16,7 +16,7 @@ namespace editor {
             void set_former_axis(Vector3::Axis p_axis);
             void set_former_position(int p_position);
 
-            RotateEditorPlaneCommand() = default;
+            RotateEditorPlaneCommand();
             ~RotateEditorPlaneCommand() override = default;
 
         private:

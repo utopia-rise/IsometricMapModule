@@ -5,8 +5,6 @@
 #include "editor/commands/move_editor_plane_command.h"
 #include "editor/isometric_editor_plugin.h"
 
-#include <core/os/keyboard.h>
-
 using namespace editor::commands::emitters;
 
 Vector<Ref<editor::commands::Command>> MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
@@ -15,11 +13,11 @@ Vector<Ref<editor::commands::Command>> MoveEditorGridCommandEmitter::from_gui_in
     if (!p_event->is_pressed()) { return commands; }
 
     bool is_forward {false};
-    switch (p_event->get_scancode()) {
-        case KeyList::KEY_UP:
+    switch (p_event->get_keycode()) {
+        case Key::UP:
             is_forward = true;
             break;
-        case KeyList::KEY_DOWN:
+        case Key::DOWN:
             break;
         default:
             return commands;
@@ -61,7 +59,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorGridCommandEmitter::from_gui_in
     }
 
     Ref<editor::commands::MoveEditorPlaneCommand> move_command;
-    move_command.instance();
+    move_command.instantiate();
     move_command->set_plane_type(EditorPlane::PlaneType::EDITOR_DRAWER);
     move_command->set_old_position(current_position);
     move_command->set_new_position(new_position);
@@ -69,7 +67,5 @@ Vector<Ref<editor::commands::Command>> MoveEditorGridCommandEmitter::from_gui_in
 
     return commands;
 }
-
-MoveEditorGridCommandEmitter::MoveEditorGridCommandEmitter(UndoRedo* undo_redo) : CommandEmitter(undo_redo) {}
 
 #endif

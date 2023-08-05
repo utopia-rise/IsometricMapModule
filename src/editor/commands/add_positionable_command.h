@@ -22,9 +22,6 @@ namespace editor {
         private:
             AABB aabb;
             int positionable_id;
-
-        public:
-            static void _bind_methods_impl();
         };
     }// namespace commands
 }// namespace editor

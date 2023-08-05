@@ -3,19 +3,19 @@
 
 #ifdef TOOLS_ENABLED
 #include "command_emitter.h"
+#include "core/input/input_event.h"
 #include "editor/commands/command.h"
 
 namespace editor {
     namespace commands {
         namespace emitters {
-            class RotateEditorPlaneCommandEmitter : public CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey> {
-                friend class CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey>;
+            static constexpr const char rotate_editor_plane_action_name[]{"Rotate editor plane"};
+
+            class RotateEditorPlaneCommandEmitter : public CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey, rotate_editor_plane_action_name> {
+                friend class CommandEmitter<RotateEditorPlaneCommandEmitter, InputEventKey, rotate_editor_plane_action_name>;
 
             public:
-                RotateEditorPlaneCommandEmitter() = delete;
-
-                explicit RotateEditorPlaneCommandEmitter(UndoRedo* undo_redo);
-
+                RotateEditorPlaneCommandEmitter() = default;
                 ~RotateEditorPlaneCommandEmitter() = default;
 
             private:

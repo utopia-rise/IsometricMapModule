@@ -3,19 +3,19 @@
 
 #ifdef TOOLS_ENABLED
 #include "command_emitter.h"
+#include "core/input/input_event.h"
 #include "editor/commands/command.h"
 
 namespace editor {
     namespace commands {
         namespace emitters {
-            class MoveEditorGridCommandEmitter : public CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey> {
-                friend class CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey>;
+            static constexpr const char move_editor_grid_action_name[]{"Move editor grid"};
+
+            class MoveEditorGridCommandEmitter : public CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey, move_editor_grid_action_name> {
+                friend class CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey, move_editor_grid_action_name>;
 
             public:
-                MoveEditorGridCommandEmitter() = delete;
-
-                explicit MoveEditorGridCommandEmitter(UndoRedo* undo_redo);
-
+                MoveEditorGridCommandEmitter() = default;
                 ~MoveEditorGridCommandEmitter() = default;
 
             private:

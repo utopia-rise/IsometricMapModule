@@ -3,19 +3,19 @@
 
 #ifdef TOOLS_ENABLED
 #include "command_emitter.h"
+#include "core/input/input_event.h"
 #include "editor/commands/command.h"
 
 namespace editor {
     namespace commands {
         namespace emitters {
-            class SelectAllCommandEmitter : public CommandEmitter<SelectAllCommandEmitter, InputEventKey> {
-                friend class CommandEmitter<SelectAllCommandEmitter, InputEventKey>;
+            static constexpr const char select_all_action_name[]{"Select all isometric elements"};
+
+            class SelectAllCommandEmitter : public CommandEmitter<SelectAllCommandEmitter, InputEventKey, select_all_action_name> {
+                friend class CommandEmitter<SelectAllCommandEmitter, InputEventKey, select_all_action_name>;
 
             public:
-                SelectAllCommandEmitter() = delete;
-
-                explicit SelectAllCommandEmitter(UndoRedo* undo_redo);
-
+                SelectAllCommandEmitter() = default;
                 ~SelectAllCommandEmitter() = default;
 
             private:

@@ -9,12 +9,13 @@
 namespace editor {
     namespace commands {
         namespace emitters {
-            class DeleteCommandEmitter : public CommandEmitter<DeleteCommandEmitter, InputEventKey> {
-                friend class CommandEmitter<DeleteCommandEmitter, InputEventKey>;
+            static constexpr const char delete_positionable_action_name[] {"Delete positionable"};
+
+            class DeleteCommandEmitter : public CommandEmitter<DeleteCommandEmitter, InputEventKey, delete_positionable_action_name> {
+                friend class CommandEmitter<DeleteCommandEmitter, InputEventKey, delete_positionable_action_name>;
 
             public:
-                DeleteCommandEmitter() = delete;
-                explicit DeleteCommandEmitter(UndoRedo* undo_redo);
+                DeleteCommandEmitter() = default;
                 ~DeleteCommandEmitter() = default;
 
             private:

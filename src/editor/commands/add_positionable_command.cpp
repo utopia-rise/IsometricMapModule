@@ -21,11 +21,7 @@ void AddPositionableCommand::set_positionable_id(int id) {
     positionable_id = id;
 }
 
-void AddPositionableCommand::_bind_methods_impl() {}
-
 AddPositionableCommand::AddPositionableCommand() :
-  Command(),
-  aabb(),
   positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID) {}
 
 #endif

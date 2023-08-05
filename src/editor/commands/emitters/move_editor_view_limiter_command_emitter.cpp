@@ -3,18 +3,14 @@
 #include "move_editor_view_limiter_command_emitter.h"
 
 #include "constants.h"
-#include "editor/commands/composite_command.h"
 #include "editor/commands/move_editor_plane_command.h"
 #include "editor/commands/set_positionable_visibility_command.h"
 #include "editor/isometric_editor_plugin.h"
 
-#include <core/os/input.h>
-#include <core/os/keyboard.h>
-
 using namespace editor::commands::emitters;
 
-MoveEditorViewLimiterCommandEmitter::MoveEditorViewLimiterCommandEmitter(UndoRedo* undo_redo) :
-  CommandEmitter(undo_redo)
+MoveEditorViewLimiterCommandEmitter::MoveEditorViewLimiterCommandEmitter() :
+  CommandEmitter()
 #ifdef OSX_ENABLED
   ,
   cumulative_scroll_delta(),
@@ -26,7 +22,7 @@ MoveEditorViewLimiterCommandEmitter::MoveEditorViewLimiterCommandEmitter(UndoRed
 Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from_gui_input_to_command_impl(Ref<ScrollInputEvent> p_event) {
     Vector<Ref<editor::commands::Command>> commands;
 
-    if (!_is_event_activated(p_event) || !(p_event->get_control() || p_event->get_command())) { return commands; }
+    if (!_is_event_activated(p_event) || !p_event->is_command_or_control_pressed()) { return commands; }
 
     EventMotion motion {_is_event_forward(p_event)};
 
@@ -35,14 +31,14 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
     EditorPlane::PlaneType plane_type;
     int plane_max_position;
     const Vector3& map_size {IsometricEditorPlugin::get_instance()->get_selected_map()->get_size()};
-    if (Input::get_singleton()->is_key_pressed(KeyList::KEY_1)) {
-        plane_type = p_event->get_shift() ? EditorPlane::PlaneType::X_MIN_VIEW_LIMITER : EditorPlane::PlaneType::X_MAX_VIEW_LIMITER;
+    if (Input::get_singleton()->is_key_pressed(Key::KEY_1)) {
+        plane_type = p_event->is_shift_pressed() ? EditorPlane::PlaneType::X_MIN_VIEW_LIMITER : EditorPlane::PlaneType::X_MAX_VIEW_LIMITER;
         plane_max_position = map_size.x;
-    } else if (Input::get_singleton()->is_key_pressed(KeyList::KEY_2)) {
-        plane_type = p_event->get_shift() ? EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER : EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER;
+    } else if (Input::get_singleton()->is_key_pressed(Key::KEY_2)) {
+        plane_type = p_event->is_shift_pressed() ? EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER : EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER;
         plane_max_position = map_size.y;
-    } else if (Input::get_singleton()->is_key_pressed(KeyList::KEY_3)) {
-        plane_type = p_event->get_shift() ? EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER : EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER;
+    } else if (Input::get_singleton()->is_key_pressed(Key::KEY_3)) {
+        plane_type = p_event->is_shift_pressed() ? EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER : EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER;
         plane_max_position = map_size.z;
     } else {
         return commands;
@@ -108,7 +104,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
     )};
     real_t range_to_change_visibility_position {is_forward ? editor_plane_position : editor_plane_position - 1};
     Ref<CompositeCommand> composite_command;
-    composite_command.instance();
+    composite_command.instantiate();
     switch (plane.get_axis()) {
         case Vector3::AXIS_X: {
             for (int y = y_min_view_limiter_position; y < y_max_view_limiter_position; ++y) {
@@ -120,7 +116,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
                     }
 
                     Ref<editor::commands::SetPositionableVisibilityCommand> visibility_command;
-                    visibility_command.instance();
+                    visibility_command.instantiate();
                     visibility_command->set_position(position);
                     composite_command->append_command(visibility_command);
                 }
@@ -136,7 +132,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
                     }
 
                     Ref<editor::commands::SetPositionableVisibilityCommand> visibility_command;
-                    visibility_command.instance();
+                    visibility_command.instantiate();
                     visibility_command->set_position(position);
                     composite_command->append_command(visibility_command);
                 }
@@ -152,7 +148,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
                     }
 
                     Ref<editor::commands::SetPositionableVisibilityCommand> visibility_command;
-                    visibility_command.instance();
+                    visibility_command.instantiate();
                     visibility_command->set_position(position);
                     composite_command->append_command(visibility_command);
                 }
@@ -172,7 +168,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorViewLimiterCommandEmitter::from
     }
 
     Ref<editor::commands::MoveEditorPlaneCommand> move_command;
-    move_command.instance();
+    move_command.instantiate();
     move_command->set_plane_type(plane_type);
     move_command->set_old_position(current_position);
     move_command->set_new_position(new_position);
@@ -207,9 +203,9 @@ MoveEditorViewLimiterCommandEmitter::EventMotion MoveEditorViewLimiterCommandEmi
     }
 #else
     switch (p_event->get_button_index()) {
-        case ButtonList::BUTTON_WHEEL_UP:
+        case MouseButton::WHEEL_UP:
             return EventMotion::FORWARD;
-        case ButtonList::BUTTON_WHEEL_DOWN:
+        case MouseButton::WHEEL_DOWN:
             return EventMotion::BACKWARD;
         default:
             return EventMotion::NONE;

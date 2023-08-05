@@ -1,16 +1,16 @@
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://new_positionableset.tres" type="PositionableSet" id=1]
-[ext_resource path="res://assets/block_E.png" type="Texture" id=2]
+[ext_resource path="res://assets/block_E.png" type="Texture2D" id=2]
 
-[sub_resource type="BoxShape" id=1]
-extents = Vector3( 0.5, 1, 0.5 )
+[sub_resource type="BoxShape3D" id=1]
+size = Vector3( 0.5, 1, 0.5 )
 
-[sub_resource type="BoxShape" id=2]
-extents = Vector3( 1, 0.5, 0.5 )
+[sub_resource type="BoxShape3D" id=2]
+size = Vector3( 1, 0.5, 0.5 )
 
-[sub_resource type="BoxShape" id=3]
-extents = Vector3( 0.5, 0.5, 1 )
+[sub_resource type="BoxShape3D" id=3]
+size = Vector3( 0.5, 0.5, 1 )
 
 [node name="IsometricMap" type="IsometricMap"]
 size = Vector3( 2, 2, 2 )
@@ -22,21 +22,21 @@ position = Vector2( -128, 64 )
 local_position_3d = Vector3( 0, 1, 0 )
 size = Vector3( 1, 1, 2 )
 depth = 2
-collision_object_node_path = NodePath("StaticBody")
+collision_object_node_path = NodePath("StaticBody3D")
 
-[node name="BlockE" type="Sprite" parent="IsometricPositionable"]
+[node name="BlockE" type="Sprite2D" parent="IsometricPositionable"]
 position = Vector2( 5, -192 )
 texture = ExtResource( 2 )
 
-[node name="BlockE2" type="Sprite" parent="IsometricPositionable"]
+[node name="BlockE2" type="Sprite2D" parent="IsometricPositionable"]
 position = Vector2( 4, -346 )
 texture = ExtResource( 2 )
 
-[node name="StaticBody" type="StaticBody" parent="IsometricPositionable"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 )
+[node name="StaticBody3D" type="StaticBody3D" parent="IsometricPositionable"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 )
 
-[node name="CollisionShape" type="CollisionShape" parent="IsometricPositionable/StaticBody"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="IsometricPositionable/StaticBody3D"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
 shape = SubResource( 1 )
 
 [node name="IsometricPositionable2" type="IsometricPositionable" parent="."]
@@ -44,21 +44,21 @@ position = Vector2( 0, -156.767 )
 local_position_3d = Vector3( 0, 0, 1 )
 size = Vector3( 2, 1, 1 )
 depth = 2
-collision_object_node_path = NodePath("StaticBody")
+collision_object_node_path = NodePath("StaticBody3D")
 
-[node name="BlockE" type="Sprite" parent="IsometricPositionable2"]
+[node name="BlockE" type="Sprite2D" parent="IsometricPositionable2"]
 position = Vector2( 0, -188.233 )
 texture = ExtResource( 2 )
 
-[node name="BlockE2" type="Sprite" parent="IsometricPositionable2"]
+[node name="BlockE2" type="Sprite2D" parent="IsometricPositionable2"]
 position = Vector2( 128, -124.233 )
 texture = ExtResource( 2 )
 
-[node name="StaticBody" type="StaticBody" parent="IsometricPositionable2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
+[node name="StaticBody3D" type="StaticBody3D" parent="IsometricPositionable2"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="IsometricPositionable2/StaticBody"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, 0 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="IsometricPositionable2/StaticBody3D"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, 0 )
 shape = SubResource( 2 )
 
 [node name="IsometricPositionable3" type="IsometricPositionable" parent="."]
@@ -66,19 +66,19 @@ position = Vector2( 128, 64 )
 local_position_3d = Vector3( 1, 0, 0 )
 size = Vector3( 1, 2, 1 )
 depth = 2
-collision_object_node_path = NodePath("StaticBody")
+collision_object_node_path = NodePath("StaticBody3D")
 
-[node name="BlockE" type="Sprite" parent="IsometricPositionable3"]
+[node name="BlockE" type="Sprite2D" parent="IsometricPositionable3"]
 position = Vector2( -1, -193 )
 texture = ExtResource( 2 )
 
-[node name="BlockE2" type="Sprite" parent="IsometricPositionable3"]
+[node name="BlockE2" type="Sprite2D" parent="IsometricPositionable3"]
 position = Vector2( -128, -130 )
 texture = ExtResource( 2 )
 
-[node name="StaticBody" type="StaticBody" parent="IsometricPositionable3"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0 )
+[node name="StaticBody3D" type="StaticBody3D" parent="IsometricPositionable3"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="IsometricPositionable3/StaticBody"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="IsometricPositionable3/StaticBody3D"]
+transform = Transform3D( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5 )
 shape = SubResource( 3 )

@@ -33,7 +33,6 @@ void MoveEditorPlaneCommand::set_plane_type(editor::EditorPlane::PlaneType p_pla
 }
 
 MoveEditorPlaneCommand::MoveEditorPlaneCommand() :
-  Command(),
   plane_type(EditorPlane::PlaneType::SIZE),
   new_position(0),
   old_position(0) {}
