@@ -6,6 +6,7 @@
 #include "utils/isometric_maths.h"
 
 #include <scene/2d/camera_2d.h>
+#include <scene/resources/image_texture.h>
 
 using namespace editor;
 
