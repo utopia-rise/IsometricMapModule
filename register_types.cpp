@@ -9,6 +9,8 @@
 #include "editor/isometric_editor_plugin.h"
 #include "editor/isometric_tile_editor_plugin.h"
 #include "editor/positionable_set_editor_plugin.h"
+#include "editor/inspector/layers_editor.h"
+
 #endif
 
 #ifdef TOOLS_ENABLED
@@ -55,6 +57,10 @@ void initialize_isometric_maps_module(ModuleInitializationLevel p_level) {
         EditorPlugins::add_create_func(isometric_tile_editor_plugin_creator_func);
         ClassDB::register_class<editor::inspector::PositionableSelectionPane>();
         ClassDB::register_class<editor::inspector::PositionableSetEditor>();
+        ClassDB::register_class<editor::inspector::LayersEditor>();
+        ClassDB::register_class<editor::inspector::LayerVisibleCheckBox>();
+        ClassDB::register_class<editor::inspector::LayerRemoveButton>();
+        ClassDB::register_class<editor::inspector::CurrentLayerCheckBox>();
     }
 #endif
 }

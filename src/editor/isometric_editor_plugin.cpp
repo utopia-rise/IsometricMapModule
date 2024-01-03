@@ -8,6 +8,7 @@
 #include "outline_drawer.h"
 #include "positionable_scenes_cache_manager.h"
 #include "positionable_selector_manager.h"
+#include "editor/inspector/layers_editor.h"
 
 #include <core/os/keyboard.h>
 #include <scene/main/viewport.h>
@@ -100,7 +101,15 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         positionable_pane_button = add_control_to_bottom_panel(positionable_selection_pane, POSITIONABLE_PANE_BUTTON_TITLE);
         positionable_pane_button->set_visible(false);
 
+        // Add layers editor to dock
+        layers_editor = memnew(editor::inspector::LayersEditor);
+
         RenderingServer::get_singleton()->connect("frame_post_draw", Callable(this, "_on_frame_post_draw"));
+    }
+
+    if (p_notification == NOTIFICATION_EXIT_TREE) {
+        drop();
+        memdelete(layers_editor);
     }
 }
 
@@ -143,6 +152,11 @@ void IsometricEditorPlugin::_editp(const NodePath& p_path) {
     _draw_edition_grid();
 
     editor::PositionableSelectorManager::get_instance().refresh_outline_for_selected(selected_map);
+
+    layers_editor->refresh();
+    if (!layers_editor->get_parent()) {
+        add_control_to_dock(DockSlot::DOCK_SLOT_RIGHT_BL, layers_editor);
+    }
 }
 
 void IsometricEditorPlugin::drop() {
@@ -158,6 +172,9 @@ void IsometricEditorPlugin::drop() {
         for (int i = EditorPlane::PlaneType::EDITOR_DRAWER; i < EditorPlane::PlaneType::SIZE; ++i) {
             EditionGridDrawer::clear_for_editor_plane(map_handling_data.editor_planes[i]);
         }
+    }
+    if (layers_editor->get_parent()) {
+        remove_control_from_docks(layers_editor);
     }
     selected_map = nullptr;
 }
@@ -267,6 +284,14 @@ bool IsometricEditorPlugin::is_aabb_in_view_limiters(const AABB& p_aabb) const {
         return false;
     }
     return true;
+}
+
+uint32_t IsometricEditorPlugin::get_selected_layer() const {
+    if (!layers_editor->get_parent()) {
+        return node::IsometricMap::DEFAULT_LAYER_ID;
+    }
+
+    return layers_editor->get_selected_layer_id();
 }
 
 IsometricEditorPlugin::MapHandlingData::MapHandlingData() :

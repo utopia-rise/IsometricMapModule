@@ -25,7 +25,7 @@ Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_c
 
     for (int i = 0; i < selected_positions.size(); ++i) {
         const Vector3& position {selected_positions[i]};
-        if (node::IsometricPositionable * current {map->get_positionable_at(position)}) {
+        if (node::IsometricPositionable* current {map->get_positionable_at(position)}) {
             const Vector3& local_position {current->get_local_position_3d()};
 
             Ref<SelectPositionableCommand> select_command;
@@ -39,6 +39,7 @@ Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_c
 
             Ref<AddPositionableCommand> add_command;
             add_command.instantiate();
+            add_command->set_layer_id(map->get_layer_id_at(position));
             add_command->set_aabb({local_position, current->get_size()});
             add_command->set_positionable_id(map->get_positionable_id_for_position(local_position));
 

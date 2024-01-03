@@ -96,6 +96,7 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
             add_command.instantiate();
             add_command->set_aabb({all_positions[i], positionable_size});
             add_command->set_positionable_id(selected_tile_id);
+            add_command->set_layer_id(IsometricEditorPlugin::get_instance()->get_selected_layer());
             commands.push_back(add_command);
         }
 

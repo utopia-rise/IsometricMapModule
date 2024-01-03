@@ -18,6 +18,7 @@
 #include "editor_plane.h"
 #include "node/isometric_map.h"
 #include "scene/gui/color_picker.h"
+#include "editor/inspector/layers_editor.h"
 
 #include <editor/editor_node.h>
 #include <editor/editor_plugin.h>
@@ -54,6 +55,8 @@ namespace editor {
 
         bool is_aabb_in_view_limiters(const AABB& p_aabb) const;
 
+        uint32_t get_selected_layer() const;
+
     protected:
         void _notification(int p_notification);
 
@@ -80,6 +83,7 @@ namespace editor {
         };
 
         editor::inspector::PositionableSelectionPane* positionable_selection_pane;
+        editor::inspector::LayersEditor* layers_editor;
         Button* positionable_pane_button;
         HBoxContainer* toolbar;
         ColorPickerButton* grid_color_picker_button;

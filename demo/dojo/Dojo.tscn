@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://b4066x3op6sr6"]
 
-[ext_resource type="PackedScene" path="res://maps/dojomap.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://d2fbdalmi5y2f" path="res://maps/dojomap.tscn" id="1"]
 [ext_resource type="Script" path="res://DojoCamera.gd" id="2"]
 [ext_resource type="PackedScene" uid="uid://bsdp741c2enwi" path="res://Character.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://maps/paradox.tscn" id="4"]
@@ -20,6 +20,10 @@ zoom = Vector2(2, 2)
 [node name="IsometricMap" parent="IsometricMap" instance=ExtResource("4")]
 position = Vector2(0, 1635.23)
 local_position_3d = Vector3(14, 14, 1)
+layers_grid_3d = [0, 0, 0, 0, 0, 0, 0, 0]
+layers = {
+0: "Default"
+}
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 script = ExtResource("2")

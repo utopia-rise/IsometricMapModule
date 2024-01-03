@@ -15,6 +15,7 @@ namespace editor {
 
             void set_aabb(const AABB& p_aabb);
             void set_positionable_id(int id);
+            void set_layer_id(int p_layer_id);
 
             AddPositionableCommand();
             ~AddPositionableCommand() override = default;
@@ -22,6 +23,7 @@ namespace editor {
         private:
             AABB aabb;
             int positionable_id;
+            uint32_t layer_id;
         };
     }// namespace commands
 }// namespace editor

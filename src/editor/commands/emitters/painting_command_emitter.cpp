@@ -66,6 +66,7 @@ Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to
     add_command.instantiate();
     add_command->set_aabb(aabb);
     add_command->set_positionable_id(selected_tile_id);
+    add_command->set_layer_id(IsometricEditorPlugin::get_instance()->get_selected_layer());
     commands.push_back(add_command);
     return commands;
 }
