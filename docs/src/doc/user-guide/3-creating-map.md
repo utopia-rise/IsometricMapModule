@@ -9,6 +9,16 @@ Then, you should assign a `PositionableSet` resource to your map, using node ins
 
 ![assign-positionable-set-gif]
 
+## Map layers
+
+You can add layers to a map.  
+All map contains a `Default` layer that cannot be destroyed.  
+If you don't select any layer while adding `IsometricPositionable` to map, those will be placed in `Default` layer.  
+You can hide a layer while editing.  
+If you remove a layer, all `IsometricPositionable` in it will be removed from the map.  
+
+![layer-edition-gif]
+
 ## Edition modes
 
 There are several edition modes to help you create maps:
@@ -77,3 +87,4 @@ Those will set the limit on maximum, if you want to set minimum limit maintain <
 [delete-tiles-gif]: ./assets/creating-map/delete-tiles.gif
 [edition-grid-moves-gif]: ./assets/creating-map/edition-grid-moves.gif
 [limit-view-gif]: ./assets/creating-map/limit-view.gif
+[layer-edition-gif]: ./assets/creating-map/layer-edition.gif
