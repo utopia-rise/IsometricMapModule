@@ -4,7 +4,11 @@ using namespace node;
 
 static const char* DEFAULT_LAYER_NAME = "Default";
 
-IsometricMap::IsometricMap() : child_positionable_initialized(false), last_layer_id(0) {
+IsometricMap::IsometricMap() : child_positionable_initialized(false)
+#ifdef TOOLS_ENABLED
+, last_layer_id(0)
+#endif
+{
     is_container = true;
 }
 
@@ -153,9 +157,12 @@ void IsometricMap::set_layer_visible(uint32_t p_layer_id, bool is_visible) {
 void IsometricMap::_enter_tree() {
     IsometricPositionable::_enter_tree();
 
+#ifdef TOOLS_ENABLED
     if (last_layer_id == DEFAULT_LAYER_ID && layers.size() == 0) {
         layers[last_layer_id] = DEFAULT_LAYER_NAME;
+        set_layers(layers);
     }
+#endif
 
     if (child_positionable_initialized) { return; }
     const Vector<int>& id_vector {grid_3d.get_internal_array()};

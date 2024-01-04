@@ -91,10 +91,10 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
 
         Vector<Vector3> all_positions {_calculate_positionables_positions(initial_position, limit_position, positionable_size)};
 
-        for (int i = 0; i < all_positions.size(); ++i) {
+        for (Vector3 position : all_positions) {
             Ref<editor::commands::AddPositionableCommand> add_command;
             add_command.instantiate();
-            add_command->set_aabb({all_positions[i], positionable_size});
+            add_command->set_aabb({position, positionable_size});
             add_command->set_positionable_id(selected_tile_id);
             add_command->set_layer_id(IsometricEditorPlugin::get_instance()->get_selected_layer());
             commands.push_back(add_command);

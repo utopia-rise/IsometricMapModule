@@ -42,7 +42,8 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
   select_all_command_emitter(),
   delete_command_emitter(),
   move_editor_drawer_command_emitter(),
-  rotate_editor_plane_command_emitter()
+  rotate_editor_plane_command_emitter(),
+  layers_editor()
   {
     grid_color_picker_button->set_text(GRID_COLOR_PICKER_TITLE);
     grid_color_picker_button->connect("color_changed", Callable(this, "_on_grid_color_picker_change"));

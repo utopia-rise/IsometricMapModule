@@ -42,7 +42,7 @@ LayersEditor::LayersEditor() : layer_line_edit(nullptr), layer_controls_containe
 void LayersEditor::refresh() {
     TypedArray<Node> elements {layer_controls_container->get_children()};
     for (int i = 0; i < elements.size(); ++i) {
-        Node* child = static_cast<Node*>(elements[i].operator Object*());
+        Node* child = Object::cast_to<Node>(elements[i].operator Object*());
         layer_controls_container->remove_child(child);
         child->queue_free();
     }

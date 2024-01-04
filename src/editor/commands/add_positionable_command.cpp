@@ -25,7 +25,7 @@ void AddPositionableCommand::set_positionable_id(int id) {
     positionable_id = id;
 }
 
-void AddPositionableCommand::set_layer_id(int p_layer_id) {
+void AddPositionableCommand::set_layer_id(uint32_t p_layer_id) {
     layer_id = p_layer_id;
 }
 

@@ -15,7 +15,7 @@ namespace editor {
 
             void set_aabb(const AABB& p_aabb);
             void set_positionable_id(int id);
-            void set_layer_id(int p_layer_id);
+            void set_layer_id(uint32_t p_layer_id);
 
             AddPositionableCommand();
             ~AddPositionableCommand() override = default;
