@@ -1,10 +1,12 @@
 #ifndef ISOMETRIC_MAPS_GRID_3D_H
 #define ISOMETRIC_MAPS_GRID_3D_H
 
-#include "core/templates/vector.h"
+#include <core/templates/vector.h>
+#include <core/variant/array.h>
 
 #include <core/math/aabb.h>
 #include <core/math/vector3.h>
+#include <core/math/vector3i.h>
 
 namespace containers {
 
@@ -34,7 +36,7 @@ namespace containers {
 
         void update_array_size(const Vector3& size, bool reset = false);
 
-        Vector3 get_dimensions();
+        Vector3i get_dimensions();
 
         void reset();
 
@@ -69,6 +71,9 @@ namespace containers {
         void set_internal_array(const Vector<T>& array);
 
         static inline T get_default_value();
+
+        Array to_array() const;
+        void from_array(const Array& array);
     };
 
     template<class T, T default_value>
@@ -104,8 +109,8 @@ namespace containers {
     }
 
     template<class T, T default_value>
-    Vector3 Grid3D<T, default_value>::get_dimensions() {
-        return {static_cast<float>(width), static_cast<float>(depth), static_cast<float>(height)};
+    Vector3i Grid3D<T, default_value>::get_dimensions() {
+        return {width, depth, height};
     }
 
     template<class T, T default_value>
@@ -265,6 +270,24 @@ namespace containers {
     template<class T, T default_value>
     T Grid3D<T, default_value>::get_default_value() {
         return default_value;
+    }
+
+    template<class T, T default_value>
+    Array Grid3D<T, default_value>::to_array() const {
+        Array ret;
+        for (int i = 0; i < internal_array.size(); ++i) {
+            ret.append(internal_array[i]);
+        }
+        return ret;
+    }
+
+    template<class T, T default_value>
+    void Grid3D<T, default_value>::from_array(const Array& array) {
+        Vector<T> new_internal_array;
+        for (int i = 0; i < array.size(); ++i) {
+            new_internal_array.push_back(array[i]);
+        }
+        set_internal_array(new_internal_array);
     }
 
     template<class T, T default_value>

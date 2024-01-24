@@ -6,7 +6,11 @@
 using namespace editor::commands;
 
 void AddPositionableCommand::redo() {
-    IsometricEditorPlugin::get_instance()->get_selected_map()->add_positionable_if_nothing_present(aabb, positionable_id);
+    IsometricEditorPlugin::get_instance()->get_selected_map()->add_positionable_if_nothing_present(
+            aabb,
+            positionable_id,
+            layer_id
+    );
 }
 
 void AddPositionableCommand::undo() {
@@ -21,7 +25,12 @@ void AddPositionableCommand::set_positionable_id(int id) {
     positionable_id = id;
 }
 
+void AddPositionableCommand::set_layer_id(uint32_t p_layer_id) {
+    layer_id = p_layer_id;
+}
+
 AddPositionableCommand::AddPositionableCommand() :
-  positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID) {}
+  positionable_id(resource::PositionableSet::NONE_POSITIONABLE_ID),
+  layer_id(node::IsometricMap::DEFAULT_LAYER_ID) {}
 
 #endif
