@@ -8,7 +8,7 @@
 
 namespace editor {
     namespace commands {
-        class SelectPositionableCommand : public Command {
+        class SelectPositionableCommand : public Command<node::IsometricMap> {
         public:
             void redo() override;
             void undo() override;

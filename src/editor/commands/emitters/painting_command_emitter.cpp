@@ -7,9 +7,9 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event
+Vector<Ref<editor::commands::Command<node::IsometricMap>>> PaintingCommandEmitter::from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event
 ) {// NOLINT(performance-unnecessary-value-param)
-    Vector<Ref<Command>> commands;
+    Vector<Ref<Command<node::IsometricMap>>> commands;
 
     _clear_current_preview_node();
 
@@ -18,7 +18,7 @@ Vector<Ref<editor::commands::Command>> PaintingCommandEmitter::from_gui_input_to
 
     const data::IsometricParameters* parameters {IsometricServer::get_instance()->space_get_configuration(map->get_space_RID())};
 
-    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
+    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::EDITOR_DRAWER);
     const Vector3& position {utils::from_screen_to_3D(
       *parameters,
       map->get_local_mouse_position(),

@@ -51,7 +51,7 @@ namespace editor {
         void refresh(int p_plane_type);
 
         node::IsometricMap* get_selected_map() const;
-        EditorPlane& get_editor_plane_for_selected_map(EditorPlane::PlaneType p_plane_type);
+        EditorPlane& get_editor_plane_for_map(node::IsometricMap* p_map, EditorPlane::PlaneType p_plane_type);
 
         bool is_aabb_in_view_limiters(const AABB& p_aabb) const;
 
@@ -90,7 +90,7 @@ namespace editor {
         OptionButton* edition_mode_button;
         Button* debug_button;
 
-        HashMap<uint64_t, MapHandlingData> handling_data_map;
+        HashMap<node::IsometricMap*, MapHandlingData> handling_data_map;
         node::IsometricMap* selected_map;
 
         bool show_debug;

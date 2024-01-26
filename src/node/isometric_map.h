@@ -54,8 +54,8 @@ namespace node {
         void remove_layer(uint32_t p_layer_id);
         void remove_layer(const String& p_layer_name);
         uint32_t get_layer_id_at(const Vector3& p_position);
-        int get_last_layer_id() const;
-        void set_last_layer_id(int p_last_layer_id);
+        uint32_t get_last_layer_id() const;
+        void set_last_layer_id(uint32_t p_last_layer_id);
         void set_layer_visible(uint32_t p_layer_id, bool is_visible);
 #endif
 

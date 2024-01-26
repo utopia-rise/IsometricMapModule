@@ -11,8 +11,8 @@ namespace editor {
         namespace emitters {
             static constexpr const char painting_action_name[]{"Paint isometric elements"};
 
-            class PaintingCommandEmitter : public CommandEmitter<PaintingCommandEmitter, InputEventMouse, painting_action_name> {
-                friend class CommandEmitter<PaintingCommandEmitter, InputEventMouse, painting_action_name>;
+            class PaintingCommandEmitter : public CommandEmitter<PaintingCommandEmitter, InputEventMouse, node::IsometricMap, painting_action_name> {
+                friend class CommandEmitter<PaintingCommandEmitter, InputEventMouse, node::IsometricMap, painting_action_name>;
 
             public:
                 PaintingCommandEmitter();
@@ -21,7 +21,7 @@ namespace editor {
             private:
                 node::IsometricPositionable* current_preview_node;
 
-                Vector<Ref<Command>> from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event);
+                Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event);
 
                 void _clear_current_preview_node();
             };

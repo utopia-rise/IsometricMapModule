@@ -7,30 +7,28 @@
 using namespace editor::commands;
 
 void SelectPositionableCommand::redo() {
-    node::IsometricMap* map {IsometricEditorPlugin::get_instance()->get_selected_map()};
     if (should_deselect_first) {
-        selected_cache = editor::PositionableSelectorManager::get_instance().get_selected_for_map(map);
-        editor::PositionableSelectorManager::get_instance().deselect_all(map);
+        selected_cache = editor::PositionableSelectorManager::get_instance().get_selected_for_map(context_node);
+        editor::PositionableSelectorManager::get_instance().deselect_all(context_node);
     }
-    node::IsometricPositionable* positionable {map->get_positionable_at(position)};
-    if (editor::PositionableSelectorManager::get_instance().is_position_selected_for_map(map, position)) {
-        editor::PositionableSelectorManager::get_instance().deselect_positionable_at(map, position);
+    node::IsometricPositionable* positionable {context_node->get_positionable_at(position)};
+    if (editor::PositionableSelectorManager::get_instance().is_position_selected_for_map(context_node, position)) {
+        editor::PositionableSelectorManager::get_instance().deselect_positionable_at(context_node, position);
     } else {
-        editor::PositionableSelectorManager::get_instance().select_positionable_at(map, positionable);
+        editor::PositionableSelectorManager::get_instance().select_positionable_at(context_node, positionable);
     }
 }
 
 void SelectPositionableCommand::undo() {
-    node::IsometricMap* map {IsometricEditorPlugin::get_instance()->get_selected_map()};
-    if (editor::PositionableSelectorManager::get_instance().is_position_selected_for_map(map, position)) {
-        editor::PositionableSelectorManager::get_instance().deselect_positionable_at(map, position);
+    if (editor::PositionableSelectorManager::get_instance().is_position_selected_for_map(context_node, position)) {
+        editor::PositionableSelectorManager::get_instance().deselect_positionable_at(context_node, position);
     } else {
-        if (node::IsometricPositionable * positionable {map->get_positionable_at(position)}) {
-            editor::PositionableSelectorManager::get_instance().select_positionable_at(map, positionable);
+        if (node::IsometricPositionable * positionable {context_node->get_positionable_at(position)}) {
+            editor::PositionableSelectorManager::get_instance().select_positionable_at(context_node, positionable);
         }
     }
     if (should_deselect_first) {
-        editor::PositionableSelectorManager::get_instance().set_selected_for_map(map, selected_cache);
+        editor::PositionableSelectorManager::get_instance().set_selected_for_map(context_node, selected_cache);
     }
 }
 

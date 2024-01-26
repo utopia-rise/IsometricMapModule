@@ -5,21 +5,22 @@
 #include "command_emitter.h"
 #include "core/input/input_event.h"
 #include "editor/commands/command.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {
         namespace emitters {
             static constexpr const char move_editor_grid_action_name[]{"Move editor grid"};
 
-            class MoveEditorGridCommandEmitter : public CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey, move_editor_grid_action_name> {
-                friend class CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey, move_editor_grid_action_name>;
+            class MoveEditorGridCommandEmitter : public CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey, node::IsometricMap, move_editor_grid_action_name> {
+                friend class CommandEmitter<MoveEditorGridCommandEmitter, InputEventKey, node::IsometricMap, move_editor_grid_action_name>;
 
             public:
                 MoveEditorGridCommandEmitter() = default;
                 ~MoveEditorGridCommandEmitter() = default;
 
             private:
-                Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventKey> p_event);
+                Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl(Ref<InputEventKey> p_event);
             };
         }// namespace emitters
     }// namespace commands

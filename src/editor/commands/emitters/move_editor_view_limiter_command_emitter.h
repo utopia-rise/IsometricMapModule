@@ -21,8 +21,8 @@ namespace editor {
 
             static constexpr const char move_view_limiter_action_name[]{"Move view limiter"};
 
-            class MoveEditorViewLimiterCommandEmitter : public CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent, move_view_limiter_action_name> {
-                friend class CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent, move_view_limiter_action_name>;
+            class MoveEditorViewLimiterCommandEmitter : public CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent, node::IsometricMap, move_view_limiter_action_name> {
+                friend class CommandEmitter<MoveEditorViewLimiterCommandEmitter, ScrollInputEvent, node::IsometricMap, move_view_limiter_action_name>;
 
             public:
                 MoveEditorViewLimiterCommandEmitter();
@@ -40,7 +40,7 @@ namespace editor {
                 uint64_t cumulative_scroll_last_time;
 #endif
 
-                Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<ScrollInputEvent> p_event);
+                Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl(Ref<ScrollInputEvent> p_event);
 
                 static bool _is_event_activated(Ref<ScrollInputEvent> p_event);
 

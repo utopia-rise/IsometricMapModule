@@ -6,7 +6,7 @@
 using namespace editor::commands;
 
 void SetPositionableVisibilityCommand::redo() {
-    if (node::IsometricPositionable * positionable {IsometricEditorPlugin::get_instance()->get_selected_map()->get_positionable_at(position)}) {
+    if (node::IsometricPositionable * positionable {context_node->get_positionable_at(position)}) {
         positionable->set_visible(!positionable->is_visible());
     }
 }

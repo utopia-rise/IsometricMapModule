@@ -5,10 +5,11 @@
 
 #include "command.h"
 #include "editor/editor_plane.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {
-        class MoveEditorPlaneCommand : public Command {
+        class MoveEditorPlaneCommand : public Command<node::IsometricMap> {
         public:
             void redo() override;
             void undo() override;

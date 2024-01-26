@@ -13,23 +13,24 @@ namespace editor {
         namespace emitters {
             class CommandToActionTransformer {
             public:
-                template<const char* action_title, UndoRedo::MergeMode merge_mode = UndoRedo::MERGE_DISABLE>
-                void transform(const Vector<Ref<Command>> commands, Node* p_context);
+                template<class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode = UndoRedo::MERGE_DISABLE>
+                void transform(const Vector<Ref<Command<TContextNode>>>& commands, TContextNode* p_context);
 
                 CommandToActionTransformer() = default;
                 ~CommandToActionTransformer() = default;
             };
 
-            template<const char* action_title, UndoRedo::MergeMode merge_mode>
-            void CommandToActionTransformer::transform(const Vector<Ref<Command>> commands, Node* p_context) {
+            template<class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode>
+            void CommandToActionTransformer::transform(const Vector<Ref<Command<TContextNode>>>& commands, TContextNode* p_context) {
                 bool has_valid_command {false};
                 for (int i = 0; i < commands.size(); ++i) {
-                    Ref<Command> command {commands[i]};
+                    Ref<Command<TContextNode>> command {commands[i]};
                     if (command.is_null()) { continue; }
                     if (!has_valid_command) {
                         EditorUndoRedoManager::get_singleton()->create_action(action_title, merge_mode, p_context);
                         has_valid_command = true;
                     }
+                    command->set_context_node(p_context);
                     command->append_to_undoredo();
                 }
 

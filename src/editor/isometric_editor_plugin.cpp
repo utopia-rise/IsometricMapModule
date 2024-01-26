@@ -125,14 +125,15 @@ void IsometricEditorPlugin::edit(Object* p_object) {
     undo_redo->add_do_method(
       this,
       "_editp",
-      map->get_path().rel_path_to(get_tree()->get_edited_scene_root()->get_path())
+      get_tree()->get_edited_scene_root()->get_path().rel_path_to(map->get_path())
     );
     undo_redo->commit_action();
 }
 
 void IsometricEditorPlugin::_editp(const NodePath& p_path) {
     selected_map = cast_to<node::IsometricMap>(get_tree()->get_edited_scene_root()->get_node(p_path));
-    
+    String debug {p_path};
+
     if (!selected_map->is_connected("draw", Callable(this, "refresh"))) {
         selected_map->connect("draw", Callable(this, "refresh").bind(EditorPlane::PlaneType::EDITOR_DRAWER));
     }
@@ -146,8 +147,7 @@ void IsometricEditorPlugin::_editp(const NodePath& p_path) {
         selected_map->connect(IsometricStringNames::get_singleton()->size_changed_signal, Callable(this, "_on_map_size_changed"));
     }
 
-    auto index {reinterpret_cast<uint64_t>(selected_map)};
-    if (!handling_data_map.has(index)) { handling_data_map[index] = MapHandlingData(selected_map->get_size()); }
+    if (!handling_data_map.has(selected_map)) { handling_data_map[selected_map] = MapHandlingData(selected_map->get_size()); }
     editor::OutlineDrawer::set_outline_visible(selected_map, show_debug);
 
     _draw_edition_grid();
@@ -166,9 +166,7 @@ void IsometricEditorPlugin::drop() {
         if (selected_map->is_connected("draw", Callable(this, "refresh"))) {
             selected_map->disconnect("draw", Callable(this, "refresh"));
         }
-        auto index {reinterpret_cast<uint64_t>(selected_map)};
-
-        const MapHandlingData& map_handling_data = handling_data_map[index];
+        const MapHandlingData& map_handling_data = handling_data_map[selected_map];
 
         for (int i = EditorPlane::PlaneType::EDITOR_DRAWER; i < EditorPlane::PlaneType::SIZE; ++i) {
             EditionGridDrawer::clear_for_editor_plane(map_handling_data.editor_planes[i]);
@@ -244,10 +242,9 @@ void IsometricEditorPlugin::make_visible(bool b) {
 }
 
 void IsometricEditorPlugin::refresh(int p_plane_type) {
-    auto index {reinterpret_cast<uint64_t>(selected_map)};
-    if (!handling_data_map.has(index)) { return; }
+    if (!handling_data_map.has(selected_map)) { return; }
 
-    MapHandlingData& map_handling_data = handling_data_map[index];
+    MapHandlingData& map_handling_data = handling_data_map[selected_map];
     if (map_handling_data.is_grid[p_plane_type]) {
         _draw_edition_grid();
     } else {
@@ -261,12 +258,12 @@ node::IsometricMap* IsometricEditorPlugin::get_selected_map() const {
     return selected_map;
 }
 
-EditorPlane& IsometricEditorPlugin::get_editor_plane_for_selected_map(EditorPlane::PlaneType p_plane_type) {
-    return handling_data_map[reinterpret_cast<uint64_t>(selected_map)].editor_planes[p_plane_type];
+EditorPlane& IsometricEditorPlugin::get_editor_plane_for_map(node::IsometricMap* p_map, EditorPlane::PlaneType p_plane_type) {
+    return handling_data_map[p_map].editor_planes[p_plane_type];;
 }
 
 bool IsometricEditorPlugin::is_aabb_in_view_limiters(const AABB& p_aabb) const {
-    const MapHandlingData& map_handling_data {handling_data_map[reinterpret_cast<uint64_t>(selected_map)]};
+    const MapHandlingData& map_handling_data {handling_data_map[selected_map]};
     const Vector3& position {p_aabb.position};
     const Vector3& size {p_aabb.size};
     int pos_x {static_cast<int>(position.x)};
@@ -355,8 +352,7 @@ void IsometricEditorPlugin::_on_edition_mode_changed(int selected_index) {
 }
 
 void IsometricEditorPlugin::_on_plane_visibility_timeout(int p_plane_type) {
-    auto index {reinterpret_cast<uint64_t>(selected_map)};
-    MapHandlingData& map_handling_data {handling_data_map[index]};
+    MapHandlingData& map_handling_data {handling_data_map[selected_map]};
     EditionGridDrawer::clear_for_editor_plane(map_handling_data.editor_planes[p_plane_type]);
     Ref<SceneTreeTimer> timer = map_handling_data.plane_timers[p_plane_type];
     if (!timer.is_valid()) { return; }
@@ -372,8 +368,7 @@ void IsometricEditorPlugin::_on_grid_color_picker_change([[maybe_unused]] const 
 }
 
 void IsometricEditorPlugin::_draw_edition_grid() const {
-    auto index {reinterpret_cast<uint64_t>(selected_map)};
-    const MapHandlingData& map_handling_data {handling_data_map[index]};
+    const MapHandlingData& map_handling_data {handling_data_map[selected_map]};
     EditionGridDrawer::draw_grid(
       map_handling_data.editor_planes[EditorPlane::PlaneType::EDITOR_DRAWER],
       selected_map,
@@ -382,16 +377,14 @@ void IsometricEditorPlugin::_draw_edition_grid() const {
 }
 
 void IsometricEditorPlugin::_draw_plane(EditorPlane::PlaneType p_plane_type) {
-    auto index {reinterpret_cast<uint64_t>(selected_map)};
-    const EditorPlane& plane {handling_data_map[index].editor_planes[p_plane_type]};
+    const EditorPlane& plane {handling_data_map[selected_map].editor_planes[p_plane_type]};
     EditionGridDrawer::draw_plane(plane, selected_map);
 }
 
 void IsometricEditorPlugin::_set_plane_timer(EditorPlane::PlaneType p_plane_type, float p_delay) {
     static const StringName timeoutSignalName {"timeout"};
 
-    auto index {reinterpret_cast<uint64_t>(selected_map)};
-    MapHandlingData& map_handling_data {handling_data_map[index]};
+    MapHandlingData& map_handling_data {handling_data_map[selected_map]};
 
     Ref<SceneTreeTimer> existing_timer = map_handling_data.plane_timers[p_plane_type];
 

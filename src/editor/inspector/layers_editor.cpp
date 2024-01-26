@@ -46,7 +46,7 @@ void LayersEditor::refresh() {
         layer_controls_container->remove_child(child);
         child->queue_free();
     }
-    
+
     if (node::IsometricMap* current_map = IsometricEditorPlugin::get_instance()->get_selected_map()) {
         Label* is_current_layer_label {memnew(Label)};
         is_current_layer_label->set_text("current");
@@ -86,14 +86,14 @@ void LayersEditor::refresh() {
 }
 
 void LayersEditor::_add_layer() {
-    Vector<Ref<commands::Command>> commands;
+    Vector<Ref<commands::Command<node::IsometricMap>>> commands;
     Ref<commands::AddLayerCommand> add_layer_command;
     add_layer_command.instantiate();
     add_layer_command->set_layer_name(layer_line_edit->get_text());
     commands.push_back(add_layer_command);
 
     commands::emitters::CommandToActionTransformer action_transformer;
-    action_transformer.transform<add_layer_action_name>(commands, IsometricEditorPlugin::get_instance()->get_selected_map());
+    action_transformer.transform<node::IsometricMap, add_layer_action_name>(commands, IsometricEditorPlugin::get_instance()->get_selected_map());
 
     refresh();
 }
@@ -118,7 +118,7 @@ void LayerVisibleCheckBox::set_layer_id(uint32_t p_layer_id) {
 }
 
 void LayerVisibleCheckBox::_set_layer_visible() {
-    Vector<Ref<commands::Command>> commands;
+    Vector<Ref<commands::Command<node::IsometricMap>>> commands;
 
     Ref<commands::SetLayerVisibilityCommand> visibility_command;
     visibility_command.instantiate();
@@ -128,9 +128,9 @@ void LayerVisibleCheckBox::_set_layer_visible() {
     commands.push_back(visibility_command);
 
     commands::emitters::CommandToActionTransformer action_transformer;
-    action_transformer.transform<set_layer_visible_action_name>(
-            commands,
-            IsometricEditorPlugin::get_instance()->get_selected_map()
+    action_transformer.transform<node::IsometricMap, set_layer_visible_action_name>(
+      commands,
+      IsometricEditorPlugin::get_instance()->get_selected_map()
     );
 }
 
@@ -165,7 +165,7 @@ void LayerRemoveButton::set_layer_informations(uint32_t p_layer_id, const String
 
 void LayerRemoveButton::_remove_layer() {
     if (node::IsometricMap* current_map = IsometricEditorPlugin::get_instance()->get_selected_map()) {
-        Vector<Ref<commands::Command>> commands;
+        Vector<Ref<commands::Command<node::IsometricMap>>> commands;
 
         Vector3 map_size {current_map->get_size()};
         for (int x = 0; x < static_cast<int>(map_size.x); ++x) {
@@ -186,7 +186,7 @@ void LayerRemoveButton::_remove_layer() {
                     add_command->set_positionable_id(current_map->get_positionable_id_for_position(position));
                     add_command->set_layer_id(layer_id_at_position);
 
-                    Ref<commands::RevertCommand> delete_command;
+                    Ref<commands::RevertCommand<node::IsometricMap>> delete_command;
                     delete_command.instantiate();
                     delete_command->set_reverse_command(add_command);
 
@@ -200,14 +200,14 @@ void LayerRemoveButton::_remove_layer() {
         add_layer_command->set_layer_id(layer_id);
         add_layer_command->set_layer_name(layer_name);
 
-        Ref<commands::RevertCommand> remove_layer_command;
+        Ref<commands::RevertCommand<node::IsometricMap>> remove_layer_command;
         remove_layer_command.instantiate();
         remove_layer_command->set_reverse_command(add_layer_command);
 
         commands.push_back(remove_layer_command);
 
         commands::emitters::CommandToActionTransformer action_transformer;
-        action_transformer.transform<remove_layer_action_name>(commands, current_map);
+        action_transformer.transform<node::IsometricMap, remove_layer_action_name>(commands, current_map);
     }
 }
 

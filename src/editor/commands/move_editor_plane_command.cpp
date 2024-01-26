@@ -10,13 +10,13 @@ using namespace editor::commands;
 void MoveEditorPlaneCommand::redo() {
     MAPS_ERR_FAIL_COND_MSG(plane_type == EditorPlane::PlaneType::SIZE, "PlaneType should be set on MoveEditorPlaneCommand");
     IsometricEditorPlugin* isometric_editor_plugin = IsometricEditorPlugin::get_instance();
-    isometric_editor_plugin->get_editor_plane_for_selected_map(plane_type).set_position(new_position);
+    isometric_editor_plugin->get_editor_plane_for_map(context_node, plane_type).set_position(new_position);
     isometric_editor_plugin->refresh(plane_type);
 }
 
 void MoveEditorPlaneCommand::undo() {
     IsometricEditorPlugin* isometric_editor_plugin = IsometricEditorPlugin::get_instance();
-    isometric_editor_plugin->get_editor_plane_for_selected_map(plane_type).set_position(old_position);
+    isometric_editor_plugin->get_editor_plane_for_map(context_node, plane_type).set_position(old_position);
     isometric_editor_plugin->refresh(plane_type);
 }
 

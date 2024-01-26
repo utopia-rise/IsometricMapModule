@@ -10,15 +10,15 @@ namespace editor {
         namespace emitters {
             static constexpr const char select_action_name[]{"Select isometric element"};
 
-            class SelectCommandEmitter : public CommandEmitter<SelectCommandEmitter, InputEventMouse, select_action_name> {
-                friend class CommandEmitter<SelectCommandEmitter, InputEventMouse, select_action_name>;
+            class SelectCommandEmitter : public CommandEmitter<SelectCommandEmitter, InputEventMouse, node::IsometricMap, select_action_name> {
+                friend class CommandEmitter<SelectCommandEmitter, InputEventMouse, node::IsometricMap, select_action_name>;
 
             public:
                 SelectCommandEmitter() = default;
                 ~SelectCommandEmitter() = default;
 
             private:
-                Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
+                Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl(Ref<InputEventMouse> p_event);
             };
         }// namespace emitters
     }// namespace commands

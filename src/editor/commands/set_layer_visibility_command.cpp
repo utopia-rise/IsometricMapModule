@@ -6,11 +6,11 @@
 using namespace editor::commands;
 
 void SetLayerVisibilityCommand::redo() {
-    IsometricEditorPlugin::get_instance()->get_selected_map()->set_layer_visible(layer_id, is_visible);
+    context_node->set_layer_visible(layer_id, is_visible);
 }
 
 void SetLayerVisibilityCommand::undo() {
-    IsometricEditorPlugin::get_instance()->get_selected_map()->set_layer_visible(layer_id, !is_visible);
+    context_node->set_layer_visible(layer_id, !is_visible);
 }
 
 void SetLayerVisibilityCommand::set_layer_id(uint32_t p_layer_id) {

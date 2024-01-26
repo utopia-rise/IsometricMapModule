@@ -11,8 +11,8 @@ namespace editor {
         namespace emitters {
             static constexpr const char drag_and_drop_action_name[]{"Add positionables with drag and drop"};
 
-            class DragAndDropCommandEmitter : public CommandEmitter<DragAndDropCommandEmitter, InputEventMouse, drag_and_drop_action_name> {
-                friend class CommandEmitter<DragAndDropCommandEmitter, InputEventMouse, drag_and_drop_action_name>;
+            class DragAndDropCommandEmitter : public CommandEmitter<DragAndDropCommandEmitter, InputEventMouse, node::IsometricMap, drag_and_drop_action_name> {
+                friend class CommandEmitter<DragAndDropCommandEmitter, InputEventMouse, node::IsometricMap, drag_and_drop_action_name>;
 
             public:
                 DragAndDropCommandEmitter();
@@ -24,7 +24,7 @@ namespace editor {
                 Vector3 initial_position;
                 Vector3 limit_position;
 
-                Vector<Ref<Command>> from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event);
+                Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event);
 
                 void _clear_current_preview_nodes(int new_size);
 

@@ -7,8 +7,8 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> SelectAllCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
-    Vector<Ref<Command>> commands;
+Vector<Ref<editor::commands::Command<node::IsometricMap>>> SelectAllCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
+    Vector<Ref<Command<node::IsometricMap>>> commands;
 
     if (!p_event->is_pressed() || p_event->get_keycode() != Key::A || !p_event->is_command_or_control_pressed()) {
         return commands;
@@ -19,22 +19,22 @@ Vector<Ref<editor::commands::Command>> SelectAllCommandEmitter::from_gui_input_t
 
     Vector<node::IsometricPositionable*> positionables {map->get_positionables_in(
       {{static_cast<real_t>(
-          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MIN_VIEW_LIMITER).get_position()
+          isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::X_MIN_VIEW_LIMITER).get_position()
         ),
         static_cast<real_t>(
-          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER).get_position()
+          isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::Y_MIN_VIEW_LIMITER).get_position()
         ),
         static_cast<real_t>(
-          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER).get_position()
+          isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::Z_MIN_VIEW_LIMITER).get_position()
         )},
        {static_cast<real_t>(
-          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::X_MAX_VIEW_LIMITER).get_position()
+          isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::X_MAX_VIEW_LIMITER).get_position()
         ),
         static_cast<real_t>(
-          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER).get_position()
+          isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::Y_MAX_VIEW_LIMITER).get_position()
         ),
         static_cast<real_t>(
-          isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER).get_position()
+          isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::Z_MAX_VIEW_LIMITER).get_position()
         )}}
     )};
 

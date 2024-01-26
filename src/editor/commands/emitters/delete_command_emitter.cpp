@@ -12,8 +12,8 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
-    Vector<Ref<editor::commands::Command>> commands;
+Vector<Ref<editor::commands::Command<node::IsometricMap>>> DeleteCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
+    Vector<Ref<editor::commands::Command<node::IsometricMap>>> commands;
 
     if (!p_event->is_pressed()) { return commands; }
 
@@ -33,7 +33,7 @@ Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_c
             select_command->set_should_deselect_first(false);
             select_command->set_position(position);
 
-            Ref<RevertCommand> deselect_command;
+            Ref<RevertCommand<node::IsometricMap>> deselect_command;
             deselect_command.instantiate();
             deselect_command->set_reverse_command(select_command);
 
@@ -43,11 +43,11 @@ Vector<Ref<editor::commands::Command>> DeleteCommandEmitter::from_gui_input_to_c
             add_command->set_aabb({local_position, current->get_size()});
             add_command->set_positionable_id(map->get_positionable_id_for_position(local_position));
 
-            Ref<RevertCommand> delete_command;
+            Ref<RevertCommand<node::IsometricMap>> delete_command;
             delete_command.instantiate();
             delete_command->set_reverse_command(add_command);
 
-            Ref<CompositeCommand> composite_command;
+            Ref<CompositeCommand<node::IsometricMap>> composite_command;
             composite_command.instantiate();
             composite_command->append_command(deselect_command);
             composite_command->append_command(delete_command);
