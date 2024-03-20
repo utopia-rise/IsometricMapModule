@@ -28,15 +28,16 @@ LayersEditor::LayersEditor() : layer_line_edit(nullptr), layer_controls_containe
     layer_controls_container->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     scroll_container->add_child(layer_controls_container);
     add_child(scroll_container);
+
+    current_layer_button_group = Ref<ButtonGroup>();
+    current_layer_button_group.instantiate();
+
     refresh();
 
     scroll_container->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     scroll_container->set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
-
-    current_layer_button_group = Ref<ButtonGroup>();
-    current_layer_button_group.instantiate();
 }
 
 void LayersEditor::refresh() {
@@ -61,6 +62,13 @@ void LayersEditor::refresh() {
         layer_controls_container->add_child(is_visible_label);
         layer_controls_container->add_child(remove_label);
 
+        uint32_t last_layer_edited {
+            current_map->get_meta(
+              node::IsometricMap::LAST_EDITED_LAYER_META_NAME,
+              node::IsometricMap::DEFAULT_LAYER_ID
+            )
+        };
+
         const Dictionary& layers = current_map->get_layers();
         Array ids = layers.keys();
         Array layer_names = layers.values();
@@ -81,6 +89,8 @@ void LayersEditor::refresh() {
             layer_remove_button->set_layer_informations(layer_id, layer_name);
             layer_remove_button->connect(SNAME("pressed"), Callable(this, "refresh"));
             layer_controls_container->add_child(layer_remove_button);
+
+            current_layer_check_box->set_pressed(layer_id == last_layer_edited);
         }
     }
 }
@@ -227,6 +237,20 @@ uint32_t CurrentLayerCheckBox::get_layer_id() const {
 
 void CurrentLayerCheckBox::set_layer_id(uint32_t p_layer_id) {
     layer_id = p_layer_id;
+}
+
+void CurrentLayerCheckBox::on_pressed() { // NOLINT(*-make-member-function-const)
+    if (node::IsometricMap* current_map{IsometricEditorPlugin::get_instance()->get_selected_map()}) {
+        current_map->set_meta(node::IsometricMap::LAST_EDITED_LAYER_META_NAME,layer_id);
+    }
+}
+
+void CurrentLayerCheckBox::_notification(int notif) {
+    if (notif != NOTIFICATION_ENTER_TREE) {
+        return;
+    }
+
+    connect(SNAME("pressed"), callable_mp(this, &CurrentLayerCheckBox::on_pressed));
 }
 
 CurrentLayerCheckBox::CurrentLayerCheckBox() : layer_id(node::IsometricMap::NO_LAYER_ID) {

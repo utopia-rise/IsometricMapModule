@@ -12,7 +12,7 @@ namespace editor {
         public:
             void redo() override;
             void undo() override;
-            void set_context_node(TContextNode* p_context_node);
+            void set_context_node(TContextNode* p_context_node) override;
 
             void set_reverse_command(Ref<Command<TContextNode>> p_reverse_command);
 
