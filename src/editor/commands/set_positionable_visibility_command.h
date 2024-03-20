@@ -4,10 +4,11 @@
 #ifdef TOOLS_ENABLED
 
 #include "command.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {
-        class SetPositionableVisibilityCommand : public Command {
+        class SetPositionableVisibilityCommand : public Command<node::IsometricMap> {
         public:
             void redo() override;
             void undo() override;

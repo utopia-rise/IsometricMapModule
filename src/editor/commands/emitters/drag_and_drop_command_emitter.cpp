@@ -8,9 +8,9 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event
+Vector<Ref<editor::commands::Command<node::IsometricMap>>> DragAndDropCommandEmitter::from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event
 ) {// NOLINT(performance-unnecessary-value-param)
-    Vector<Ref<editor::commands::Command>> commands;
+    Vector<Ref<editor::commands::Command<node::IsometricMap>>> commands;
     bool is_activated {initial_position != Vector3(-1, -1, -1)};
 
     int selected_tile_id {editor::IsometricEditorPlugin::get_instance()->get_selection_pane()->get_selected_positionable_id()};
@@ -22,7 +22,7 @@ Vector<Ref<editor::commands::Command>> DragAndDropCommandEmitter::from_gui_input
 
     const data::IsometricParameters* parameters {IsometricServer::get_instance()->space_get_configuration(map->get_space_RID())};
 
-    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER);
+    EditorPlane& editor_plane = isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::EDITOR_DRAWER);
     Vector3::Axis editor_plane_axis = editor_plane.get_axis();
     const Vector3& mouse_position {utils::from_screen_to_3D(
       *parameters,
@@ -156,7 +156,10 @@ AABB DragAndDropCommandEmitter::_calculate_real_aabb(const Vector3& initial_posi
     }
 
     switch (
-      IsometricEditorPlugin::get_instance()->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER).get_axis()
+      IsometricEditorPlugin::get_instance()->get_editor_plane_for_map(
+                                             IsometricEditorPlugin::get_instance()->get_selected_map(),
+                                             EditorPlane::PlaneType::EDITOR_DRAWER
+      ).get_axis()
     ) {
         case Vector3::AXIS_X:
             return {initial_position, {positionable_x_size, y_size, z_size}};

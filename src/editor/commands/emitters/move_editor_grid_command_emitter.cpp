@@ -7,8 +7,8 @@
 
 using namespace editor::commands::emitters;
 
-Vector<Ref<editor::commands::Command>> MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
-    Vector<Ref<editor::commands::Command>> commands;
+Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveEditorGridCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventKey> p_event) {
+    Vector<Ref<editor::commands::Command<node::IsometricMap>>> commands;
 
     if (!p_event->is_pressed()) { return commands; }
 
@@ -25,7 +25,7 @@ Vector<Ref<editor::commands::Command>> MoveEditorGridCommandEmitter::from_gui_in
 
     IsometricEditorPlugin* isometric_editor_plugin {IsometricEditorPlugin::get_instance()};
     node::IsometricMap* map {isometric_editor_plugin->get_selected_map()};
-    EditorPlane& editor_plane {isometric_editor_plugin->get_editor_plane_for_selected_map(EditorPlane::PlaneType::EDITOR_DRAWER)};
+    EditorPlane& editor_plane {isometric_editor_plugin->get_editor_plane_for_map(map, EditorPlane::PlaneType::EDITOR_DRAWER)};
 
     int current_position {editor_plane.get_position()};
     int new_position {};

@@ -4,10 +4,11 @@
 #ifdef TOOLS_ENABLED
 
 #include "command.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {
-        class RotateEditorPlaneCommand : public Command {
+        class RotateEditorPlaneCommand : public Command<node::IsometricMap> {
         public:
             void redo() override;
             void undo() override;
@@ -20,7 +21,7 @@ namespace editor {
             ~RotateEditorPlaneCommand() override = default;
 
         private:
-            static void set_axis_and_position(Vector3::Axis p_axis, int p_position);
+            void set_axis_and_position(Vector3::Axis p_axis, int p_position);
 
             Vector3::Axis new_axis;
 

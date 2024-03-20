@@ -11,15 +11,15 @@ namespace editor {
         namespace emitters {
             static constexpr const char delete_positionable_action_name[] {"Delete positionable"};
 
-            class DeleteCommandEmitter : public CommandEmitter<DeleteCommandEmitter, InputEventKey, delete_positionable_action_name> {
-                friend class CommandEmitter<DeleteCommandEmitter, InputEventKey, delete_positionable_action_name>;
+            class DeleteCommandEmitter : public CommandEmitter<DeleteCommandEmitter, InputEventKey, node::IsometricMap, delete_positionable_action_name> {
+                friend class CommandEmitter<DeleteCommandEmitter, InputEventKey, node::IsometricMap, delete_positionable_action_name>;
 
             public:
                 DeleteCommandEmitter() = default;
                 ~DeleteCommandEmitter() = default;
 
             private:
-                Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventKey> p_event);
+                Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl(Ref<InputEventKey> p_event);
             };
         }// namespace emitters
     }// namespace commands

@@ -66,9 +66,11 @@ int IsometricMap::get_positionable_id_for_position(const Vector3& p_position) {
 Vector<IsometricPositionable*> IsometricMap::get_positionables_in(const AABB& p_aabb) const {
     Vector<IsometricPositionable*> ret;
 
-    for (int x = 0; x < static_cast<int>(p_aabb.size.x); ++x) {
-        for (int y = 0; y < static_cast<int>(p_aabb.size.y); ++y) {
-            for (int z = 0; z < static_cast<int>(p_aabb.size.z); ++z) {
+    const Vector3& requested_size {p_aabb.size};
+    const Vector3& map_size {get_size()};
+    for (int x = 0; x < static_cast<int>(requested_size.x > map_size.x ? map_size.x : requested_size.x); ++x) {
+        for (int y = 0; y < static_cast<int>(requested_size.y > map_size.y ? map_size.y : requested_size.y); ++y) {
+            for (int z = 0; z < static_cast<int>(requested_size.z > map_size.z ? map_size.z : requested_size.z); ++z) {
                 ret.push_back(instances_grid_3d.get_data(p_aabb.position + Vector3(x, y, z)));
             }
         }
@@ -133,11 +135,11 @@ uint32_t IsometricMap::get_layer_id_at(const Vector3& p_position) {
     return layers_grid_3d.get_data(p_position);
 }
 
-int IsometricMap::get_last_layer_id() const {
+uint32_t IsometricMap::get_last_layer_id() const {
     return last_layer_id;
 }
 
-void IsometricMap::set_last_layer_id(int p_last_layer_id) {
+void IsometricMap::set_last_layer_id(uint32_t p_last_layer_id) {
     last_layer_id = p_last_layer_id;
 }
 

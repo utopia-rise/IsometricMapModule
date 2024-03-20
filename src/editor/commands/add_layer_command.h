@@ -5,10 +5,11 @@
 #ifdef TOOLS_ENABLED
 
 #include "command.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {
-        class AddLayerCommand : public Command {
+        class AddLayerCommand : public Command<node::IsometricMap> {
         public:
             void redo() override;
             void undo() override;

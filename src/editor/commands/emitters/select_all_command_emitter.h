@@ -5,21 +5,22 @@
 #include "command_emitter.h"
 #include "core/input/input_event.h"
 #include "editor/commands/command.h"
+#include "node/isometric_map.h"
 
 namespace editor {
     namespace commands {
         namespace emitters {
             static constexpr const char select_all_action_name[]{"Select all isometric elements"};
 
-            class SelectAllCommandEmitter : public CommandEmitter<SelectAllCommandEmitter, InputEventKey, select_all_action_name> {
-                friend class CommandEmitter<SelectAllCommandEmitter, InputEventKey, select_all_action_name>;
+            class SelectAllCommandEmitter : public CommandEmitter<SelectAllCommandEmitter, InputEventKey, node::IsometricMap, select_all_action_name> {
+                friend class CommandEmitter<SelectAllCommandEmitter, InputEventKey, node::IsometricMap, select_all_action_name>;
 
             public:
                 SelectAllCommandEmitter() = default;
                 ~SelectAllCommandEmitter() = default;
 
             private:
-                Vector<Ref<Command>> from_gui_input_to_command_impl(Ref<InputEventKey> p_event);
+                Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl(Ref<InputEventKey> p_event);
             };
         }// namespace emitters
     }// namespace commands
