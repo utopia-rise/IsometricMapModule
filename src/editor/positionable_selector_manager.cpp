@@ -12,7 +12,7 @@ PositionableSelectorManager& PositionableSelectorManager::get_instance() {
 
 void PositionableSelectorManager::select_positionable_at(node::IsometricMap* map, node::IsometricPositionable* positionable) {
     if (!map_to_selected_positions.has(map)) { map_to_selected_positions[map] = Vector<Vector3>(); }
-    show_outline(positionable);
+    show_outline(map, positionable);
     map_to_selected_positions[map].push_back(positionable->get_local_position_3d());
 }
 
@@ -47,7 +47,7 @@ void PositionableSelectorManager::set_selected_for_map(node::IsometricMap* map, 
     for (int i = 0; i < selected.size(); ++i) {
         node::IsometricPositionable* positionable {map->get_positionable_at(selected[i])};
         if (!positionable) { continue; }
-        show_outline(positionable);
+        show_outline(map, positionable);
     }
 }
 
@@ -59,14 +59,20 @@ void PositionableSelectorManager::refresh_outline_for_selected(node::IsometricMa
     const Vector<Vector3>& selected {map_to_selected_positions[map]};
     for (int i = 0; i < selected.size(); ++i) {
         if (node::IsometricPositionable * positionable {map->get_positionable_at(selected[i])}) {
-            show_outline(positionable);
+            show_outline(map, positionable);
         }
     }
 }
 
-void PositionableSelectorManager::show_outline(node::IsometricPositionable* positionable) {
+void PositionableSelectorManager::show_outline(node::IsometricMap* map, node::IsometricPositionable* positionable) {
     OutlineData& outline_data {positionable->get_outline_data()};
-    outline_data.color = {1, 0, 0, 1};
+    outline_data.color = map->get_meta(
+      vformat(
+        node::IsometricMap::LAYER_COLOR_META_NAME_FORMAT,
+        map->get_layer_id_at(positionable->get_local_position_3d())
+      ),
+      Color()
+    );
     outline_data.line_size = 10;
     editor::OutlineDrawer::draw_outline(positionable);
     editor::OutlineDrawer::set_outline_visible(positionable, true);

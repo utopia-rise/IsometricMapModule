@@ -3,6 +3,8 @@
 
 #ifdef TOOLS_ENABLED
 #include "node/isometric_map.h"
+#include "scene/gui/color_picker.h"
+
 #include <scene/gui/box_container.h>
 #include <scene/gui/button.h>
 #include <scene/gui/check_box.h>
@@ -77,6 +79,23 @@ namespace editor {
             void on_pressed();
 
             CurrentLayerCheckBox();
+
+        private:
+            uint32_t layer_id;
+
+        protected:
+            void _notification(int notif);
+            static void _bind_methods();
+        };
+
+        class LayerColorPickerButton : public ColorPickerButton {
+            GDCLASS(LayerColorPickerButton, ColorPickerButton)
+
+        public:
+            void set_layer_id(uint32_t p_layer_id);
+            void on_color_changed(const Color& color);
+
+            LayerColorPickerButton();
 
         private:
             uint32_t layer_id;

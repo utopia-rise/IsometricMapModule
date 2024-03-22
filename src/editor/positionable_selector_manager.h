@@ -27,7 +27,7 @@ namespace editor {
     private:
         HashMap<node::IsometricMap*, Vector<Vector3>> map_to_selected_positions;
 
-        static void show_outline(node::IsometricPositionable* positionable);
+        static void show_outline(node::IsometricMap* map, node::IsometricPositionable* positionable);
 
         PositionableSelectorManager();
         ~PositionableSelectorManager() = default;

@@ -16,6 +16,7 @@ namespace node {
 
 #ifdef TOOLS_ENABLED
         static constexpr const char* LAST_EDITED_LAYER_META_NAME = "_LAST_EDITED_LAYER";
+        static constexpr const char* LAYER_COLOR_META_NAME_FORMAT = "_LAYER_%s_COLOR";
 #endif
 
     private:
