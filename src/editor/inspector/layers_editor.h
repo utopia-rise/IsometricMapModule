@@ -2,11 +2,12 @@
 #define ISOMETRIC_MAPS_LAYERS_EDITOR_H
 
 #ifdef TOOLS_ENABLED
-#include "scene/gui/box_container.h"
-#include "scene/gui/line_edit.h"
-#include "scene/gui/button.h"
-#include "scene/gui/check_box.h"
-#include "scene/gui/grid_container.h"
+#include "node/isometric_map.h"
+#include <scene/gui/box_container.h>
+#include <scene/gui/button.h>
+#include <scene/gui/check_box.h>
+#include <scene/gui/grid_container.h>
+#include <scene/gui/line_edit.h>
 
 namespace editor {
     namespace inspector {
@@ -73,12 +74,15 @@ namespace editor {
             uint32_t get_layer_id() const;
             void set_layer_id(uint32_t p_layer_id);
 
+            void on_pressed();
+
             CurrentLayerCheckBox();
 
         private:
             uint32_t layer_id;
 
         protected:
+            void _notification(int notif);
             static void _bind_methods();
         };
     }

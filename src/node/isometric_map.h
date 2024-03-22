@@ -14,6 +14,10 @@ namespace node {
         static constexpr uint32_t DEFAULT_LAYER_ID = 0;
         static constexpr uint32_t NO_LAYER_ID = 0xffffffff;
 
+#ifdef TOOLS_ENABLED
+        static constexpr const char* LAST_EDITED_LAYER_META_NAME = "_LAST_EDITED_LAYER";
+#endif
+
     private:
         containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID> grid_3d;
         containers::Grid3D<uint32_t, DEFAULT_LAYER_ID> layers_grid_3d;
