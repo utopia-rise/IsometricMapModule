@@ -87,12 +87,11 @@ void LayersEditor::refresh() {
             layer_controls_container->add_child(current_layer_name_label);
             LayerColorPickerButton* color_picker_button {memnew(LayerColorPickerButton)};
             color_picker_button->set_layer_id(layer_id);
-            color_picker_button->set_pick_color(
-                current_map->get_meta(
-                    vformat(node::IsometricMap::LAYER_COLOR_META_NAME_FORMAT, layer_id),
-                    Color()
-                )
-            );
+            const Variant& layer_color {
+              current_map->get_meta(vformat(node::IsometricMap::LAYER_COLOR_META_NAME_FORMAT, layer_id), Color())
+            };
+            color_picker_button->set_pick_color(layer_color);
+            current_map->set_layer_color(layer_id, layer_color);
             layer_controls_container->add_child(color_picker_button);
             LayerVisibleCheckBox* visible_check_box {memnew(LayerVisibleCheckBox)};
             visible_check_box->set_layer_id(layer_id);
@@ -279,9 +278,9 @@ void LayerColorPickerButton::set_layer_id(const uint32_t p_layer_id) {
     layer_id = p_layer_id;
 }
 
-void LayerColorPickerButton::on_color_changed(const Color& color) { // NOLINT(*-make-member-function-const)
+void LayerColorPickerButton::on_color_changed(const Color& p_color) { // NOLINT(*-make-member-function-const)
     if (node::IsometricMap* map{IsometricEditorPlugin::get_instance()->get_selected_map()}) {
-        map->set_meta(vformat(node::IsometricMap::LAYER_COLOR_META_NAME_FORMAT, layer_id), color);
+        map->set_layer_color(layer_id, p_color);
     }
 }
 

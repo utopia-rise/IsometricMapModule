@@ -93,7 +93,7 @@ namespace editor {
 
         public:
             void set_layer_id(uint32_t p_layer_id);
-            void on_color_changed(const Color& color);
+            void on_color_changed(const Color& p_color);
 
             LayerColorPickerButton();
 

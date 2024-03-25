@@ -1,9 +1,11 @@
 #include "isometric_positionable.h"
 
 #include "editor/outline_drawer.h"
+#include "isometric_map.h"
 #include "isometric_server.h"
-#include "utils/isometric_maths.h"
 #include "isometric_string_names.h"
+#include "utils/isometric_maths.h"
+
 
 using namespace node;
 
@@ -14,6 +16,10 @@ IsometricPositionable::IsometricPositionable() :
   collision_object(nullptr),
   world_owner(false),
   is_container {false}
+#ifdef TOOLS_ENABLED
+  ,
+  debug_mesh_instance_3d(nullptr)
+#endif
 {
     set_process(true);
 }
@@ -53,6 +59,23 @@ void IsometricPositionable::_enter_tree() {
         ISOMETRIC_SERVER->space_attach_isometric_element(world, self);
     }
     update_position();
+
+#ifdef TOOLS_ENABLED
+    if (Engine::get_singleton()->is_editor_hint() && !is_container) {
+        debug_mesh_material.instantiate();
+        debug_mesh_material->set_albedo(Color());
+
+        debug_mesh.instantiate();
+        debug_mesh->set_material(debug_mesh_material);
+
+        debug_mesh_instance_3d = memnew(MeshInstance3D);
+        debug_mesh_instance_3d->set_mesh(debug_mesh);
+
+        add_child(debug_mesh_instance_3d);
+
+        _rebind_debug_mesh_instance();
+    }
+#endif
 }
 
 void IsometricPositionable::_ready() {
@@ -84,9 +107,9 @@ void IsometricPositionable::update_position() {
         const data::IsometricParameters* params = ISOMETRIC_SERVER->space_get_configuration(world);
         Vector2 position2D = utils::from_3D_to_screen(*params, local_position);
 
-        Transform2D transform = get_transform();
-        transform.set_origin(position2D);
-        set_transform(transform);
+        Transform2D updated_transform = get_transform();
+        updated_transform.set_origin(position2D);
+        set_transform(updated_transform);
     }
 }
 
@@ -101,6 +124,10 @@ void IsometricPositionable::set_local_position_3d(Vector3 p_local) {
     }
     update_position();
     _rebind_collision_object_position();
+
+#ifdef TOOLS_ENABLED
+    _rebind_debug_mesh_instance();
+#endif
 }
 
 Vector3 IsometricPositionable::get_global_position_3d() const {
@@ -131,6 +158,8 @@ void IsometricPositionable::set_size(Vector3 s) {
     _rebind_collision_object_position();
 
 #ifdef TOOLS_ENABLED
+    _rebind_debug_mesh_instance();
+
     emit_signal(IsometricStringNames::get_singleton()->size_changed_signal);
 #endif
 }
@@ -202,6 +231,24 @@ void IsometricPositionable::_rebind_collision_object_position() const {
     );
 }
 
+#ifdef TOOLS_ENABLED
+void IsometricPositionable::_rebind_debug_mesh_instance() const {
+    if (!Engine::get_singleton()->is_editor_hint() || !debug_mesh_instance_3d) return;
+
+    const Vector3& global_position {get_global_position_3d()};
+    debug_mesh->set_size(size);
+    debug_mesh_instance_3d->set_global_transform(
+      {
+        {1, 0, 0, 0, 1, 0, 0, 0, 1},
+        {
+          Vector3(global_position.x, global_position.z, global_position.y) +
+          (size - Vector3(1, 1, 1)) * 0.5
+        }
+      }
+    );
+}
+#endif
+
 RID IsometricPositionable::get_rid() const {
     return self;
 }
@@ -223,6 +270,12 @@ void IsometricPositionable::set_debug_view(bool p_debug) {
     editor::OutlineDrawer::set_outline_visible(this, p_debug);
     if (p_debug) { editor::OutlineDrawer::draw_outline(this); }
     queue_redraw();
+}
+
+void IsometricPositionable::update_debug_mesh_color(const Color& p_color) const {
+    if (debug_mesh_material.is_null()) return;
+
+    debug_mesh_material->set_albedo(p_color);
 }
 
 #endif
@@ -253,5 +306,11 @@ void IsometricPositionable::_bind_methods() {
 #ifdef TOOLS_ENABLED
     ClassDB::bind_method(D_METHOD("set_debug_view"), &IsometricPositionable::set_debug_view);
     ADD_SIGNAL(MethodInfo("size_changed"));
+#endif
+}
+
+IsometricPositionable::~IsometricPositionable() {
+#ifdef TOOLS_ENABLED
+    debug_mesh_instance_3d = nullptr;
 #endif
 }

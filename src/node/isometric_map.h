@@ -62,6 +62,7 @@ namespace node {
         uint32_t get_last_layer_id() const;
         void set_last_layer_id(uint32_t p_last_layer_id);
         void set_layer_visible(uint32_t p_layer_id, bool is_visible);
+        void set_layer_color(uint32_t p_layer_id, const Color& p_color);
 #endif
 
         IsometricMap();
