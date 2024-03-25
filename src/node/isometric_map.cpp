@@ -154,6 +154,22 @@ void IsometricMap::set_layer_visible(uint32_t p_layer_id, bool is_visible) {
     }
 }
 
+void IsometricMap::set_layer_color(const uint32_t p_layer_id, const Color& p_color) {
+    set_meta(vformat(node::IsometricMap::LAYER_COLOR_META_NAME_FORMAT, p_layer_id), p_color);
+
+    if (!Engine::get_singleton()->is_editor_hint()) return;
+
+    const Vector<IsometricPositionable*>& instances {instances_grid_3d.get_internal_array()};
+    const Vector<uint32_t>& layer_assignations {layers_grid_3d.get_internal_array()};
+    for (int i = 0; i < instances.size(); ++i) {
+        if (IsometricPositionable* instance {instances[i]}) {
+            if (layer_assignations[i] != p_layer_id) continue;
+
+            instance->update_debug_mesh_color(p_color);
+        }
+    }
+}
+
 #endif
 
 void IsometricMap::_enter_tree() {
@@ -204,6 +220,14 @@ void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3&
         add_child(positionable);
 
         instances_grid_3d.insert_box({p_position, positionable->get_size()}, positionable);
+
+#ifdef TOOLS_ENABLED
+        if (!Engine::get_singleton()->is_editor_hint()) return;
+
+        positionable->update_debug_mesh_color(
+          get_meta(vformat(LAYER_COLOR_META_NAME_FORMAT, layer_id),Color())
+        );
+#endif
     }
 }
 

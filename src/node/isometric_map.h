@@ -16,6 +16,7 @@ namespace node {
 
 #ifdef TOOLS_ENABLED
         static constexpr const char* LAST_EDITED_LAYER_META_NAME = "_LAST_EDITED_LAYER";
+        static constexpr const char* LAYER_COLOR_META_NAME_FORMAT = "_LAYER_%s_COLOR";
 #endif
 
     private:
@@ -61,6 +62,7 @@ namespace node {
         uint32_t get_last_layer_id() const;
         void set_last_layer_id(uint32_t p_last_layer_id);
         void set_layer_visible(uint32_t p_layer_id, bool is_visible);
+        void set_layer_color(uint32_t p_layer_id, const Color& p_color);
 #endif
 
         IsometricMap();

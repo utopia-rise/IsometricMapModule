@@ -24,7 +24,7 @@ LayersEditor::LayersEditor() : layer_line_edit(nullptr), layer_controls_containe
     add_child(top_bar);
     ScrollContainer* scroll_container {memnew(ScrollContainer)};
     layer_controls_container = memnew(GridContainer);
-    layer_controls_container->set_columns(4);
+    layer_controls_container->set_columns(5);
     layer_controls_container->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     scroll_container->add_child(layer_controls_container);
     add_child(scroll_container);
@@ -55,10 +55,13 @@ void LayersEditor::refresh() {
         is_visible_label->set_text("visible");
         Label* layer_name_label {memnew(Label)};
         layer_name_label->set_text("Layer name");
+        Label* color_label {memnew(Label)};
+        color_label->set_text("Color");
         Label* remove_label {memnew(Label)};
         remove_label->set_text("Remove");
         layer_controls_container->add_child(is_current_layer_label);
         layer_controls_container->add_child(layer_name_label);
+        layer_controls_container->add_child(color_label);
         layer_controls_container->add_child(is_visible_label);
         layer_controls_container->add_child(remove_label);
 
@@ -82,6 +85,14 @@ void LayersEditor::refresh() {
             Label* current_layer_name_label {memnew(Label)};
             current_layer_name_label->set_text(layer_name);
             layer_controls_container->add_child(current_layer_name_label);
+            LayerColorPickerButton* color_picker_button {memnew(LayerColorPickerButton)};
+            color_picker_button->set_layer_id(layer_id);
+            const Variant& layer_color {
+              current_map->get_meta(vformat(node::IsometricMap::LAYER_COLOR_META_NAME_FORMAT, layer_id), Color())
+            };
+            color_picker_button->set_pick_color(layer_color);
+            current_map->set_layer_color(layer_id, layer_color);
+            layer_controls_container->add_child(color_picker_button);
             LayerVisibleCheckBox* visible_check_box {memnew(LayerVisibleCheckBox)};
             visible_check_box->set_layer_id(layer_id);
             layer_controls_container->add_child(visible_check_box);
@@ -260,5 +271,29 @@ CurrentLayerCheckBox::CurrentLayerCheckBox() : layer_id(node::IsometricMap::NO_L
 void CurrentLayerCheckBox::_bind_methods() {
 
 }
+
+///////////////////////////////// LayerColorPickerButton ////////////////////////////////////////////
+
+void LayerColorPickerButton::set_layer_id(const uint32_t p_layer_id) {
+    layer_id = p_layer_id;
+}
+
+void LayerColorPickerButton::on_color_changed(const Color& p_color) { // NOLINT(*-make-member-function-const)
+    if (node::IsometricMap* map{IsometricEditorPlugin::get_instance()->get_selected_map()}) {
+        map->set_layer_color(layer_id, p_color);
+    }
+}
+
+void LayerColorPickerButton::_notification(int notif) {
+    if (notif != NOTIFICATION_ENTER_TREE) {
+        return;
+    }
+
+    connect(SNAME("color_changed"), callable_mp(this, &LayerColorPickerButton::on_color_changed));
+}
+
+LayerColorPickerButton::LayerColorPickerButton() : layer_id(node::IsometricMap::NO_LAYER_ID) {}
+
+void LayerColorPickerButton::_bind_methods() {}
 
 #endif

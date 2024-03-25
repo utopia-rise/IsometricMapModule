@@ -4,6 +4,8 @@
 #include "editor/outline_data.h"
 #include "scene/2d/node_2d.h"
 #include "scene/3d/collision_object_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/resources/primitive_meshes.h"
 
 namespace node {
     class IsometricPositionable : public Node2D {
@@ -39,6 +41,12 @@ namespace node {
 #ifdef TOOLS_ENABLED
         bool debug_view = false;
         editor::OutlineData outline_data;
+
+        MeshInstance3D* debug_mesh_instance_3d;
+        Ref<BoxMesh> debug_mesh;
+        Ref<StandardMaterial3D> debug_mesh_material;
+
+        void _rebind_debug_mesh_instance() const;
 #endif
 
     protected:
@@ -57,7 +65,7 @@ namespace node {
 
     public:
         IsometricPositionable();
-        ~IsometricPositionable() override = default;
+        ~IsometricPositionable() override;
 
         Vector3 get_local_position_3d() const;
         void set_local_position_3d(Vector3 p_local);
@@ -79,6 +87,7 @@ namespace node {
         void set_debug_view(bool p_debug);
 
         editor::OutlineData& get_outline_data();
+        void update_debug_mesh_color(const Color& p_color) const;
 #endif
 
     protected:
