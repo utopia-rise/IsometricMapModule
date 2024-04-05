@@ -4,6 +4,7 @@
 #ifdef TOOLS_ENABLED
 #include "node/isometric_map.h"
 #include "scene/gui/color_picker.h"
+#include "scene/gui/dialogs.h"
 
 #include <scene/gui/box_container.h>
 #include <scene/gui/button.h>
@@ -13,6 +14,26 @@
 
 namespace editor {
     namespace inspector {
+        class RemoveLayerPopup : public ConfirmationDialog {
+            GDCLASS(RemoveLayerPopup, ConfirmationDialog)
+
+        public:
+            void set_layer_informations(uint32_t p_layer_id, const String& p_layer_name);
+
+            RemoveLayerPopup();
+
+        private:
+            Label* label;
+            String layer_name;
+            uint32_t layer_id;
+
+            void _remove_layer();
+
+        protected:
+            void _notification(int notif);
+            static void _bind_methods();
+        };
+
         class LayersEditor : public VBoxContainer {
             GDCLASS(LayersEditor, VBoxContainer)
 
@@ -25,6 +46,7 @@ namespace editor {
         private:
             LineEdit* layer_line_edit;
             GridContainer* layer_controls_container;
+            RemoveLayerPopup* remove_layer_popup;
             Ref<ButtonGroup> current_layer_button_group;
 
             void _add_layer();
@@ -56,14 +78,16 @@ namespace editor {
 
         public:
             void set_layer_informations(uint32_t p_layer_id, const String& p_layer_name);
+            void set_layer_remove_popup(RemoveLayerPopup* p_remove_layer_popup);
 
             LayerRemoveButton();
 
         private:
+            RemoveLayerPopup* remove_popup;
             String layer_name;
             uint32_t layer_id;
 
-            void _remove_layer();
+            void _on_remove_button();
 
         protected:
             static void _bind_methods();
@@ -104,8 +128,8 @@ namespace editor {
             void _notification(int notif);
             static void _bind_methods();
         };
-    }
-}
+    }// namespace inspector
+}// namespace editor
 
 #endif
-#endif //ISOMETRIC_MAPS_LAYERS_EDITOR_H
+#endif// ISOMETRIC_MAPS_LAYERS_EDITOR_H
