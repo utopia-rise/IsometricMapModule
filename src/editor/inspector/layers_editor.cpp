@@ -12,18 +12,18 @@ constexpr const char add_layer_action_name[] = "add_layer";
 constexpr const char remove_layer_action_name[] = "remove_layer";
 constexpr const char set_layer_visible_action_name[] = "set_layer_visible";
 
-LayersEditor::LayersEditor() : layer_line_edit(nullptr), layer_controls_container(nullptr) {
+constexpr const char layer_removed_signal[] = "layer_removed";
+
+LayersEditor::LayersEditor() {
     HBoxContainer* top_bar {memnew(HBoxContainer)};
-    layer_line_edit = memnew(LineEdit);
     layer_line_edit->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     Button* add_button {memnew(Button)};
     add_button->set_text("+");
     top_bar->add_child(layer_line_edit);
     top_bar->add_child(add_button);
-    add_button->connect(SNAME("pressed"), Callable(this, "_add_layer"));
+    add_button->connect(SNAME("pressed"), callable_mp(this, &LayersEditor::_add_layer));
     add_child(top_bar);
     ScrollContainer* scroll_container {memnew(ScrollContainer)};
-    layer_controls_container = memnew(GridContainer);
     layer_controls_container->set_columns(5);
     layer_controls_container->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     scroll_container->add_child(layer_controls_container);
@@ -38,6 +38,10 @@ LayersEditor::LayersEditor() : layer_line_edit(nullptr), layer_controls_containe
     scroll_container->set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
     set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
+
+    remove_layer_popup->set_exclusive(true);
+    remove_layer_popup->add_child(remove_layer_popup_label);
+    add_child(remove_layer_popup);
 }
 
 void LayersEditor::refresh() {
@@ -78,27 +82,40 @@ void LayersEditor::refresh() {
         for (int i = 0; i < layers.size(); ++i) {
             const String& layer_name {layer_names[i]};
             const uint32_t layer_id {ids[i]};
-            CurrentLayerCheckBox* current_layer_check_box {memnew(CurrentLayerCheckBox)};
-            current_layer_check_box->set_layer_id(layer_id);
+            CheckBox* current_layer_check_box {memnew(CheckBox)};
+            current_layer_check_box->connect(
+              SNAME("pressed"),
+              callable_mp(this, &LayersEditor::_set_current_layer).bind(layer_id)
+            );
             current_layer_check_box->set_button_group(current_layer_button_group);
             layer_controls_container->add_child(current_layer_check_box);
             Label* current_layer_name_label {memnew(Label)};
             current_layer_name_label->set_text(layer_name);
             layer_controls_container->add_child(current_layer_name_label);
-            LayerColorPickerButton* color_picker_button {memnew(LayerColorPickerButton)};
-            color_picker_button->set_layer_id(layer_id);
+            ColorPickerButton* color_picker_button {memnew(ColorPickerButton)};
+            color_picker_button->connect(
+              SNAME("color_changed"),
+              callable_mp(this, &LayersEditor::_layer_color_changed).bind(layer_id)
+            );
             const Variant& layer_color {
               current_map->get_meta(vformat(node::IsometricMap::LAYER_COLOR_META_NAME_FORMAT, layer_id), Color())
             };
             color_picker_button->set_pick_color(layer_color);
             current_map->set_layer_color(layer_id, layer_color);
             layer_controls_container->add_child(color_picker_button);
-            LayerVisibleCheckBox* visible_check_box {memnew(LayerVisibleCheckBox)};
-            visible_check_box->set_layer_id(layer_id);
+            CheckBox* visible_check_box {memnew(CheckBox)};
+            visible_check_box->set_pressed(true);
+            visible_check_box->connect(
+              SNAME("pressed"),
+              callable_mp(this, &LayersEditor::_set_layer_visible).bind(layer_id, visible_check_box)
+            );
             layer_controls_container->add_child(visible_check_box);
-            LayerRemoveButton* layer_remove_button {memnew(LayerRemoveButton)};
-            layer_remove_button->set_layer_informations(layer_id, layer_name);
-            layer_remove_button->connect(SNAME("pressed"), Callable(this, "refresh"));
+            Button* layer_remove_button {memnew(Button)};
+            layer_remove_button->set_text("-");
+            layer_remove_button->connect(
+              SNAME("pressed"),
+              callable_mp(this, &LayersEditor::_on_remove_layer_button).bind(layer_id, layer_name)
+            );
             layer_controls_container->add_child(layer_remove_button);
 
             current_layer_check_box->set_pressed(layer_id == last_layer_edited);
@@ -119,32 +136,30 @@ void LayersEditor::_add_layer() {
     refresh();
 }
 
-void LayersEditor::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_add_layer"), &LayersEditor::_add_layer);
-    ClassDB::bind_method(D_METHOD("refresh"), &LayersEditor::refresh);
-}
-
-uint32_t LayersEditor::get_selected_layer_id() const {
-    if (auto check_box {Object::cast_to<CurrentLayerCheckBox>(current_layer_button_group->get_pressed_button())}) {
-        return check_box->get_layer_id();
+void LayersEditor::_on_remove_layer_button(const uint32_t p_layer_id, const String& p_layer_name) {
+    remove_layer_popup_label->set_text(
+      vformat(
+        "You're going to remove layer %s.\n"
+        "This will remove all tiles included in layer from map.\n"
+        "Please confirm removal.",
+        p_layer_name
+      )
+    );
+    Callable callable {callable_mp(this, &LayersEditor::_remove_layer)};
+    if (remove_layer_popup->is_connected(SNAME("confirmed"), callable)) {
+        remove_layer_popup->disconnect(SNAME("confirmed"), callable);
     }
-
-    return node::IsometricMap::DEFAULT_LAYER_ID;
+    remove_layer_popup->connect(SNAME("confirmed"), callable.bind(p_layer_id, p_layer_name));
+    remove_layer_popup->popup_centered();
 }
 
-///////////////////////////////// LayerVisibleCheckBox ////////////////////////////////////////////
-
-void LayerVisibleCheckBox::set_layer_id(uint32_t p_layer_id) {
-    layer_id = p_layer_id;
-}
-
-void LayerVisibleCheckBox::_set_layer_visible() {
+void LayersEditor::_set_layer_visible(const uint32_t p_layer_id, CheckBox* p_check_box) { // NOLINT(*-convert-member-functions-to-static)
     Vector<Ref<commands::Command<node::IsometricMap>>> commands;
 
     Ref<commands::SetLayerVisibilityCommand> visibility_command;
     visibility_command.instantiate();
-    visibility_command->set_layer_id(layer_id);
-    visibility_command->set_visible(is_pressed());
+    visibility_command->set_layer_id(p_layer_id);
+    visibility_command->set_visible(p_check_box->is_pressed());
 
     commands.push_back(visibility_command);
 
@@ -155,36 +170,19 @@ void LayerVisibleCheckBox::_set_layer_visible() {
     );
 }
 
-void LayerVisibleCheckBox::_notification(int notif) {
-    if (notif != NOTIFICATION_ENTER_TREE) {
-        return;
+void LayersEditor::_set_current_layer(uint32_t p_layer_id) { // NOLINT(*-convert-member-functions-to-static)
+    if (node::IsometricMap* current_map{IsometricEditorPlugin::get_instance()->get_selected_map()}) {
+        current_map->set_meta(node::IsometricMap::LAST_EDITED_LAYER_META_NAME,p_layer_id);
     }
-
-    set_pressed(true);
-
-    connect(SNAME("pressed"), Callable(this, "_set_layer_visible"));
 }
 
-LayerVisibleCheckBox::LayerVisibleCheckBox() : layer_id(node::IsometricMap::NO_LAYER_ID) {
-
+void LayersEditor::_layer_color_changed(const Color& p_color, uint32_t p_layer_id) { // NOLINT(*-convert-member-functions-to-static)
+    if (node::IsometricMap* map{IsometricEditorPlugin::get_instance()->get_selected_map()}) {
+        map->set_layer_color(p_layer_id, p_color);
+    }
 }
 
-void LayerVisibleCheckBox::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_set_layer_visible"), &LayerVisibleCheckBox::_set_layer_visible);
-}
-
-///////////////////////////////// LayerRemoveButton ////////////////////////////////////////////
-
-void LayerRemoveButton::set_layer_informations(uint32_t p_layer_id, const String& p_layer_name) {
-    layer_id = p_layer_id;
-    layer_name = p_layer_name;
-
-    connect(SNAME("pressed"), Callable(this, "_remove_layer"));
-
-    set_text("-");
-}
-
-void LayerRemoveButton::_remove_layer() {
+void LayersEditor::_remove_layer(uint32_t p_layer_id, const String& p_layer_name) {
     if (node::IsometricMap* current_map = IsometricEditorPlugin::get_instance()->get_selected_map()) {
         Vector<Ref<commands::Command<node::IsometricMap>>> commands;
 
@@ -192,34 +190,36 @@ void LayerRemoveButton::_remove_layer() {
         for (int x = 0; x < static_cast<int>(map_size.x); ++x) {
             for (int y = 0; y < static_cast<int>(map_size.y); ++y) {
                 for (int z = 0; z < static_cast<int>(map_size.z); ++z) {
-                    Vector3i position {x, y, z};
-                    uint32_t layer_id_at_position {current_map->get_layer_id_at(position)};
+                    Vector3i position_in_map {x, y, z};
+                    uint32_t layer_id_at_position {current_map->get_layer_id_at(position_in_map)};
 
-                    if (layer_id_at_position != layer_id) {
+                    if (layer_id_at_position != p_layer_id) {
                         continue;
                     }
 
-                    Vector3 current_positionable_size {current_map->get_positionable_at(position)->get_size()};
+                    if (node::IsometricPositionable* positionable {current_map->get_positionable_at(position_in_map)}) {
+                        Vector3 current_positionable_size {positionable->get_size()};
 
-                    Ref<commands::AddPositionableCommand> add_command;
-                    add_command.instantiate();
-                    add_command->set_aabb({position, current_positionable_size});
-                    add_command->set_positionable_id(current_map->get_positionable_id_for_position(position));
-                    add_command->set_layer_id(layer_id_at_position);
+                        Ref<commands::AddPositionableCommand> add_command;
+                        add_command.instantiate();
+                        add_command->set_aabb({position_in_map, current_positionable_size});
+                        add_command->set_positionable_id(current_map->get_positionable_id_for_position(position_in_map));
+                        add_command->set_layer_id(layer_id_at_position);
 
-                    Ref<commands::RevertCommand<node::IsometricMap>> delete_command;
-                    delete_command.instantiate();
-                    delete_command->set_reverse_command(add_command);
+                        Ref<commands::RevertCommand<node::IsometricMap>> delete_command;
+                        delete_command.instantiate();
+                        delete_command->set_reverse_command(add_command);
 
-                    commands.push_back(delete_command);
+                        commands.push_back(delete_command);
+                    }
                 }
             }
         }
 
         Ref<commands::AddLayerCommand> add_layer_command;
         add_layer_command.instantiate();
-        add_layer_command->set_layer_id(layer_id);
-        add_layer_command->set_layer_name(layer_name);
+        add_layer_command->set_layer_id(p_layer_id);
+        add_layer_command->set_layer_name(p_layer_name);
 
         Ref<commands::RevertCommand<node::IsometricMap>> remove_layer_command;
         remove_layer_command.instantiate();
@@ -229,71 +229,21 @@ void LayerRemoveButton::_remove_layer() {
 
         commands::emitters::CommandToActionTransformer action_transformer;
         action_transformer.transform<node::IsometricMap, remove_layer_action_name>(commands, current_map);
+
+        emit_signal(layer_removed_signal);
     }
 }
 
-LayerRemoveButton::LayerRemoveButton() : layer_id(node::IsometricMap::NO_LAYER_ID) {
-
-}
-
-void LayerRemoveButton::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_remove_layer"), &LayerRemoveButton::_remove_layer);
-}
-
-///////////////////////////////// CurrentLayerCheckBox ////////////////////////////////////////////
-
-uint32_t CurrentLayerCheckBox::get_layer_id() const {
-    return layer_id;
-}
-
-void CurrentLayerCheckBox::set_layer_id(uint32_t p_layer_id) {
-    layer_id = p_layer_id;
-}
-
-void CurrentLayerCheckBox::on_pressed() { // NOLINT(*-make-member-function-const)
-    if (node::IsometricMap* current_map{IsometricEditorPlugin::get_instance()->get_selected_map()}) {
-        current_map->set_meta(node::IsometricMap::LAST_EDITED_LAYER_META_NAME,layer_id);
-    }
-}
-
-void CurrentLayerCheckBox::_notification(int notif) {
-    if (notif != NOTIFICATION_ENTER_TREE) {
+void LayersEditor::_notification(int notif) {
+    if (notif != NOTIFICATION_POSTINITIALIZE) {
         return;
     }
 
-    connect(SNAME("pressed"), callable_mp(this, &CurrentLayerCheckBox::on_pressed));
+    connect(layer_removed_signal, callable_mp(this, &LayersEditor::refresh));
 }
 
-CurrentLayerCheckBox::CurrentLayerCheckBox() : layer_id(node::IsometricMap::NO_LAYER_ID) {
-
+void LayersEditor::_bind_methods() {
+    ADD_SIGNAL(MethodInfo(layer_removed_signal));
 }
-
-void CurrentLayerCheckBox::_bind_methods() {
-
-}
-
-///////////////////////////////// LayerColorPickerButton ////////////////////////////////////////////
-
-void LayerColorPickerButton::set_layer_id(const uint32_t p_layer_id) {
-    layer_id = p_layer_id;
-}
-
-void LayerColorPickerButton::on_color_changed(const Color& p_color) { // NOLINT(*-make-member-function-const)
-    if (node::IsometricMap* map{IsometricEditorPlugin::get_instance()->get_selected_map()}) {
-        map->set_layer_color(layer_id, p_color);
-    }
-}
-
-void LayerColorPickerButton::_notification(int notif) {
-    if (notif != NOTIFICATION_ENTER_TREE) {
-        return;
-    }
-
-    connect(SNAME("color_changed"), callable_mp(this, &LayerColorPickerButton::on_color_changed));
-}
-
-LayerColorPickerButton::LayerColorPickerButton() : layer_id(node::IsometricMap::NO_LAYER_ID) {}
-
-void LayerColorPickerButton::_bind_methods() {}
 
 #endif
