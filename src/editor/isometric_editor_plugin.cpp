@@ -285,11 +285,11 @@ bool IsometricEditorPlugin::is_aabb_in_view_limiters(const AABB& p_aabb) const {
 }
 
 uint32_t IsometricEditorPlugin::get_selected_layer() const {
-    if (!layers_editor->get_parent()) {
-        return node::IsometricMap::DEFAULT_LAYER_ID;
+    if (selected_map) {
+        return selected_map->get_meta(node::IsometricMap::LAST_EDITED_LAYER_META_NAME, node::IsometricMap::DEFAULT_LAYER_ID);
     }
 
-    return layers_editor->get_selected_layer_id();
+    return node::IsometricMap::DEFAULT_LAYER_ID;
 }
 
 IsometricEditorPlugin::MapHandlingData::MapHandlingData() :

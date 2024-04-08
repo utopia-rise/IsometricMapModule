@@ -58,9 +58,6 @@ void initialize_isometric_maps_module(ModuleInitializationLevel p_level) {
         ClassDB::register_class<editor::inspector::PositionableSelectionPane>();
         ClassDB::register_class<editor::inspector::PositionableSetEditor>();
         ClassDB::register_class<editor::inspector::LayersEditor>();
-        ClassDB::register_class<editor::inspector::LayerVisibleCheckBox>();
-        ClassDB::register_class<editor::inspector::LayerRemoveButton>();
-        ClassDB::register_class<editor::inspector::CurrentLayerCheckBox>();
     }
 #endif
 }
