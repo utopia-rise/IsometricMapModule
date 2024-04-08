@@ -35,10 +35,6 @@ namespace editor {
             void _set_current_layer(uint32_t p_layer_id);
             void _layer_color_changed(const Color& p_color, uint32_t p_layer_id);
             void _remove_layer(uint32_t p_layer_id, const String& p_layer_name);
-
-        protected:
-            void _notification(int notif);
-            static void _bind_methods();
         };
     }// namespace inspector
 }// namespace editor

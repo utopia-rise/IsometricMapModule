@@ -9,6 +9,7 @@ void SetPositionableVisibilityCommand::redo() {
     if (node::IsometricPositionable * positionable {context_node->get_positionable_at(position)}) {
         positionable->set_visible(!positionable->is_visible());
     }
+    Command<node::IsometricMap>::redo();
 }
 
 void SetPositionableVisibilityCommand::undo() {

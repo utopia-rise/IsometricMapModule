@@ -28,6 +28,7 @@ namespace editor {
             for (int i = 0; i < commands.size(); ++i) {
                 commands.get(i)->redo();
             }
+            Command<TContextNode>::redo();
         }
 
         template<class TContextNode>
@@ -35,6 +36,7 @@ namespace editor {
             for (int i = commands.size() - 1; i >= 0; --i) {
                 commands.get(i)->undo();
             }
+            Command<TContextNode>::undo();
         }
 
         template<class TContextNode>

@@ -7,15 +7,17 @@
 using namespace editor::commands;
 
 void AddLayerCommand::redo() {
-    context_node->add_layer(layer_name, layer_id);
+    layer_id = context_node->add_layer(layer_name, layer_id);
+    Command<node::IsometricMap>::redo();
 }
 
 void AddLayerCommand::undo() {
     if (layer_id == node::IsometricMap::NO_LAYER_ID) {
         context_node->remove_layer(layer_name);
-        return;
+    } else {
+        context_node->remove_layer(layer_id);
     }
-    context_node->remove_layer(layer_id);
+    Command<node::IsometricMap>::undo();
 }
 
 void AddLayerCommand::set_layer_id(uint32_t p_layer_id) {

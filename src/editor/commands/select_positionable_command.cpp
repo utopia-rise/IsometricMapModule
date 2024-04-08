@@ -17,6 +17,8 @@ void SelectPositionableCommand::redo() {
     } else {
         editor::PositionableSelectorManager::get_instance().select_positionable_at(context_node, positionable);
     }
+
+    Command<node::IsometricMap>::redo();
 }
 
 void SelectPositionableCommand::undo() {
@@ -30,6 +32,8 @@ void SelectPositionableCommand::undo() {
     if (should_deselect_first) {
         editor::PositionableSelectorManager::get_instance().set_selected_for_map(context_node, selected_cache);
     }
+
+    Command<node::IsometricMap>::undo();
 }
 
 void SelectPositionableCommand::set_position(const Vector3& p_position) {

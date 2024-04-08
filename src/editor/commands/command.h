@@ -8,6 +8,8 @@
 #include "editor/editor_undo_redo_manager.h"
 #include "scene/main/node.h"
 
+constexpr const char* undo_or_redo_triggered { "undo_or_redo_triggered" };
+
 namespace editor {
     namespace commands {
 
@@ -21,15 +23,31 @@ namespace editor {
             static void _bind_methods();
 
         public:
-            virtual void redo() = 0;
-            virtual void undo() = 0;
+            virtual void redo();
+            virtual void undo();
             virtual void set_context_node(TContextNode* p_context_node);
+            void add_hook(const Callable& p_hook);
 
             void append_to_undoredo();
 
             Command();
             ~Command() override = default;
+
+        private:
+            Vector<Callable> hooks;
+
+            void _execute_hooks() const;
         };
+
+        template<class TContextNode>
+        void Command<TContextNode>::redo() {
+            _execute_hooks();
+        }
+
+        template<class TContextNode>
+        void Command<TContextNode>::undo() {
+            _execute_hooks();
+        }
 
         template<class TContextNode>
         void Command<TContextNode>::append_to_undoredo() {
@@ -40,6 +58,18 @@ namespace editor {
         template<class TContextNode>
         void Command<TContextNode>::set_context_node(TContextNode* p_context_node) {
             context_node = p_context_node;
+        }
+
+        template<class TContextNode>
+        void Command<TContextNode>::add_hook(const Callable& p_hook) {
+            hooks.append(p_hook);
+        }
+
+        template<class TContextNode>
+        void Command<TContextNode>::_execute_hooks() const {
+            for (const Callable& hook : hooks) {
+                hook.call();
+            }
         }
 
         template<class TContextNode>

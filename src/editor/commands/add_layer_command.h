@@ -21,8 +21,8 @@ namespace editor {
             ~AddLayerCommand() override = default;
 
         private:
-            uint32_t layer_id;
             String layer_name;
+            uint32_t layer_id;
         };
     }
 }
