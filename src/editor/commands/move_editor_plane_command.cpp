@@ -12,12 +12,14 @@ void MoveEditorPlaneCommand::redo() {
     IsometricEditorPlugin* isometric_editor_plugin = IsometricEditorPlugin::get_instance();
     isometric_editor_plugin->get_editor_plane_for_map(context_node, plane_type).set_position(new_position);
     isometric_editor_plugin->refresh(plane_type);
+    Command<node::IsometricMap>::redo();
 }
 
 void MoveEditorPlaneCommand::undo() {
     IsometricEditorPlugin* isometric_editor_plugin = IsometricEditorPlugin::get_instance();
     isometric_editor_plugin->get_editor_plane_for_map(context_node, plane_type).set_position(old_position);
     isometric_editor_plugin->refresh(plane_type);
+    Command<node::IsometricMap>::undo();
 }
 
 void MoveEditorPlaneCommand::set_new_position(int p_new_position) {

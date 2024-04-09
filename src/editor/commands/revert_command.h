@@ -26,11 +26,13 @@ namespace editor {
         template<class TContextNode>
         void RevertCommand<TContextNode>::redo() {
             reverse_command->undo();
+            Command<TContextNode>::redo();
         }
 
         template<class TContextNode>
         void RevertCommand<TContextNode>::undo() {
             reverse_command->redo();
+            Command<TContextNode>::undo();
         }
 
         template<class TContextNode>

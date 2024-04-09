@@ -8,10 +8,12 @@ using namespace editor::commands;
 
 void RotateEditorPlaneCommand::redo() {
     set_axis_and_position(new_axis, 0);
+    Command<node::IsometricMap>::redo();
 }
 
 void RotateEditorPlaneCommand::undo() {
     set_axis_and_position(former_axis, former_position);
+    Command<node::IsometricMap>::undo();
 }
 
 void RotateEditorPlaneCommand::set_new_axis(Vector3::Axis p_axis) {

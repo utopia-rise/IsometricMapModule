@@ -11,10 +11,12 @@ void AddPositionableCommand::redo() {
             positionable_id,
             layer_id
     );
+    Command<node::IsometricMap>::redo();
 }
 
 void AddPositionableCommand::undo() {
     context_node->remove_positionable(aabb);
+    Command<node::IsometricMap>::undo();
 }
 
 void AddPositionableCommand::set_aabb(const AABB& p_aabb) {

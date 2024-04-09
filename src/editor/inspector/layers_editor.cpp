@@ -12,8 +12,6 @@ constexpr const char add_layer_action_name[] = "add_layer";
 constexpr const char remove_layer_action_name[] = "remove_layer";
 constexpr const char set_layer_visible_action_name[] = "set_layer_visible";
 
-constexpr const char layer_removed_signal[] = "layer_removed";
-
 LayersEditor::LayersEditor() {
     HBoxContainer* top_bar {memnew(HBoxContainer)};
     layer_line_edit->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
@@ -128,12 +126,13 @@ void LayersEditor::_add_layer() {
     Ref<commands::AddLayerCommand> add_layer_command;
     add_layer_command.instantiate();
     add_layer_command->set_layer_name(layer_line_edit->get_text());
+
+    add_layer_command->add_hook(callable_mp(this, &LayersEditor::refresh));
+
     commands.push_back(add_layer_command);
 
     commands::emitters::CommandToActionTransformer action_transformer;
     action_transformer.transform<node::IsometricMap, add_layer_action_name>(commands, IsometricEditorPlugin::get_instance()->get_selected_map());
-
-    refresh();
 }
 
 void LayersEditor::_on_remove_layer_button(const uint32_t p_layer_id, const String& p_layer_name) {
@@ -225,25 +224,13 @@ void LayersEditor::_remove_layer(uint32_t p_layer_id, const String& p_layer_name
         remove_layer_command.instantiate();
         remove_layer_command->set_reverse_command(add_layer_command);
 
+        remove_layer_command->add_hook(callable_mp(this, &LayersEditor::refresh));
+
         commands.push_back(remove_layer_command);
 
         commands::emitters::CommandToActionTransformer action_transformer;
         action_transformer.transform<node::IsometricMap, remove_layer_action_name>(commands, current_map);
-
-        emit_signal(layer_removed_signal);
     }
-}
-
-void LayersEditor::_notification(int notif) {
-    if (notif != NOTIFICATION_POSTINITIALIZE) {
-        return;
-    }
-
-    connect(layer_removed_signal, callable_mp(this, &LayersEditor::refresh));
-}
-
-void LayersEditor::_bind_methods() {
-    ADD_SIGNAL(MethodInfo(layer_removed_signal));
 }
 
 #endif
