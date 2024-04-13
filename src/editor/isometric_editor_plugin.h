@@ -9,16 +9,17 @@
 #include "editor/commands/emitters/drag_and_drop_command_emitter.h"
 #include "editor/commands/emitters/move_editor_grid_command_emitter.h"
 #include "editor/commands/emitters/move_editor_view_limiter_command_emitter.h"
+#include "editor/commands/emitters/move_selection_command_emitter.h"
 #include "editor/commands/emitters/painting_command_emitter.h"
 #include "editor/commands/emitters/rotate_editor_plane_command_emitter.h"
 #include "editor/commands/emitters/select_all_command_emitter.h"
 #include "editor/commands/emitters/select_command_emitter.h"
 #include "editor/editor_undo_redo_manager.h"
+#include "editor/inspector/layers_editor.h"
 #include "editor/inspector/positionable_selection_pane.h"
 #include "editor_plane.h"
 #include "node/isometric_map.h"
 #include "scene/gui/color_picker.h"
-#include "editor/inspector/layers_editor.h"
 
 #include <editor/editor_node.h>
 #include <editor/editor_plugin.h>
@@ -102,6 +103,7 @@ namespace editor {
         commands::emitters::SelectCommandEmitter select_command_emitter;
         commands::emitters::SelectAllCommandEmitter select_all_command_emitter;
         commands::emitters::DeleteCommandEmitter delete_command_emitter;
+        commands::emitters::MoveSelectionCommandEmitter move_selection_command_emitter;
         commands::emitters::DragAndDropCommandEmitter drag_and_drop_command_emitter;
         commands::emitters::MoveEditorGridCommandEmitter move_editor_drawer_command_emitter;
         commands::emitters::RotateEditorPlaneCommandEmitter rotate_editor_plane_command_emitter;

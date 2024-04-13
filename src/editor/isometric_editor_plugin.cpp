@@ -8,10 +8,6 @@
 #include "outline_drawer.h"
 #include "positionable_scenes_cache_manager.h"
 #include "positionable_selector_manager.h"
-#include "editor/inspector/layers_editor.h"
-
-#include <core/os/keyboard.h>
-#include <scene/main/viewport.h>
 
 using namespace editor;
 
@@ -41,6 +37,7 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
   select_command_emitter(),
   select_all_command_emitter(),
   delete_command_emitter(),
+  move_selection_command_emitter(),
   move_editor_drawer_command_emitter(),
   rotate_editor_plane_command_emitter(),
   layers_editor()
@@ -220,6 +217,7 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
             select_command_emitter.on_gui_input(p_event, selected_map);
             select_all_command_emitter.on_gui_input(p_event, selected_map);
             delete_command_emitter.on_gui_input(p_event, selected_map);
+            move_selection_command_emitter.on_gui_input(p_event, selected_map);
             break;
         case PAINT:
             painting_command_emitter.on_gui_input(p_event, selected_map);
@@ -259,7 +257,7 @@ node::IsometricMap* IsometricEditorPlugin::get_selected_map() const {
 }
 
 EditorPlane& IsometricEditorPlugin::get_editor_plane_for_map(node::IsometricMap* p_map, EditorPlane::PlaneType p_plane_type) {
-    return handling_data_map[p_map].editor_planes[p_plane_type];;
+    return handling_data_map[p_map].editor_planes[p_plane_type];
 }
 
 bool IsometricEditorPlugin::is_aabb_in_view_limiters(const AABB& p_aabb) const {
