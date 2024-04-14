@@ -104,44 +104,48 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
         for (const KeyValue<Vector3, node::IsometricPositionable*>& keyValuePair : current_preview_nodes) {
             Vector3 initial_position { keyValuePair.key };
             node::IsometricPositionable* positionable {keyValuePair.value};
-            
-            Ref<editor::commands::SelectPositionableCommand> to_revert_select_command;
-            to_revert_select_command.instantiate();
-            to_revert_select_command->set_position(initial_position);
+
+            Ref<editor::commands::SelectPositionableCommand> select_command;
+            select_command.instantiate();
+            select_command->set_position(initial_position);
             Ref<editor::commands::RevertCommand<node::IsometricMap>> deselect_command;
             deselect_command.instantiate();
-            deselect_command->set_reverse_command(to_revert_select_command);
+            deselect_command->set_reverse_command(select_command);
             commands.push_back(deselect_command);
-            
-            Ref<editor::commands::AddPositionableCommand> to_revert_add_command;
-            to_revert_add_command.instantiate();
+
+            Ref<editor::commands::AddPositionableCommand> add_command;
+            add_command.instantiate();
             Vector3 positionable_size { positionable->get_size() };
-            int positionable_id { map->get_positionable_id_for_position(initial_position) };
-            uint32_t layer_id { initial_layer_ids[initial_position] };
-            to_revert_add_command->set_aabb({initial_position, positionable_size});
-            to_revert_add_command->set_positionable_id(positionable_id);
-            to_revert_add_command->set_layer_id(layer_id);
+            add_command->set_aabb({initial_position, positionable_size});
+            add_command->set_positionable_id(map->get_positionable_id_for_position(initial_position));
+            add_command->set_layer_id(initial_layer_ids[initial_position]);
             Ref<editor::commands::RevertCommand<node::IsometricMap>> remove_command;
             remove_command.instantiate();
-            remove_command->set_reverse_command(to_revert_add_command);
+            remove_command->set_reverse_command(add_command);
             commands.push_back(remove_command);
+        }
+        
+        for (const KeyValue<Vector3, node::IsometricPositionable*>& keyValuePair : current_preview_nodes) {
+            Vector3 initial_position { keyValuePair.key };
+            node::IsometricPositionable* positionable {keyValuePair.value};
             
-            map->remove_child(positionable);
-            memdelete(positionable);
-
             Vector3 new_position {positionable->get_local_position_3d()};
+            Vector3 positionable_size { positionable->get_size() };
 
             Ref<editor::commands::AddPositionableCommand> add_command;
             add_command.instantiate();
             add_command->set_aabb({new_position, positionable_size});
-            add_command->set_positionable_id(positionable_id);
-            add_command->set_layer_id(layer_id);
+            add_command->set_positionable_id(map->get_positionable_id_for_position(initial_position));
+            add_command->set_layer_id(initial_layer_ids[initial_position]);
             commands.push_back(add_command);
             
             Ref<editor::commands::SelectPositionableCommand> select_command;
             select_command.instantiate();
             select_command->set_position(new_position);
             commands.push_back(select_command);
+
+            map->remove_child(positionable);
+            memdelete(positionable);
         }
         current_preview_nodes.clear();
         
