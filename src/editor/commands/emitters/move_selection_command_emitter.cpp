@@ -89,7 +89,7 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
             node::IsometricPositionable* positionable {keyValuePair.value};
             Vector3 new_position { keyValuePair.key + position_delta };
 
-            if (map->get_positionable_at(new_position) ||
+            if ((map->get_positionable_at(new_position) && !current_preview_nodes.has(new_position)) ||
                 !map->is_aabb_in_map({new_position, positionable->get_size()})) {
                 positionable->set_editor_modulate(CONFLICT_MODULATE_COLOR);
                 is_move_valid = false;
