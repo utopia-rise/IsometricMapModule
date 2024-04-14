@@ -102,11 +102,19 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
 
     } else if (is_activated && is_move_valid) {
         for (const KeyValue<Vector3, node::IsometricPositionable*>& keyValuePair : current_preview_nodes) {
+            Vector3 initial_position { keyValuePair.key };
             node::IsometricPositionable* positionable {keyValuePair.value};
+            
+            Ref<editor::commands::SelectPositionableCommand> to_revert_select_command;
+            to_revert_select_command.instantiate();
+            to_revert_select_command->set_position(initial_position);
+            Ref<editor::commands::RevertCommand<node::IsometricMap>> deselect_command;
+            deselect_command.instantiate();
+            deselect_command->set_reverse_command(to_revert_select_command);
+            commands.push_back(deselect_command);
             
             Ref<editor::commands::AddPositionableCommand> to_revert_add_command;
             to_revert_add_command.instantiate();
-            Vector3 initial_position { keyValuePair.key };
             Vector3 positionable_size { positionable->get_size() };
             int positionable_id { map->get_positionable_id_for_position(initial_position) };
             uint32_t layer_id { initial_layer_ids[initial_position] };
@@ -120,13 +128,20 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
             
             map->remove_child(positionable);
             memdelete(positionable);
-            
+
+            Vector3 new_position {positionable->get_local_position_3d()};
+
             Ref<editor::commands::AddPositionableCommand> add_command;
             add_command.instantiate();
-            add_command->set_aabb({positionable->get_local_position_3d(), positionable_size});
+            add_command->set_aabb({new_position, positionable_size});
             add_command->set_positionable_id(positionable_id);
             add_command->set_layer_id(layer_id);
             commands.push_back(add_command);
+            
+            Ref<editor::commands::SelectPositionableCommand> select_command;
+            select_command.instantiate();
+            select_command->set_position(new_position);
+            commands.push_back(select_command);
         }
         current_preview_nodes.clear();
         

@@ -13,8 +13,8 @@ namespace editor {
         namespace emitters {
             static constexpr const char move_selection_action_name[]{"Move positionables"};
 
-            class MoveSelectionCommandEmitter : public CommandEmitter<MoveSelectionCommandEmitter, InputEventMouse, node::IsometricMap, move_selection_action_name> {
-                friend class CommandEmitter<MoveSelectionCommandEmitter, InputEventMouse, node::IsometricMap, move_selection_action_name>;
+            class MoveSelectionCommandEmitter : public CommandEmitter<MoveSelectionCommandEmitter, InputEventMouse, node::IsometricMap, move_selection_action_name, UndoRedo::MERGE_DISABLE, true> {
+                friend class CommandEmitter<MoveSelectionCommandEmitter, InputEventMouse, node::IsometricMap, move_selection_action_name, UndoRedo::MERGE_DISABLE, true>;
 
             private:
                 Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event);
