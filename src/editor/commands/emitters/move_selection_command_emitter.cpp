@@ -16,7 +16,9 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
 
     node::IsometricMap* map {IsometricEditorPlugin::get_instance()->get_selected_map()};
 
-    if (!p_event->is_shift_pressed()) {
+    bool is_activated {initial_mouse_position != Vector3(-1, -1, -1)};
+
+    if (p_event->get_button_mask().has_flag(MouseButtonMask::RIGHT) || (!p_event->is_shift_pressed() && !is_activated)) {
         for (const KeyValue<Vector3, node::IsometricPositionable*>& keyValuePair : current_preview_nodes) {
             node::IsometricPositionable* positionable {keyValuePair.value};
             map->remove_child(positionable);
@@ -52,8 +54,6 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
         static_cast<float>(editor_plane.get_position())
       )
     };
-
-    bool is_activated {initial_mouse_position != Vector3(-1, -1, -1)};
 
     if (Input::get_singleton()->is_mouse_button_pressed(MouseButton::LEFT)) {
         is_move_valid = true;
