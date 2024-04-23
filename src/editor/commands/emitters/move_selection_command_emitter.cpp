@@ -1,3 +1,5 @@
+#ifdef TOOLS_ENABLED
+
 #include "move_selection_command_emitter.h"
 
 #include "editor/commands/revert_command.h"
@@ -155,3 +157,5 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
 
     return commands;
 }
+
+#endif
