@@ -98,4 +98,4 @@ file(GLOB_RECURSE HEADERS src/*.h**)
 include_directories(./src/)
 include_directories(${GODOT_ROOT_DIR})
 
-add_executable(${PROJECT_NAME} register_types.h register_types.cpp ${SOURCES} ${HEADERS} src/isometric_string_names.h src/isometric_string_names.cpp)
+add_executable(${PROJECT_NAME} register_types.h register_types.cpp ${SOURCES} ${HEADERS})

@@ -12,21 +12,24 @@ namespace data {
     struct IsometricElement {
         ////////Set by API calls (main thread)//////
         IsometricSpace* space = nullptr;
-        bool is_dynamic = false;
         RID visual_rid = RID();
-
-        //////Set by commands (isometric server thread)///////
-        AABB aabb = AABB(Vector3(0., 0., 0.), Vector3(1., 1., 1.));
-
         int depth = 1;
-        int z_order = 0;
+        bool is_dynamic = false;
+        bool dirty = true;
+        bool in_stack = false;
+        bool is_invalid = false;
 
         LocalVector<IsometricElement*> behind_statics;
         LocalVector<IsometricElement*> behind_dynamics;
 
-        bool dirty = true;
-        bool in_stack = false;
-        bool is_invalid = false;
+        //////Set by commands (isometric server thread)///////
+        AABB aabb = AABB(Vector3(0., 0., 0.), Vector3(1., 1., 1.));
+
+        int z_order = 0;
+
+#ifdef TOOLS_ENABLED
+        Color editor_modulate = Color(1, 1, 1);
+#endif
     };
 }// namespace data
 #endif// ISOMETRIC_MAPS_ISOMETRIC_ELEMENT_H

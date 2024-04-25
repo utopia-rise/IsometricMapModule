@@ -406,7 +406,14 @@ void IsometricServer::command_update_visual_server() {
             if (is_debug && static_element->is_invalid) {
                 RenderingServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.5, 0.5));
             } else {
-                RenderingServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 1., 1.));
+                RenderingServer::get_singleton()->canvas_item_set_modulate(
+                  visual_rid,
+#ifdef TOOLS_ENABLED
+                  static_element->editor_modulate
+#else
+                  Color(1., 1., 1.)
+#endif
+                );
             }
         }
         for (IsometricElement* dynamic_element : world->dynamic_elements) {
@@ -416,7 +423,14 @@ void IsometricServer::command_update_visual_server() {
             if (is_debug && dynamic_element->is_invalid) {
                 RenderingServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 0.5, 0.5));
             } else {
-                RenderingServer::get_singleton()->canvas_item_set_modulate(visual_rid, Color(1., 1., 1.));
+                RenderingServer::get_singleton()->canvas_item_set_modulate(
+                  visual_rid,
+#ifdef TOOLS_ENABLED
+                  dynamic_element->editor_modulate
+#else
+                  Color(1., 1., 1.)
+#endif
+                );
             }
         }
 
@@ -434,6 +448,18 @@ void IsometricServer::command_set_debug(bool p_debug) {
 void IsometricServer::command_stop_server() {
     exit_thread = true;
 }
+
+#ifdef TOOLS_ENABLED
+void IsometricServer::isometric_element_set_editor_modulate(const RID element_rid, const Color color) {
+    GET_ELEMENT_RID_DATA(element, element_rid);
+    command_queue.push(this, &IsometricServer::command_set_editor_modulate, element, color);
+}
+
+void IsometricServer::command_set_editor_modulate(data::IsometricElement* element, const Color color) {
+    if (IsometricSpace* space {element->space}) { space->dirty = true; }
+    element->editor_modulate = color;
+}
+#endif
 
 ///////BINDING//////
 

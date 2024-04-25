@@ -11,7 +11,11 @@ using namespace editor::commands::emitters;
 Vector<Ref<editor::commands::Command<node::IsometricMap>>> SelectCommandEmitter::from_gui_input_to_command_impl(Ref<InputEventMouse> p_event) {// NOLINT(performance-unnecessary-value-param)
     Vector<Ref<Command<node::IsometricMap>>> commands;
 
-    if (!p_event->is_pressed()) { return commands; }
+    if (!p_event->is_pressed() ||
+        !p_event->get_button_mask().has_flag(MouseButtonMask::LEFT) ||
+        p_event->is_shift_pressed()) {
+        return commands;
+    }
 
     IsometricEditorPlugin* isometric_editor_plugin {IsometricEditorPlugin::get_instance()};
     node::IsometricMap* map {isometric_editor_plugin->get_selected_map()};

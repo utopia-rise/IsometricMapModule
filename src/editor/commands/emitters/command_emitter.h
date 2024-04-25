@@ -12,7 +12,7 @@ namespace editor {
     namespace commands {
         namespace emitters {
 
-            template<class Derived, class Evt, class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode = UndoRedo::MERGE_DISABLE>
+            template<class Derived, class Evt, class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode = UndoRedo::MERGE_DISABLE, bool backward_undo_ops = false>
             class CommandEmitter {
             public:
                 void on_gui_input(const Ref<InputEvent>& p_event, TContextNode* p_context = nullptr);
@@ -24,8 +24,8 @@ namespace editor {
                 Vector<Ref<Command<TContextNode>>> from_gui_input_to_command(Ref<Evt> p_event);
             };
 
-            template<class Derived, class Evt, class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode>
-            void CommandEmitter<Derived, Evt, TContextNode, action_title, merge_mode>::on_gui_input(const Ref<InputEvent>& p_event, TContextNode* p_context) {
+            template<class Derived, class Evt, class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode, bool backward_undo_ops>
+            void CommandEmitter<Derived, Evt, TContextNode, action_title, merge_mode, backward_undo_ops>::on_gui_input(const Ref<InputEvent>& p_event, TContextNode* p_context) {
                 Ref<Evt> event {p_event};
 
                 if (event.is_null()) {
@@ -33,14 +33,14 @@ namespace editor {
                 }
 
                 CommandToActionTransformer action_transformer;
-                action_transformer.transform<TContextNode, action_title, merge_mode>(
+                action_transformer.transform<TContextNode, action_title, merge_mode, backward_undo_ops>(
                   from_gui_input_to_command(event),
                   p_context
                 );
             }
 
-            template<class Derived, class Evt, class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode>
-            Vector<Ref<Command<TContextNode>>> CommandEmitter<Derived, Evt, TContextNode, action_title, merge_mode>::from_gui_input_to_command(Ref<Evt> p_event) {
+            template<class Derived, class Evt, class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode, bool backward_undo_ops>
+            Vector<Ref<Command<TContextNode>>> CommandEmitter<Derived, Evt, TContextNode, action_title, merge_mode, backward_undo_ops>::from_gui_input_to_command(Ref<Evt> p_event) {
                 return reinterpret_cast<Derived*>(this)->from_gui_input_to_command_impl(p_event);
             }
         }// namespace emitters
