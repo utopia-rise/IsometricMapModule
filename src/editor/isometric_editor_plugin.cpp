@@ -3,6 +3,8 @@
 #include "isometric_editor_plugin.h"
 
 #include "constants.h"
+#include "editor/commands/move_to_layer_command.h"
+#include "editor/commands/revert_command.h"
 #include "isometric_server.h"
 #include "isometric_string_names.h"
 #include "outline_drawer.h"
@@ -19,6 +21,14 @@ static constexpr const char* PAINT_EDITION_LABEL {"Paint"};
 static constexpr const char* DRAG_AND_DROP_EDITION_LABEL {"Drag & Drop"};
 static constexpr const char* GRID_COLOR_PICKER_TITLE {"Grid color:"};
 
+static constexpr const char* DEBUG_BUTTON_TITLE {"Debug"};
+static constexpr const char* MOVE_SELECTION_TO_CURRENT_LAYER_BUTTON_TITLE {"->"};
+static constexpr const char* MOVE_SELECTION_TO_CURRENT_LAYER_BUTTON_TOOLTIP {
+  "Move selection to current layer"
+};
+
+static constexpr const char MOVE_TO_CURRENT_LAYER_COMMAND[] {"move_to_layer"};
+
 editor::inspector::PositionableSelectionPane* IsometricEditorPlugin::get_selection_pane() const {
     return positionable_selection_pane;
 }
@@ -30,6 +40,7 @@ IsometricEditorPlugin::IsometricEditorPlugin() :
   grid_color_picker_button {memnew(ColorPickerButton)},
   edition_mode_button(memnew(OptionButton)),
   debug_button {nullptr},
+  move_selection_to_current_layer_button {nullptr},
   selected_map {nullptr},
   show_debug(false),
   current_mode(Mode::NONE),
@@ -91,8 +102,15 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         debug_button->set_flat(true);
         debug_button->connect("toggled", Callable(this, "set_debug_mode"));
         debug_button->set_toggle_mode(true);
-        debug_button->set_text("Debug");
+        debug_button->set_text(DEBUG_BUTTON_TITLE);
         toolbar->add_child(debug_button);
+
+        move_selection_to_current_layer_button = memnew(Button);
+        move_selection_to_current_layer_button->set_flat(true);
+        move_selection_to_current_layer_button->set_text(MOVE_SELECTION_TO_CURRENT_LAYER_BUTTON_TITLE);
+        move_selection_to_current_layer_button->set_tooltip_text(MOVE_SELECTION_TO_CURRENT_LAYER_BUTTON_TOOLTIP);
+        move_selection_to_current_layer_button->connect("pressed", callable_mp(this, &IsometricEditorPlugin::_on_move_selection_to_current_layer));
+        toolbar->add_child(move_selection_to_current_layer_button);
 
         // Add to editor bottom
         positionable_selection_pane = memnew(editor::inspector::PositionableSelectionPane);
@@ -363,6 +381,55 @@ void IsometricEditorPlugin::_on_map_size_changed() {
 
 void IsometricEditorPlugin::_on_grid_color_picker_change([[maybe_unused]] const Color& p_color) {
     _draw_edition_grid();
+}
+
+void IsometricEditorPlugin::_on_move_selection_to_current_layer() {
+    if (!selected_map) {
+        return;
+    }
+
+    uint32_t current_layer {selected_map->get_meta(node::IsometricMap::LAST_EDITED_LAYER_META_NAME)};
+    const Vector<Vector3>& selected_positions { PositionableSelectorManager::get_instance().get_selected_for_map(selected_map) };
+
+    Vector<Ref<commands::Command<node::IsometricMap>>> commands;
+    for (const Vector3& position : selected_positions) {
+        uint32_t layer_id_at_position {selected_map->get_layer_id_at(position)};
+
+        if (current_layer == layer_id_at_position) {
+            continue;
+        }
+
+        if (node::IsometricPositionable* positionable {selected_map->get_positionable_at(position)}) {
+            Ref<commands::SelectPositionableCommand> select_command_to_revert;
+            select_command_to_revert.instantiate();
+            select_command_to_revert->set_position(position);
+
+            Ref<commands::RevertCommand<node::IsometricMap>> deselect_command;
+            deselect_command.instantiate();
+            deselect_command->set_reverse_command(select_command_to_revert);
+
+            commands.push_back(deselect_command);
+
+            Ref<commands::MoveToLayerCommand> move_to_layer_command;
+            move_to_layer_command.instantiate();
+            move_to_layer_command->set_position(position);
+            move_to_layer_command->set_new_layer_id(current_layer);
+            move_to_layer_command->set_former_layer_id(layer_id_at_position);
+            commands.push_back(move_to_layer_command);
+
+            Ref<commands::SelectPositionableCommand> select_command;
+            select_command.instantiate();
+            select_command->set_position(position);
+            commands.push_back(select_command);
+        }
+    }
+
+    if (commands.is_empty()) {
+        return;
+    }
+
+    commands::emitters::CommandToActionTransformer action_transformer;
+    action_transformer.transform<node::IsometricMap, MOVE_TO_CURRENT_LAYER_COMMAND, UndoRedo::MERGE_DISABLE, true>(commands, selected_map);
 }
 
 void IsometricEditorPlugin::_draw_edition_grid() const {

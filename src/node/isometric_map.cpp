@@ -42,7 +42,7 @@ void IsometricMap::add_positionable_if_nothing_present(const AABB& aabb, int id,
 
     const Vector3& aabb_position {aabb.position};
     grid_3d.set_data(aabb_position, id);
-    layers_grid_3d.set_data(aabb_position, layer_id);
+    set_layer_id_at(aabb_position, layer_id);
     add_positionable_as_child(id, aabb_position, layer_id);
 }
 
@@ -50,7 +50,7 @@ void IsometricMap::remove_positionable(const AABB& aabb) {
     IsometricPositionable* element_to_remove {instances_grid_3d.get_data(aabb.position)};
     grid_3d.set_data(aabb.position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
     instances_grid_3d.insert_box(aabb, nullptr, true);
-    layers_grid_3d.set_data(aabb.position, DEFAULT_LAYER_ID);
+    set_layer_id_at(aabb.position, DEFAULT_LAYER_ID);
     remove_child(element_to_remove);
     element_to_remove->queue_free();
 }
@@ -77,6 +77,10 @@ Vector<IsometricPositionable*> IsometricMap::get_positionables_in(const AABB& p_
     }
 
     return ret;
+}
+
+void IsometricMap::set_layer_id_at(const Vector3& p_position, uint32_t p_layer_id) {
+    layers_grid_3d.set_data(p_position, p_layer_id);
 }
 
 bool IsometricMap::is_aabb_in_map(const AABB& aabb) const {

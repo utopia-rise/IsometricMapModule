@@ -52,6 +52,7 @@ namespace node {
         IsometricPositionable* get_positionable_at(const Vector3& p_position);
         int get_positionable_id_for_position(const Vector3& p_position);
         Vector<IsometricPositionable*> get_positionables_in(const AABB& p_aabb) const;
+        void set_layer_id_at(const Vector3& p_position, uint32_t p_layer_id);
         bool is_aabb_in_map(const AABB& aabb) const;
         void set_size(Vector3 p_size) override;
         bool is_overlapping(const AABB& aabb) const;
