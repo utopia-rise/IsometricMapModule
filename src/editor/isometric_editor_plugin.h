@@ -90,6 +90,7 @@ namespace editor {
         ColorPickerButton* grid_color_picker_button;
         OptionButton* edition_mode_button;
         Button* debug_button;
+        Button* move_selection_to_current_layer_button;
 
         HashMap<node::IsometricMap*, MapHandlingData> handling_data_map;
         node::IsometricMap* selected_map;
@@ -118,6 +119,8 @@ namespace editor {
         void _on_map_size_changed();
 
         void _on_grid_color_picker_change([[maybe_unused]] const Color& p_color);
+
+        void _on_move_selection_to_current_layer();
 
         void _draw_edition_grid() const;
         void _draw_plane(EditorPlane::PlaneType p_plane_type);
