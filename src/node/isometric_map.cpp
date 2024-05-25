@@ -180,6 +180,27 @@ void IsometricMap::set_layer_color(const uint32_t p_layer_id, const Color& p_col
     }
 }
 
+Vector<Vector3> IsometricMap::get_layer_positions(uint32_t p_layer_id) const {
+    Vector<Vector3> positions;
+    
+    const Vector<uint32_t>& layers_vector {layers_grid_3d.get_internal_array()};
+    for(int i = 0; i < layers_vector.size(); ++i) {
+        uint32_t id {layers_vector[i]};
+        if (p_layer_id != id) {
+            continue;
+        }
+
+        const Vector3& position = layers_grid_3d.get_position_3d_from_index(i);
+        if (!instances_grid_3d.get_data(position)) {
+            continue;
+        }
+
+        positions.push_back(position);
+    }
+    
+    return positions;
+}
+
 #endif
 
 void IsometricMap::_enter_tree() {
