@@ -15,6 +15,8 @@ namespace editor {
             public:
                 template<class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode = UndoRedo::MERGE_DISABLE, bool backward_undo_ops = false>
                 void transform(const Vector<Ref<Command<TContextNode>>>& commands, TContextNode* p_context);
+                template<class TContextNode, UndoRedo::MergeMode merge_mode = UndoRedo::MERGE_DISABLE, bool backward_undo_ops = false>
+                void transform(const Vector<Ref<Command<TContextNode>>>& commands, TContextNode* p_context, const String& p_action_name);
 
                 CommandToActionTransformer() = default;
                 ~CommandToActionTransformer() = default;
@@ -22,13 +24,18 @@ namespace editor {
 
             template<class TContextNode, const char* action_title, UndoRedo::MergeMode merge_mode, bool backward_undo_ops>
             void CommandToActionTransformer::transform(const Vector<Ref<Command<TContextNode>>>& commands, TContextNode* p_context) {
+                transform<TContextNode, merge_mode, backward_undo_ops>(commands, p_context, action_title);
+            }
+
+            template<class TContextNode, UndoRedo::MergeMode merge_mode, bool backward_undo_ops>
+            void CommandToActionTransformer::transform(const Vector<Ref<Command<TContextNode>>>& commands, TContextNode* p_context, const String& p_action_name) {
                 bool has_valid_command {false};
                 for (int i = 0; i < commands.size(); ++i) {
                     Ref<Command<TContextNode>> command {commands[i]};
                     if (command.is_null()) { continue; }
                     if (!has_valid_command) {
                         EditorUndoRedoManager::get_singleton()->create_action(
-                          action_title,
+                          p_action_name,
                           merge_mode,
                           p_context,
                           backward_undo_ops

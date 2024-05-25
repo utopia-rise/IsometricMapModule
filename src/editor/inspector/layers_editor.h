@@ -31,6 +31,7 @@ namespace editor {
 
             void _add_layer();
             void _on_remove_layer_button(uint32_t p_layer_id, const String& p_layer_name);
+            void _on_layer_name_changed(const String& p_layer_name, uint32_t p_layer_id);
             void _set_layer_visible(uint32_t p_layer_id, CheckBox* p_check_box);
             void _set_current_layer(uint32_t p_layer_id);
             void _layer_color_changed(const Color& p_color, uint32_t p_layer_id);

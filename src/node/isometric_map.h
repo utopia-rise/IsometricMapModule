@@ -13,6 +13,7 @@ namespace node {
     public:
         static constexpr uint32_t DEFAULT_LAYER_ID = 0;
         static constexpr uint32_t NO_LAYER_ID = 0xffffffff;
+        static constexpr const char* DEFAULT_LAYER_NAME = "Default";
 
 #ifdef TOOLS_ENABLED
         static constexpr const char* LAST_EDITED_LAYER_META_NAME = "_LAST_EDITED_LAYER";
@@ -59,6 +60,8 @@ namespace node {
         uint32_t add_layer(const String& p_layer, uint32_t p_layer_id = NO_LAYER_ID);
         void remove_layer(uint32_t p_layer_id);
         void remove_layer(const String& p_layer_name);
+        void set_layer_name(uint32_t p_layer_id, const String& p_layer_name);
+        String get_layer_name(uint32_t p_layer_id);
         uint32_t get_layer_id_at(const Vector3& p_position);
         uint32_t get_last_layer_id() const;
         void set_last_layer_id(uint32_t p_last_layer_id);

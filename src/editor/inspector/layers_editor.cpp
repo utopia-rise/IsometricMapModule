@@ -1,16 +1,19 @@
 #ifdef TOOLS_ENABLED
 
 #include "layers_editor.h"
-#include "editor/isometric_editor_plugin.h"
+
 #include "editor/commands/add_layer_command.h"
+#include "editor/commands/change_layer_name_command.h"
 #include "editor/commands/revert_command.h"
 #include "editor/commands/set_layer_visibility_command.h"
+#include "editor/isometric_editor_plugin.h"
 
 using namespace editor::inspector;
 
-constexpr const char add_layer_action_name[] = "add_layer";
-constexpr const char remove_layer_action_name[] = "remove_layer";
-constexpr const char set_layer_visible_action_name[] = "set_layer_visible";
+constexpr const char add_layer_action_name[] = "Add layer";
+constexpr const char remove_layer_action_name[] = "Remove layer";
+constexpr const char set_layer_visible_action_name[] = "Set layer visible";
+constexpr const char change_layer_name_action_name_format[] = "Change layer name (id: %s)";
 
 LayersEditor::LayersEditor() {
     HBoxContainer* top_bar {memnew(HBoxContainer)};
@@ -87,9 +90,21 @@ void LayersEditor::refresh() {
             );
             current_layer_check_box->set_button_group(current_layer_button_group);
             layer_controls_container->add_child(current_layer_check_box);
-            Label* current_layer_name_label {memnew(Label)};
-            current_layer_name_label->set_text(layer_name);
-            layer_controls_container->add_child(current_layer_name_label);
+
+            if (layer_name == node::IsometricMap::DEFAULT_LAYER_NAME) {
+                Label* current_layer_name_label {memnew(Label)};
+                current_layer_name_label->set_text(layer_name);
+                layer_controls_container->add_child(current_layer_name_label);
+            } else {
+                LineEdit* current_layer_name_line_edit {memnew(LineEdit)};
+                current_layer_name_line_edit->set_text(layer_name);
+                current_layer_name_line_edit->connect(
+                  SNAME("text_changed"),
+                  callable_mp(this, &LayersEditor::_on_layer_name_changed).bind(layer_id)
+                );
+                layer_controls_container->add_child(current_layer_name_line_edit);
+            }
+
             ColorPickerButton* color_picker_button {memnew(ColorPickerButton)};
             color_picker_button->connect(
               SNAME("color_changed"),
@@ -133,6 +148,8 @@ void LayersEditor::_add_layer() {
 
     commands::emitters::CommandToActionTransformer action_transformer;
     action_transformer.transform<node::IsometricMap, add_layer_action_name>(commands, IsometricEditorPlugin::get_instance()->get_selected_map());
+
+    layer_line_edit->clear();
 }
 
 void LayersEditor::_on_remove_layer_button(const uint32_t p_layer_id, const String& p_layer_name) {
@@ -150,6 +167,27 @@ void LayersEditor::_on_remove_layer_button(const uint32_t p_layer_id, const Stri
     }
     remove_layer_popup->connect(SNAME("confirmed"), callable.bind(p_layer_id, p_layer_name));
     remove_layer_popup->popup_centered();
+}
+
+void LayersEditor::_on_layer_name_changed(const String& p_layer_name, uint32_t p_layer_id) { // NOLINT(*-convert-member-functions-to-static)
+    if (node::IsometricMap* current_map {IsometricEditorPlugin::get_instance()->get_selected_map()}) {
+        Vector<Ref<commands::Command<node::IsometricMap>>> commands;
+
+        Ref<commands::ChangeLayerNameCommand> change_layer_name_command;
+        change_layer_name_command.instantiate();
+        change_layer_name_command->set_layer_id(p_layer_id);
+        change_layer_name_command->set_new_layer_name(p_layer_name);
+        change_layer_name_command->set_former_layer_name(current_map->get_layer_name(p_layer_id));
+
+        commands.push_back(change_layer_name_command);
+
+        commands::emitters::CommandToActionTransformer action_transformer;
+        action_transformer.transform<node::IsometricMap, UndoRedo::MERGE_ALL>(
+          commands,
+          current_map,
+          vformat(change_layer_name_action_name_format, p_layer_id)
+        );
+    }
 }
 
 void LayersEditor::_set_layer_visible(const uint32_t p_layer_id, CheckBox* p_check_box) { // NOLINT(*-convert-member-functions-to-static)

@@ -2,8 +2,6 @@
 
 using namespace node;
 
-static const char* DEFAULT_LAYER_NAME = "Default";
-
 IsometricMap::IsometricMap() : child_positionable_initialized(false)
 #ifdef TOOLS_ENABLED
 , last_layer_id(0)
@@ -133,6 +131,14 @@ void IsometricMap::remove_layer(uint32_t p_layer_id) {
 void IsometricMap::remove_layer(const String& p_layer_name) {
     uint32_t layer_id = layers.find_key(p_layer_name);
     remove_layer(layer_id);
+}
+
+void IsometricMap::set_layer_name(uint32_t p_layer_id, const String& p_layer_name) {
+    layers[p_layer_id] = p_layer_name;
+}
+
+String IsometricMap::get_layer_name(uint32_t p_layer_id) {
+    return layers[p_layer_id];
 }
 
 uint32_t IsometricMap::get_layer_id_at(const Vector3& p_position) {
