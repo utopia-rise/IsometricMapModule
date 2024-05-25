@@ -120,6 +120,11 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         // Add layers editor to dock
         layers_editor = memnew(editor::inspector::LayersEditor);
 
+        EditorUndoRedoManager::get_singleton()->connect(
+          SNAME("version_changed"),
+          callable_mp(layers_editor, &inspector::LayersEditor::refresh)
+        );
+
         RenderingServer::get_singleton()->connect("frame_post_draw", Callable(this, "_on_frame_post_draw"));
     }
 
