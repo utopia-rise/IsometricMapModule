@@ -24,6 +24,11 @@ namespace node {
         containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID> grid_3d;
         containers::Grid3D<uint32_t, DEFAULT_LAYER_ID> layers_grid_3d;
         containers::Grid3D<IsometricPositionable*, nullptr> instances_grid_3d;
+
+#ifdef DEBUG_ENABLED
+        HashMap<Vector3, Vector<node::IsometricPositionable*>> conflict_instances_map;
+#endif
+
         Ref<resource::PositionableSet> positionable_set;
         bool child_positionable_initialized;
         Dictionary layers;
@@ -40,6 +45,10 @@ namespace node {
         void _set_layers_grid_3d(const Array& array);
         void add_positionable_as_child(int positionable_id, const Vector3& p_position, uint32_t layer_id);
 
+#ifdef DEBUG_ENABLED
+        void append_conflict_instance(const Vector3& p_position, node::IsometricPositionable* p_positionable);
+#endif
+
     public:
         Ref<resource::PositionableSet> get_positionable_set() const;
         void set_positionable_set(const Ref<resource::PositionableSet>& set);
@@ -48,11 +57,13 @@ namespace node {
         void set_layers(const Dictionary& p_layers);
 
 #ifdef TOOLS_ENABLED
+        void add_positionable(const Vector3& position, int id, uint32_t layer_id);
         void add_positionable_if_nothing_present(const AABB& aabb, int id, uint32_t layer_id);
         void remove_positionable(const AABB& aabb);
         IsometricPositionable* get_positionable_at(const Vector3& p_position);
         int get_positionable_id_for_position(const Vector3& p_position);
         Vector<IsometricPositionable*> get_positionables_in(const AABB& p_aabb) const;
+        bool has_positionable_in(const AABB& p_aabb, node::IsometricPositionable* p_excluded = nullptr) const;
         void set_layer_id_at(const Vector3& p_position, uint32_t p_layer_id);
         bool is_aabb_in_map(const AABB& aabb) const;
         void set_size(Vector3 p_size) override;
@@ -68,6 +79,9 @@ namespace node {
         void set_layer_visible(uint32_t p_layer_id, bool is_visible);
         void set_layer_color(uint32_t p_layer_id, const Color& p_color);
         Vector<Vector3> get_layer_positions(uint32_t p_layer_id) const;
+#endif
+#ifdef DEBUG_ENABLED
+        void set_debug_modulate(const Color &p_modulate) const override;
 #endif
 
         IsometricMap();

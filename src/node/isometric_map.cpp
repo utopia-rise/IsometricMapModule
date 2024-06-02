@@ -35,19 +35,44 @@ void IsometricMap::set_layers(const Dictionary& p_layers) {
 
 #ifdef TOOLS_ENABLED
 
+void IsometricMap::add_positionable(const Vector3& position, int id, uint32_t layer_id) {
+    grid_3d.set_data(position, id);
+    set_layer_id_at(position, layer_id);
+    add_positionable_as_child(id, position, layer_id);
+}
+
 void IsometricMap::add_positionable_if_nothing_present(const AABB& aabb, int id, uint32_t layer_id) {
     if (instances_grid_3d.is_overlapping(aabb)) { return; }
 
-    const Vector3& aabb_position {aabb.position};
-    grid_3d.set_data(aabb_position, id);
-    set_layer_id_at(aabb_position, layer_id);
-    add_positionable_as_child(id, aabb_position, layer_id);
+    add_positionable(aabb.position, id, layer_id);
 }
 
 void IsometricMap::remove_positionable(const AABB& aabb) {
     IsometricPositionable* element_to_remove {instances_grid_3d.get_data(aabb.position)};
     grid_3d.set_data(aabb.position, containers::Grid3D<int, resource::PositionableSet::NONE_POSITIONABLE_ID>::get_default_value());
     instances_grid_3d.insert_box(aabb, nullptr, true);
+
+#ifdef DEBUG_ENABLED
+    Vector<node::IsometricPositionable*> instances_to_reset;
+    for (node::IsometricPositionable* conflict_instance : conflict_instances_map[aabb.position]) {
+        const Vector3& conflict_instance_position {conflict_instance->get_local_position_3d()};
+
+        instances_to_reset.push_back(conflict_instance);
+
+        conflict_instances_map[conflict_instance_position].erase(element_to_remove);
+        if (conflict_instances_map[conflict_instance_position].is_empty()) {
+            conflict_instance->set_debug_modulate(conflict_instance->get_modulate());
+            instances_grid_3d.insert_box(
+              {conflict_instance_position, conflict_instance->get_size()},
+              conflict_instance
+            );
+        }
+    }
+
+    conflict_instances_map.erase(aabb.position);
+
+#endif
+
     set_layer_id_at(aabb.position, DEFAULT_LAYER_ID);
     remove_child(element_to_remove);
     element_to_remove->queue_free();
@@ -62,19 +87,18 @@ int IsometricMap::get_positionable_id_for_position(const Vector3& p_position) {
 }
 
 Vector<IsometricPositionable*> IsometricMap::get_positionables_in(const AABB& p_aabb) const {
-    Vector<IsometricPositionable*> ret;
+    return instances_grid_3d.get_box(p_aabb);
+}
 
-    const Vector3& requested_size {p_aabb.size};
-    const Vector3& map_size {get_size()};
-    for (int x = 0; x < static_cast<int>(requested_size.x > map_size.x ? map_size.x : requested_size.x); ++x) {
-        for (int y = 0; y < static_cast<int>(requested_size.y > map_size.y ? map_size.y : requested_size.y); ++y) {
-            for (int z = 0; z < static_cast<int>(requested_size.z > map_size.z ? map_size.z : requested_size.z); ++z) {
-                ret.push_back(instances_grid_3d.get_data(p_aabb.position + Vector3(x, y, z)));
-            }
-        }
+bool IsometricMap::has_positionable_in(const AABB& p_aabb, node::IsometricPositionable* p_excluded) const {
+    const Vector<IsometricPositionable*>& positionables_in = get_positionables_in(p_aabb);
+    for (const node::IsometricPositionable* positionable : positionables_in) {
+        if (!positionable) { continue; }
+        if (positionable == p_excluded) { continue; }
+        return true;
     }
 
-    return ret;
+    return false;
 }
 
 void IsometricMap::set_layer_id_at(const Vector3& p_position, uint32_t p_layer_id) {
@@ -203,6 +227,14 @@ Vector<Vector3> IsometricMap::get_layer_positions(uint32_t p_layer_id) const {
 
 #endif
 
+#ifdef DEBUG_ENABLED
+void IsometricMap::set_debug_modulate(const Color& p_modulate) const {
+    for (const node::IsometricPositionable* positionable : instances_grid_3d.get_internal_array()) {
+        positionable->set_debug_modulate(p_modulate);
+    }
+}
+#endif
+
 void IsometricMap::_enter_tree() {
     IsometricPositionable::_enter_tree();
 
@@ -215,7 +247,7 @@ void IsometricMap::_enter_tree() {
 
     if (child_positionable_initialized) { return; }
     const Vector<int>& id_vector {grid_3d.get_internal_array()};
-    const Vector<uint32_t> layers_vector {layers_grid_3d.get_internal_array()};
+    const Vector<uint32_t>& layers_vector {layers_grid_3d.get_internal_array()};
     for (int i = 0; i < id_vector.size(); ++i) {
         add_positionable_as_child(
                 id_vector[i],
@@ -250,6 +282,27 @@ void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3&
         positionable->add_to_group(layers_groups[layer_id]);
         add_child(positionable);
 
+#ifdef DEBUG_ENABLED
+        Vector<node::IsometricPositionable*> conflicting_instances {
+            instances_grid_3d.get_box({p_position, positionable->get_size()})
+        };
+        bool has_conflict {false};
+        for (node::IsometricPositionable* conflict_instance : conflicting_instances) {
+            if (!conflict_instance) {
+                continue;
+            }
+
+            has_conflict = true;
+            conflict_instance->set_debug_modulate(node::IsometricPositionable::CONFLICT_MODULATE_COLOR);
+
+            append_conflict_instance(p_position, conflict_instance);
+            append_conflict_instance(conflict_instance->get_local_position_3d(), positionable);
+        }
+
+        if (has_conflict) { positionable->set_debug_modulate(node::IsometricPositionable::CONFLICT_MODULATE_COLOR);
+        }
+#endif
+
         instances_grid_3d.insert_box({p_position, positionable->get_size()}, positionable);
 
 #ifdef TOOLS_ENABLED
@@ -261,6 +314,21 @@ void IsometricMap::add_positionable_as_child(int positionable_id, const Vector3&
 #endif
     }
 }
+
+#ifdef DEBUG_ENABLED
+void
+IsometricMap::append_conflict_instance(const Vector3& p_position, node::IsometricPositionable* p_positionable) {
+    if (!conflict_instances_map.has(p_position)) {
+        conflict_instances_map[p_position] = Vector<node::IsometricPositionable*>();
+    }
+
+    Vector<node::IsometricPositionable*>& conflict_instances_at_position {conflict_instances_map[p_position]};
+    if (conflict_instances_at_position.has(p_positionable)) {
+        return;
+    }
+    conflict_instances_at_position.push_back(p_positionable);
+}
+#endif
 
 void IsometricMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_positionable_set"), &IsometricMap::get_positionable_set);

@@ -10,7 +10,6 @@
 
 using namespace editor::commands::emitters;
 
-static Color CONFLICT_MODULATE_COLOR {1, 0, 0, 0.5};
 static Color DEFAULT_MODULATE_COLOR {1, 1, 1, 0.5};
 
 Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandEmitter::from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event) {
@@ -70,8 +69,7 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
             for (const Vector3& position : selected_positions) {
                 node::IsometricPositionable* original_positionable = map->get_positionable_at(position);
                 auto* duplicate {
-                  Object::cast_to<node::IsometricPositionable>(original_positionable->duplicate()
-                  )
+                  Object::cast_to<node::IsometricPositionable>(original_positionable->duplicate())
                 };
                 original_positionable->set_visible(false);
                 duplicate->set_is_dynamic(true);
@@ -89,14 +87,17 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> MoveSelectionCommandE
 
         for (const KeyValue<Vector3, node::IsometricPositionable*>& keyValuePair : current_preview_nodes) {
             node::IsometricPositionable* positionable {keyValuePair.value};
-            Vector3 new_position { keyValuePair.key + position_delta };
+            Vector3 initial_position { keyValuePair.key };
+            Vector3 new_position {initial_position + position_delta };
+            Vector3 positionable_size = positionable->get_size();
 
-            if ((map->get_positionable_at(new_position) && !current_preview_nodes.has(new_position)) ||
-                !map->is_aabb_in_map({new_position, positionable->get_size()})) {
-                positionable->set_editor_modulate(CONFLICT_MODULATE_COLOR);
+            if ((map->has_positionable_in({new_position, positionable_size}, map->get_positionable_at(initial_position)) &&
+                 !current_preview_nodes.has(new_position)) ||
+                !map->is_aabb_in_map({new_position, positionable_size})) {
+                positionable->set_debug_modulate(node::IsometricPositionable::CONFLICT_MODULATE_COLOR);
                 is_move_valid = false;
             } else {
-                positionable->set_editor_modulate(DEFAULT_MODULATE_COLOR);
+                positionable->set_debug_modulate(DEFAULT_MODULATE_COLOR);
             }
 
             positionable->set_local_position_3d(new_position);
