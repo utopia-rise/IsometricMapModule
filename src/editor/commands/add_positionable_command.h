@@ -24,6 +24,7 @@ namespace editor {
             AABB aabb;
             int positionable_id;
             uint32_t layer_id;
+            bool is_overlapping;
         };
     }// namespace commands
 }// namespace editor

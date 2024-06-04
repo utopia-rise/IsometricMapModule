@@ -9,6 +9,10 @@
 
 using namespace node;
 
+#ifdef DEBUG_ENABLED
+Color IsometricPositionable::CONFLICT_MODULATE_COLOR {1, 0, 0, 0.5};
+#endif
+
 IsometricPositionable::IsometricPositionable() :
   size({1, 1, 1}),
   depth(1),
@@ -278,10 +282,12 @@ void IsometricPositionable::update_debug_mesh_color(const Color& p_color) const 
     debug_mesh_material->set_albedo(p_color);
 }
 
-void IsometricPositionable::set_editor_modulate(const Color& p_modulate) {
-    IsometricServer::get_instance()->isometric_element_set_editor_modulate(self, p_modulate);
-}
+#endif
 
+#ifdef DEBUG_ENABLED
+void IsometricPositionable::set_debug_modulate(const Color& p_modulate) const {
+    IsometricServer::get_instance()->isometric_element_set_debug_modulate(self, p_modulate);
+}
 #endif
 
 void IsometricPositionable::_bind_methods() {

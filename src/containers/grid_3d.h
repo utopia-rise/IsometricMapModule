@@ -48,6 +48,8 @@ namespace containers {
 
         bool insert_box(const AABB& aabb, T data, bool remove = false);
 
+        Vector<T> get_box(const AABB& aabb) const;
+
         bool is_overlapping(const AABB& aabb) const;
 
         bool has(T object) const;
@@ -157,6 +159,45 @@ namespace containers {
             internal_array.set(index, remove ? nullptr : data);
         }
         return true;
+    }
+
+    template<class T, T default_value>
+    Vector<T> Grid3D<T, default_value>::get_box(const AABB& aabb) const {
+        Vector<T> ret;
+
+        Vector3 position {
+          MAX(aabb.position.x, 0),
+          MAX(aabb.position.y, 0),
+          MAX(aabb.position.z, 0)
+        };
+        const Vector3& size {aabb.size};
+        int sizeX = static_cast<int>(size.x);
+        int sizeY = static_cast<int>(size.y);
+        int sizeZ = static_cast<int>(size.z);
+        int endX = static_cast<int>(position.x) + sizeX;
+        int endY = static_cast<int>(position.y) + sizeY;
+        int endZ = static_cast<int>(position.z) + sizeZ;
+
+        if (endX > width) {
+            sizeX -= endX - width;
+        }
+
+        if (endY > depth) {
+            sizeY -= endY - depth;
+        }
+
+        if (endZ > height) {
+            sizeZ -= endZ - height;
+        }
+
+        int index {get_index_from_position(position)};
+        ret.push_back(internal_array[index]);
+        for (int i = 1; i < sizeX * sizeY * sizeZ; i++) {
+            index += Grid3D::index_increment_from(plane_square_and_jumps_from(size), size, i);
+            ret.push_back(internal_array[index]);
+        }
+
+        return ret;
     }
 
     template<class T, T default_value>

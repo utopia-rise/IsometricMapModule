@@ -27,8 +27,8 @@ namespace data {
 
         int z_order = 0;
 
-#ifdef TOOLS_ENABLED
-        Color editor_modulate = Color(1, 1, 1);
+#ifdef DEBUG_ENABLED
+        Color debug_modulate = Color(1, 1, 1);
 #endif
     };
 }// namespace data

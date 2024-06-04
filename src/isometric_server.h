@@ -76,8 +76,8 @@ public:
     void isometric_element_set_size(const RID element_rid, const Vector3 size);
     void isometric_element_set_depth(const RID element_rid, const int depth);
 
-#ifdef TOOLS_ENABLED
-    void isometric_element_set_editor_modulate(const RID element_rid, const Color color);
+#ifdef DEBUG_ENABLED
+    void isometric_element_set_debug_modulate(const RID element_rid, const Color color);
 #endif
 
     /// ORDERING
@@ -114,8 +114,8 @@ private:
     void command_set_debug(bool p_debug);
     void command_stop_server();
 
-#ifdef TOOLS_ENABLED
-    void command_set_editor_modulate(data::IsometricElement* element, const Color color);
+#ifdef DEBUG_ENABLED
+    void command_set_debug_modulate(data::IsometricElement* element, const Color color);
 #endif
 
     ///////////////UTILITIES/////////
