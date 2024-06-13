@@ -24,6 +24,8 @@ namespace editor {
                 Vector3 initial_position;
                 Vector3 limit_position;
 
+                Node* preview_node;
+
                 Vector<Ref<Command<node::IsometricMap>>> from_gui_input_to_command_impl([[maybe_unused]] Ref<InputEventMouse> p_event);
 
                 void _clear_current_preview_nodes(int new_size);

@@ -21,7 +21,6 @@ class IsometricServer : public Object {
 private:
     static IsometricServer* _instance;
 
-    mutable bool exit_thread;
     Thread thread;
     CommandQueueMT command_queue;
 
@@ -31,15 +30,16 @@ private:
         ASYNC_DONE
     };
 
-    RequestType state;
-    bool is_debug;
-
     mutable RID_PtrOwner<data::IsometricSpace> worlds_owner = 0;
     mutable RID_PtrOwner<data::IsometricElement> elements_owner = 0;
 
     LocalVector<data::IsometricSpace*> worlds;
 
     LocalVector<data::IsometricElement*> stack;
+
+    RequestType state;
+    mutable bool exit_thread;
+    bool is_debug;
 
     static void iteration(void* p_udata);
 
@@ -119,6 +119,8 @@ private:
 #endif
 
     ///////////////UTILITIES/////////
+
+    static data::Chunk* get_or_create_chunk(data::IsometricSpace* space, Vector3 position);
 
 #define GET_ELEMENT_RID_DATA_WITH_RET(element, element_rid, ret)                                     \
     if (!elements_owner.owns(element_rid)) {                                                         \

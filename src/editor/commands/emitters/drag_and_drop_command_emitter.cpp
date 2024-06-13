@@ -63,6 +63,8 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> DragAndDropCommandEmi
 
         int new_size = all_positions.size();
 
+        if (preview_node->get_parent() == map) { map->remove_child(preview_node); }
+
         // Shrink, remove and delete excess nodes.
         _clear_current_preview_nodes(new_size);
 
@@ -71,7 +73,7 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> DragAndDropCommandEmi
             node::IsometricPositionable* preview_positionable {current_preview_nodes[i]};
             preview_positionable->set_modulate(Color(1, 1, 1, 0.5));
             preview_positionable->set_local_position_3d(all_positions[i]);
-            map->add_child(preview_positionable);
+            preview_node->add_child(preview_positionable);
         }
 
         // New nodes are added if the size grew.
@@ -82,11 +84,14 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> DragAndDropCommandEmi
             current_preview_nodes.push_back(preview_positionable);
             preview_positionable->set_modulate(Color(1, 1, 1, 0.5));
             preview_positionable->set_local_position_3d(all_positions[i]);
-            map->add_child(preview_positionable);
+            preview_node->add_child(preview_positionable);
         }
+
+        map->add_child(preview_node);
 
         return commands;
     } else if (is_activated) {
+        map->remove_child(preview_node);
         _clear_current_preview_nodes(0);
 
         Vector<Vector3> all_positions {_calculate_positionables_positions(initial_position, limit_position, positionable_size)};
@@ -114,13 +119,13 @@ void DragAndDropCommandEmitter::_clear_current_preview_nodes(int new_size) {
         // Only remove but not delete nodes in the new range
         for (int i = 0; i < MIN(new_size, current_preview_nodes.size()); ++i) {
             if (node::IsometricPositionable* current_preview_node = current_preview_nodes[i]) {
-                map->remove_child(current_preview_node);
+                preview_node->remove_child(current_preview_node);
             }
         }
         // Remove and delete excess nodes.
         for (int i = new_size; i < current_preview_nodes.size(); ++i) {
             if (node::IsometricPositionable* current_preview_node = current_preview_nodes[i]) {
-                map->remove_child(current_preview_node);
+                preview_node->remove_child(current_preview_node);
                 memdelete(current_preview_node);
             }
         }
@@ -204,10 +209,13 @@ DragAndDropCommandEmitter::DragAndDropCommandEmitter() :
   CommandEmitter(),
   current_preview_nodes(),
   initial_position(-1, -1, -1),
-  limit_position(-1, -1, -1) {}
+  limit_position(-1, -1, -1),
+  preview_node(memnew(Node)) {}
 
 DragAndDropCommandEmitter::~DragAndDropCommandEmitter() {
     _clear_current_preview_nodes(0);
+    memdelete(preview_node);
+    preview_node = nullptr;
 }
 
 #endif

@@ -189,11 +189,23 @@ void IsometricServer::command_space_create(IsometricSpace* space) {
 }
 
 void IsometricServer::command_space_attach_isometric_element(data::IsometricSpace* space, data::IsometricElement* element) {
+    Chunk* chunk {get_or_create_chunk(space, element->aabb.position)};
+
+    bool is_dynamic {element->is_dynamic};
+    LocalVector<IsometricElement*>& chunk_elements {is_dynamic ? chunk->dynamic_elements : chunk->static_elements};
+    chunk_elements.push_back(element);
+
+    LocalVector<IsometricElement*>& elements {is_dynamic ? space->dynamics_elements : space->statics_elements};
+    elements.push_back(element);
+
     space->dirty = true;
 
-    if (!element->is_dynamic) {
-        for (uint32_t i = 0; i < space->static_elements.size(); i++) {
-            IsometricElement* static_element {space->static_elements[i]};
+    if (is_dynamic) {
+        return;
+    }
+
+    for (const Chunk* neighbor : chunk->all_neighbors) {
+        for (IsometricElement* static_element : neighbor->static_elements) {
             if (utils::are_elements_overlapping(space->configuration, static_element, element)) {
                 if (utils::is_box_in_front(space->configuration, static_element->aabb, element->aabb)) {
                     static_element->behind_statics.push_back(element);
@@ -202,23 +214,24 @@ void IsometricServer::command_space_attach_isometric_element(data::IsometricSpac
                 }
             }
         }
-        space->static_elements.push_back(element);
-    } else {
-        space->dynamic_elements.push_back(element);
     }
 }
 
 void IsometricServer::command_space_detach_isometric_element(data::IsometricElement* element) {
-    IsometricSpace* space {element->space};
-    if (space) {
+    if (IsometricSpace* space {element->space}) {
         space->dirty = true;
+        Chunk* chunk {get_or_create_chunk(space, element->aabb.position)};
         if (!element->is_dynamic) {
-            space->static_elements.erase(element);
-            for (IsometricElement* static_element : space->static_elements) {
-                static_element->behind_statics.erase(element);
+            space->statics_elements.erase(element);
+            for (Chunk* neighbor : chunk->all_neighbors) {
+                neighbor->static_elements.erase(element);
+                for (IsometricElement* static_element : neighbor->static_elements) {
+                    static_element->behind_statics.erase(element);
+                }
             }
         } else {
-            space->dynamic_elements.erase(element);
+            space->dynamics_elements.erase(element);
+            chunk->dynamic_elements.erase(element);
         }
         element->behind_statics.clear();
         element->behind_dynamics.clear();
@@ -226,15 +239,16 @@ void IsometricServer::command_space_detach_isometric_element(data::IsometricElem
 }
 
 void IsometricServer::command_space_delete(IsometricSpace* space) {
-    for (IsometricElement* static_element : space->static_elements) {
+    for (IsometricElement* static_element : space->statics_elements) {
         static_element->space = nullptr;
     }
-    space->static_elements.clear();
+    space->statics_elements.clear();
 
-    for (IsometricElement* dynamic_element : space->dynamic_elements) {
+    for (IsometricElement* dynamic_element : space->dynamics_elements) {
         dynamic_element->space = nullptr;
     }
-    space->dynamic_elements.clear();
+    space->dynamics_elements.clear();
+    space->chunks.clear();
     worlds.erase(space);
 
     memdelete(space);
@@ -253,14 +267,38 @@ void IsometricServer::command_isometric_element_detach_canvas_item(data::Isometr
 }
 
 void IsometricServer::command_isometric_element_set_position(data::IsometricElement* element, const Vector3 global_position) {
-    IsometricSpace* space {element->space};
-    if (space) { element->space->dirty = true; }
+    if (IsometricSpace* space {element->space}) {
+        element->space->dirty = true;
+
+        Chunk* former_chunk {get_or_create_chunk(space, element->aabb.position)};
+        Chunk* new_chunk {get_or_create_chunk(space, global_position)};
+
+        if (new_chunk != former_chunk) {
+            LocalVector<IsometricElement*>& former_chunk_elements {
+              element->is_dynamic ? former_chunk->dynamic_elements : former_chunk->static_elements
+            };
+            former_chunk_elements.erase(element);
+
+            LocalVector<IsometricElement*>& new_chunk_elements {
+              element->is_dynamic ? new_chunk->dynamic_elements : new_chunk->static_elements
+            };
+            new_chunk_elements.push_back(element);
+        }
+    }
     element->aabb.position = global_position;
 }
 
 void IsometricServer::command_isometric_element_set_size(data::IsometricElement* element, const Vector3 size) {
     IsometricSpace* space {element->space};
-    if (space) { element->space->dirty = true; }
+    if (space) {
+        element->space->dirty = true;
+
+#ifdef DEBUG_ENABLED
+        if (static_cast<int>(size.x) > space->cell_size.x || static_cast<int>(size.y) > space->cell_size.y) {
+            LOG_WARNING(vformat("Cannot create an isometric element with size on (x, y) > %s", space->cell_size));
+        }
+#endif
+    }
     element->aabb.size = size;
 }
 
@@ -271,16 +309,20 @@ void IsometricServer::command_isometric_element_set_depth(data::IsometricElement
 }
 
 void IsometricServer::command_isometric_element_delete(data::IsometricElement* element) {
-    IsometricSpace* space {element->space};
-    if (space) {
+    if (IsometricSpace* space {element->space}) {
         space->dirty = true;
+        Chunk* chunk {get_or_create_chunk(space, element->aabb.position)};
         if (!element->is_dynamic) {
-            space->static_elements.erase(element);
-            for (IsometricElement* static_element : space->static_elements) {
-                static_element->behind_statics.erase(element);
+            space->statics_elements.erase(element);
+            for (Chunk* neighbor : chunk->all_neighbors) {
+                neighbor->static_elements.erase(element);
+                for (IsometricElement* static_element : neighbor->static_elements) {
+                    static_element->behind_statics.erase(element);
+                }
             }
         } else {
-            space->dynamic_elements.erase(element);
+            space->dynamics_elements.erase(element);
+            chunk->dynamic_elements.erase(element);
         }
         element->behind_statics.clear();
         element->behind_dynamics.clear();
@@ -291,13 +333,13 @@ void IsometricServer::command_isometric_element_delete(data::IsometricElement* e
 void IsometricServer::command_isometric_sort() {
     for (IsometricSpace* world : worlds) {
         if (!world->dirty) { continue; }
-        for (IsometricElement* static_element : world->static_elements) {
+        for (IsometricElement* static_element : world->statics_elements) {
             static_element->behind_dynamics.clear();
             static_element->z_order = 0;
             static_element->dirty = true;
             static_element->is_invalid = false;
         }
-        for (IsometricElement* dynamic_element : world->dynamic_elements) {
+        for (IsometricElement* dynamic_element : world->dynamics_elements) {
             dynamic_element->behind_dynamics.clear();
             dynamic_element->behind_statics.clear();
             dynamic_element->z_order = 0;
@@ -313,36 +355,56 @@ void IsometricServer::command_isometric_sort() {
 }
 
 void IsometricServer::generate_topological_sorting_graph(data::IsometricSpace* p_isometric_space) {
-    for (uint32_t i = 0; i < p_isometric_space->dynamic_elements.size(); ++i) {
-        if (IsometricElement* dynamicPositionable {p_isometric_space->dynamic_elements[i]}) {
-            for (uint32_t j = i + 1; j < p_isometric_space->dynamic_elements.size(); ++j) {
-                IsometricElement* positionable {p_isometric_space->dynamic_elements[j]};
-                if (j != i && positionable) {
-                    if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamicPositionable, positionable)) {
-                        if (utils::is_box_in_front(
-                              p_isometric_space->configuration,
-                              dynamicPositionable->aabb,
-                              positionable->aabb
-                            )) {
-                            dynamicPositionable->behind_dynamics.push_back(positionable);
-                        } else {
-                            positionable->behind_dynamics.push_back(dynamicPositionable);
+    for (const KeyValue<Vector2i, Chunk>& key_value : p_isometric_space->chunks) {
+        const Chunk& chunk {key_value.value};
+        for (const Chunk* neighbor : chunk.dynamic_sorting_neighbors) {
+            if (neighbor == &chunk) {
+                for (uint32_t i = 0; i < chunk.dynamic_elements.size(); ++i) {
+                    IsometricElement * dynamic_element {chunk.dynamic_elements[i]};
+                    for (uint32_t j = i + 1; j < neighbor->dynamic_elements.size(); ++j) {
+                        IsometricElement* positionable {neighbor->dynamic_elements[j]};
+                        if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamic_element, positionable)) {
+                            if (utils::is_box_in_front(
+                                  p_isometric_space->configuration,
+                                  dynamic_element->aabb,
+                                  positionable->aabb
+                                )) {
+                                dynamic_element->behind_dynamics.push_back(positionable);
+                            } else {
+                                positionable->behind_dynamics.push_back(dynamic_element);
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (IsometricElement* dynamic_element : chunk.dynamic_elements) {
+                    for (IsometricElement* positionable : neighbor->dynamic_elements) {
+                        if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamic_element, positionable)) {
+                            if (utils::is_box_in_front(
+                                  p_isometric_space->configuration,
+                                  dynamic_element->aabb,
+                                  positionable->aabb
+                                )) {
+                                dynamic_element->behind_dynamics.push_back(positionable);
+                            } else {
+                                positionable->behind_dynamics.push_back(dynamic_element);
+                            }
                         }
                     }
                 }
             }
 
-            for (IsometricElement* static_element : p_isometric_space->static_elements) {
-                if (static_element) {
-                    if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamicPositionable, static_element)) {
+            for (IsometricElement* dynamic_element : chunk.dynamic_elements) {
+                for (IsometricElement* static_element : neighbor->static_elements) {
+                    if (utils::are_elements_overlapping(p_isometric_space->configuration, dynamic_element, static_element)) {
                         if (utils::is_box_in_front(
                               p_isometric_space->configuration,
-                              dynamicPositionable->aabb,
+                              dynamic_element->aabb,
                               static_element->aabb
                             )) {
-                            dynamicPositionable->behind_statics.push_back(static_element);
+                            dynamic_element->behind_statics.push_back(static_element);
                         } else {
-                            static_element->behind_dynamics.push_back(dynamicPositionable);
+                            static_element->behind_dynamics.push_back(dynamic_element);
                         }
                     }
                 }
@@ -350,11 +412,12 @@ void IsometricServer::generate_topological_sorting_graph(data::IsometricSpace* p
         }
     }
 
-    for (IsometricElement* static_element : p_isometric_space->static_elements) {
-        if (static_element && static_element->dirty) { sort_isometric_element(static_element); }
+    for (IsometricElement* element : p_isometric_space->statics_elements) {
+        if (element->dirty) { sort_isometric_element(element); }
     }
-    for (IsometricElement* dynamic_element : p_isometric_space->dynamic_elements) {
-        if (dynamic_element && dynamic_element->dirty) { sort_isometric_element(dynamic_element); }
+
+    for (IsometricElement* element : p_isometric_space->dynamics_elements) {
+        if (element->dirty) { sort_isometric_element(element); }
     }
 }
 
@@ -399,7 +462,7 @@ void IsometricServer::command_update_visual_server() {
     for (IsometricSpace* world : worlds) {
         if (world->fetched) { continue; }
 
-        for (IsometricElement* static_element : world->static_elements) {
+        for (IsometricElement* static_element : world->statics_elements) {
             RID visual_rid {static_element->visual_rid};
             if (!visual_rid.is_valid()) { continue; }
             RenderingServer::get_singleton()->canvas_item_set_z_index(visual_rid, static_element->z_order);
@@ -416,7 +479,7 @@ void IsometricServer::command_update_visual_server() {
                 );
             }
         }
-        for (IsometricElement* dynamic_element : world->dynamic_elements) {
+        for (IsometricElement* dynamic_element : world->dynamics_elements) {
             RID visual_rid {dynamic_element->visual_rid};
             if (!visual_rid.is_valid()) { continue; }
             RenderingServer::get_singleton()->canvas_item_set_z_index(visual_rid, dynamic_element->z_order);
@@ -460,6 +523,43 @@ void IsometricServer::command_set_debug_modulate(data::IsometricElement* element
     element->debug_modulate = color;
 }
 #endif
+
+Chunk* IsometricServer::get_or_create_chunk(data::IsometricSpace* space, Vector3 position) {
+    Vector2i& cell_size = space->cell_size;
+    Vector2i chunk_position {
+      static_cast<int>(position.x) / cell_size.x,
+      static_cast<int>(position.y) / cell_size.y
+    };
+    if (Chunk* chunk {space->chunks.getptr(chunk_position)}) {
+        return chunk;
+    }
+
+    Chunk* chunk = &space->chunks.insert(chunk_position, Chunk())->value;
+
+    chunk->all_neighbors.push_back(chunk);
+    chunk->dynamic_sorting_neighbors.push_back(chunk);
+    for (int x = -1; x < 2; ++x) {
+        for (int y = -1; y < 2; ++y) {
+            if (x == 0 && y == 0) {
+                continue;
+            }
+
+            Vector2i neighbor_position {chunk_position + Vector2i(x, y)};
+            if (Chunk* neighbor {space->chunks.getptr(neighbor_position)}) {
+                chunk->all_neighbors.push_back(neighbor);
+                neighbor->all_neighbors.push_back(chunk);
+
+                if (x == -1 || (x == 0 && y == -1)) {
+                    neighbor->dynamic_sorting_neighbors.push_back(chunk);
+                } else {
+                    chunk->dynamic_sorting_neighbors.push_back(neighbor);
+                }
+            }
+        }
+    }
+
+    return chunk;
+}
 
 ///////BINDING//////
 
