@@ -82,22 +82,10 @@ Vector<Ref<editor::commands::Command<node::IsometricMap>>> DragAndDropCommandEmi
           MIN(former_limit_position.z, static_cast<int>(limit_position.z))
         };
 
-        Vector3i end_check_position {
-          MAX(former_limit_position.x, static_cast<int>(limit_position.x)),
-          MAX(former_limit_position.y, static_cast<int>(limit_position.y)),
-          MAX(former_limit_position.z, static_cast<int>(limit_position.z))
-        };
-
         for (Chunk* chunk : chunks) {
             if (chunk->last_position.x < begin_check_position.x &&
                 chunk->last_position.y < begin_check_position.y &&
                 chunk->last_position.z < begin_check_position.z) {
-                continue;
-            }
-
-            if (chunk->begin_position.x > end_check_position.x &&
-                chunk->begin_position.y > end_check_position.y &&
-                chunk->begin_position.z > end_check_position.z) {
                 continue;
             }
 
