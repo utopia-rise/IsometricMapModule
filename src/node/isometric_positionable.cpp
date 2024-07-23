@@ -93,6 +93,20 @@ void IsometricPositionable::_physics_process() {
 }
 
 void IsometricPositionable::_exit_tree() {
+//    if (self != RID()) {
+//        ISOMETRIC_SERVER->isometric_element_detach_canvas_item(self);
+//        ISOMETRIC_SERVER->free_rid(self);
+//        if (world_owner) {
+//            world_owner = false;
+//            ISOMETRIC_SERVER->free_rid(world);
+//        }
+//        world = RID();
+//        self = RID();
+//    }
+//    remove_from_group(IsometricStringNames::get_singleton()->debug_group_name);
+}
+
+void IsometricPositionable::_on_pre_delete() {
     if (self != RID()) {
         ISOMETRIC_SERVER->isometric_element_detach_canvas_item(self);
         ISOMETRIC_SERVER->free_rid(self);
@@ -190,6 +204,9 @@ void IsometricPositionable::_notification(int notif) {
             break;
         case NOTIFICATION_PHYSICS_PROCESS:
             _physics_process();
+            break;
+        case NOTIFICATION_PREDELETE:
+            _on_pre_delete();
             break;
         default:
             break;

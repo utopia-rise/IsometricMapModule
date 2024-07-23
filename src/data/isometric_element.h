@@ -11,7 +11,7 @@ namespace data {
 
     struct IsometricElement {
         ////////Set by API calls (main thread)//////
-        IsometricSpace* space = nullptr;
+        RID space_rid = RID();
         RID visual_rid = RID();
         int depth = 1;
         bool is_dynamic = false;

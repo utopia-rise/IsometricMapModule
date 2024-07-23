@@ -55,7 +55,7 @@ RID IsometricServer::space_create() {
 void IsometricServer::space_attach_isometric_element(const RID space_rid, RID element_rid) {
     GET_SPACE_RID_DATA(space, space_rid);
     GET_ELEMENT_RID_DATA(element, element_rid);
-    element->space = space;
+    element->space_rid = space_rid;
     command_queue.push(this, &IsometricServer::command_space_attach_isometric_element, space, element);
 }
 
@@ -100,7 +100,7 @@ const data::IsometricParameters* IsometricServer::space_get_configuration(const 
 
 void IsometricServer::isometric_element_set_position(const RID element_rid, const Vector3 global_position) {
     GET_ELEMENT_RID_DATA(element, element_rid);
-    if (element->space && !element->is_dynamic) {
+    if (worlds_owner.owns(element->space_rid) && !element->is_dynamic) {
         LOG_WARNING(vformat("A static element position can't be changed after "
                             "being attached to a space."));
         return;
@@ -110,7 +110,7 @@ void IsometricServer::isometric_element_set_position(const RID element_rid, cons
 
 void IsometricServer::isometric_element_set_size(const RID element_rid, const Vector3 size) {
     GET_ELEMENT_RID_DATA(element, element_rid);
-    if (element->space && !element->is_dynamic) {
+    if (worlds_owner.owns(element->space_rid) && !element->is_dynamic) {
         LOG_WARNING(vformat("A static element size can't be changed after "
                             "being attached to a space."));
         return;
@@ -120,7 +120,7 @@ void IsometricServer::isometric_element_set_size(const RID element_rid, const Ve
 
 void IsometricServer::isometric_element_set_depth(const RID element_rid, const int depth) {
     GET_ELEMENT_RID_DATA(element, element_rid);
-    if (element->space && !element->is_dynamic) {
+    if (worlds_owner.owns(element->space_rid) && !element->is_dynamic) {
         LOG_WARNING(vformat("A static element size can't be changed after "
                             "being attached to a space."));
         return;
@@ -218,34 +218,34 @@ void IsometricServer::command_space_attach_isometric_element(data::IsometricSpac
 }
 
 void IsometricServer::command_space_detach_isometric_element(data::IsometricElement* element) {
-    if (IsometricSpace* space {element->space}) {
-        space->dirty = true;
-        Chunk* chunk {get_or_create_chunk(space, element->aabb.position)};
-        if (!element->is_dynamic) {
-            space->statics_elements.erase(element);
-            for (Chunk* neighbor : chunk->all_neighbors) {
-                neighbor->static_elements.erase(element);
-                for (IsometricElement* static_element : neighbor->static_elements) {
-                    static_element->behind_statics.erase(element);
-                }
+    GET_SPACE_RID_DATA(space, element->space_rid);
+
+    space->dirty = true;
+    Chunk* chunk {get_or_create_chunk(space, element->aabb.position)};
+    if (!element->is_dynamic) {
+        space->statics_elements.erase(element);
+        for (Chunk* neighbor : chunk->all_neighbors) {
+            neighbor->static_elements.erase(element);
+            for (IsometricElement* static_element : neighbor->static_elements) {
+                static_element->behind_statics.erase(element);
             }
-        } else {
-            space->dynamics_elements.erase(element);
-            chunk->dynamic_elements.erase(element);
         }
-        element->behind_statics.clear();
-        element->behind_dynamics.clear();
+    } else {
+        space->dynamics_elements.erase(element);
+        chunk->dynamic_elements.erase(element);
     }
+    element->behind_statics.clear();
+    element->behind_dynamics.clear();
 }
 
 void IsometricServer::command_space_delete(IsometricSpace* space) {
     for (IsometricElement* static_element : space->statics_elements) {
-        static_element->space = nullptr;
+        static_element->space_rid = RID();
     }
     space->statics_elements.clear();
 
     for (IsometricElement* dynamic_element : space->dynamics_elements) {
-        dynamic_element->space = nullptr;
+        dynamic_element->space_rid = RID();
     }
     space->dynamics_elements.clear();
     space->chunks.clear();
@@ -257,18 +257,20 @@ void IsometricServer::command_space_delete(IsometricSpace* space) {
 void IsometricServer::command_isometric_element_create(data::IsometricElement* element, bool p_is_dynamic) {}
 
 void IsometricServer::command_isometric_element_attach_canvas_item(data::IsometricElement* element, const RID canvas_rid) {
-    IsometricSpace* space {element->space};
-    if (space) { element->space->dirty = true; }
+    if (IsometricSpace* space {worlds_owner.get_or_null(element->space_rid)}) {
+        space->dirty = true;
+    }
 }
 
 void IsometricServer::command_isometric_element_detach_canvas_item(data::IsometricElement* element) {
-    IsometricSpace* space {element->space};
-    if (space) { element->space->dirty = true; }
+    if (IsometricSpace* space {worlds_owner.get_or_null(element->space_rid)}) {
+        space->dirty = true;
+    }
 }
 
 void IsometricServer::command_isometric_element_set_position(data::IsometricElement* element, const Vector3 global_position) {
-    if (IsometricSpace* space {element->space}) {
-        element->space->dirty = true;
+    if (IsometricSpace* space {worlds_owner.get_or_null(element->space_rid)}) {
+        space->dirty = true;
 
         Chunk* former_chunk {get_or_create_chunk(space, element->aabb.position)};
         Chunk* new_chunk {get_or_create_chunk(space, global_position)};
@@ -285,48 +287,51 @@ void IsometricServer::command_isometric_element_set_position(data::IsometricElem
             new_chunk_elements.push_back(element);
         }
     }
+
     element->aabb.position = global_position;
 }
 
 void IsometricServer::command_isometric_element_set_size(data::IsometricElement* element, const Vector3 size) {
-    IsometricSpace* space {element->space};
-    if (space) {
-        element->space->dirty = true;
+    GET_SPACE_RID_DATA(space, element->space_rid);
+    space->dirty = true;
 
 #ifdef DEBUG_ENABLED
-        if (static_cast<int>(size.x) > space->cell_size.x || static_cast<int>(size.y) > space->cell_size.y) {
-            LOG_WARNING(vformat("Cannot create an isometric element with size on (x, y) > %s", space->cell_size));
-        }
-#endif
+    if (static_cast<int>(size.x) > space->cell_size.x || static_cast<int>(size.y) > space->cell_size.y) {
+        LOG_WARNING(vformat("Cannot create an isometric element with size on (x, y) > %s", space->cell_size));
     }
+#endif
     element->aabb.size = size;
 }
 
 void IsometricServer::command_isometric_element_set_depth(data::IsometricElement* element, const int depth) {
-    IsometricSpace* space {element->space};
-    if (space) { element->space->dirty = true; }
+    if (IsometricSpace* space {worlds_owner.get_or_null(element->space_rid)}) {
+        space->dirty = true;
+    }
     element->depth = depth;
 }
 
 void IsometricServer::command_isometric_element_delete(data::IsometricElement* element) {
-    if (IsometricSpace* space {element->space}) {
-        space->dirty = true;
-        Chunk* chunk {get_or_create_chunk(space, element->aabb.position)};
-        if (!element->is_dynamic) {
-            space->statics_elements.erase(element);
-            for (Chunk* neighbor : chunk->all_neighbors) {
-                neighbor->static_elements.erase(element);
-                for (IsometricElement* static_element : neighbor->static_elements) {
-                    static_element->behind_statics.erase(element);
-                }
-            }
-        } else {
-            space->dynamics_elements.erase(element);
-            chunk->dynamic_elements.erase(element);
-        }
-        element->behind_statics.clear();
-        element->behind_dynamics.clear();
+    if (!worlds_owner.owns(element->space_rid)) {
+        memdelete(element);
+        return;
     }
+    IsometricSpace* space {worlds_owner.get_or_null(element->space_rid)};
+    space->dirty = true;
+    Chunk* chunk {get_or_create_chunk(space, element->aabb.position)};
+    if (!element->is_dynamic) {
+        space->statics_elements.erase(element);
+        for (Chunk* neighbor : chunk->all_neighbors) {
+            neighbor->static_elements.erase(element);
+            for (IsometricElement* static_element : neighbor->static_elements) {
+                static_element->behind_statics.erase(element);
+            }
+        }
+    } else {
+        space->dynamics_elements.erase(element);
+        chunk->dynamic_elements.erase(element);
+    }
+    element->behind_statics.clear();
+    element->behind_dynamics.clear();
     memdelete(element);
 }
 
@@ -519,7 +524,8 @@ void IsometricServer::isometric_element_set_debug_modulate(const RID element_rid
 }
 
 void IsometricServer::command_set_debug_modulate(data::IsometricElement* element, const Color color) { // NOLINT(*-convert-member-functions-to-static)
-    if (IsometricSpace* space {element->space}) { space->dirty = true; }
+    GET_SPACE_RID_DATA(space, element->space_rid);
+    space->dirty = true;
     element->debug_modulate = color;
 }
 #endif

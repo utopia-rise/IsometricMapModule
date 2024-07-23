@@ -62,6 +62,7 @@ namespace node {
         void _ready();
         void _physics_process();
         void _exit_tree();
+        void _on_pre_delete();
 
     public:
         IsometricPositionable();
