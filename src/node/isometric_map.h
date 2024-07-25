@@ -79,6 +79,9 @@ namespace node {
         void set_layer_visible(uint32_t p_layer_id, bool is_visible);
         void set_layer_color(uint32_t p_layer_id, const Color& p_color);
         Vector<Vector3> get_layer_positions(uint32_t p_layer_id) const;
+
+        template<bool (*condition)(node::IsometricPositionable*)>
+        Vector<Vector3> dfs(const Vector3& p_starting_position, Vector3::Axis p_axis, const Vector3& p_unit_size) const;
 #endif
 #ifdef DEBUG_ENABLED
         void set_debug_modulate(const Color &p_modulate) const override;
@@ -91,5 +94,12 @@ namespace node {
     protected:
         static void _bind_methods();
     };
+
+#ifdef TOOLS_ENABLED
+    template<bool (*condition)(node::IsometricPositionable*)>
+    Vector<Vector3> IsometricMap::dfs(const Vector3& p_starting_position, Vector3::Axis p_axis, const Vector3& p_unit_size) const {
+        return instances_grid_3d.dfs<condition>(p_starting_position, p_axis, p_unit_size);
+    }
+#endif
 }// namespace node
 #endif// ISOMETRIC_MAPS_ISOMETRIC_MAP_H

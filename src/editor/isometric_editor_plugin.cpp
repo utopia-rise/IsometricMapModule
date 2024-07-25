@@ -19,6 +19,7 @@ static constexpr const char* NONE_EDITION_LABEL {"None"};
 static constexpr const char* SELECT_EDITION_LABEL {"Select"};
 static constexpr const char* PAINT_EDITION_LABEL {"Paint"};
 static constexpr const char* DRAG_AND_DROP_EDITION_LABEL {"Drag & Drop"};
+static constexpr const char* FILL_EDITION_LABEL {"Fill"};
 static constexpr const char* GRID_COLOR_PICKER_TITLE {"Grid color:"};
 
 static constexpr const char* DEBUG_BUTTON_TITLE {"Debug"};
@@ -94,6 +95,7 @@ void IsometricEditorPlugin::_notification(int p_notification) {
         edition_mode_button->add_item(SELECT_EDITION_LABEL);
         edition_mode_button->add_item(PAINT_EDITION_LABEL);
         edition_mode_button->add_item(DRAG_AND_DROP_EDITION_LABEL);
+        edition_mode_button->add_item(FILL_EDITION_LABEL);
         edition_mode_button->set_flat(true);
         edition_mode_button->connect("item_selected", Callable(this, "_on_edition_mode_changed"));
         toolbar->add_child(edition_mode_button);
@@ -248,6 +250,8 @@ bool IsometricEditorPlugin::forward_canvas_gui_input(const Ref<InputEvent>& p_ev
         case DRAG_AND_DROP:
             drag_and_drop_command_emitter.on_gui_input(p_event, selected_map);
             break;
+        case FILL:
+            fill_plan_command_emitter.on_gui_input(p_event, selected_map);
     }
     move_editor_drawer_command_emitter.on_gui_input(p_event, selected_map);
     rotate_editor_plane_command_emitter.on_gui_input(p_event, selected_map);
@@ -369,6 +373,8 @@ void IsometricEditorPlugin::_on_edition_mode_changed(int selected_index) {
         current_mode = Mode::PAINT;
     } else if (selected_label == DRAG_AND_DROP_EDITION_LABEL) {
         current_mode = Mode::DRAG_AND_DROP;
+    } else if (selected_label == FILL_EDITION_LABEL) {
+        current_mode = Mode::FILL;
     }
 }
 

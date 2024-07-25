@@ -1,12 +1,14 @@
 #ifndef ISOMETRIC_MAPS_GRID_3D_H
 #define ISOMETRIC_MAPS_GRID_3D_H
 
-#include <core/templates/vector.h>
-#include <core/variant/array.h>
+#include "logging.h"
 
 #include <core/math/aabb.h>
 #include <core/math/vector3.h>
 #include <core/math/vector3i.h>
+#include <core/templates/hash_set.h>
+#include <core/templates/vector.h>
+#include <core/variant/array.h>
 
 namespace containers {
 
@@ -24,6 +26,9 @@ namespace containers {
         int get_index_from_position(const Vector3& position) const;
 
         Vector3 plane_square_and_jumps_from(const Vector3& size) const;
+
+        template<bool (*condition)(T)>
+        bool match_condition_on_one_of(const AABB& aabb) const;
 
         inline int compute_array_size() const { return width * depth * height; }
 
@@ -76,6 +81,12 @@ namespace containers {
 
         Array to_array() const;
         void from_array(const Array& array);
+
+        template<bool (*condition)(T)> Vector<Vector3> dfs(
+          const Vector3& p_starting_position,
+          Vector3::Axis p_axis,
+          const Vector3& p_unit_size
+        ) const;
     };
 
     template<class T, T default_value>
@@ -200,19 +211,30 @@ namespace containers {
         return ret;
     }
 
+    template<class T>
+    static constexpr bool (*element_is_not_null)(T) = [](T element) -> bool {
+        return element != nullptr;
+    };
+
     template<class T, T default_value>
     bool Grid3D<T, default_value>::is_overlapping(const AABB& aabb) const {
+        return match_condition_on_one_of<element_is_not_null<T>>(aabb);
+    }
+
+    template<class T, T default_value>
+    template<bool (*condition)(T)>
+    bool Grid3D<T, default_value>::match_condition_on_one_of(const AABB& aabb) const {
         int index {get_index_from_position(aabb.position)};
         const Vector3& size {aabb.size};
 
         if (index >= 0 && index < internal_array.size()) {
             T element = internal_array[index];
-            if (element) { return true; }
+            if (condition(element)) { return true; }
             for (int i = 1; i < static_cast<int>(size.x) * static_cast<int>(size.y) * static_cast<int>(size.z); ++i) {
                 index += Grid3D::index_increment_from(plane_square_and_jumps_from(size), size, i);
                 if (index >= 0 && index < internal_array.size()) {
                     element = internal_array[index];
-                    if (element) { return true; }
+                    if (condition(element)) { return true; }
                 }
             }
         }
@@ -329,6 +351,82 @@ namespace containers {
             new_internal_array.push_back(array[i]);
         }
         set_internal_array(new_internal_array);
+    }
+
+    template<class T, bool (*condition)(T)>
+    static constexpr bool (*revert_condition)(T) = [](T element) -> bool {
+        return !condition(element);
+    };
+    
+    template<class T, T default_value>
+    template<bool (*condition)(T)>
+    Vector<Vector3> Grid3D<T, default_value>::dfs(
+      const Vector3& p_starting_position,
+      Vector3::Axis p_axis,
+      const Vector3& p_unit_size
+    ) const {
+        Vector<Vector3> connected_positions;
+
+        HashSet<Vector3> visited;
+
+        Vector<int> dx;
+        Vector<int> dy;
+        Vector<int> dz;
+
+        auto size_on_x {static_cast<int>(p_unit_size.x)};
+        auto size_on_y {static_cast<int>(p_unit_size.y)};
+        auto size_on_z {static_cast<int>(p_unit_size.z)};
+
+        switch (p_axis) {
+            case Vector3::AXIS_X:
+                dx.append_array({0, 0, 0, 0});
+                dy.append_array({-size_on_y, size_on_y, 0, 0});
+                dz.append_array({0, 0, -size_on_z, size_on_z});
+                break;
+            case Vector3::AXIS_Y:
+                dx.append_array({-size_on_x, size_on_x, 0, 0});
+                dy.append_array({0, 0, 0, 0});
+                dz.append_array({0, 0, -size_on_z, size_on_z});
+                break;
+            case Vector3::AXIS_Z:
+                dx.append_array({-size_on_x, size_on_x, 0, 0});
+                dy.append_array({0, 0, -size_on_y, size_on_y});
+                dz.append_array({0, 0, 0, 0});
+                break;
+        }
+
+        Vector<Vector3> stack;
+        stack.push_back(p_starting_position);
+        visited.insert(p_starting_position);
+
+        while (!stack.is_empty()) {
+            Vector3 current_position {stack[stack.size() - 1]};
+            stack.remove_at(stack.size() - 1);
+
+            if (current_position.x < 0 || current_position.y < 0 || current_position.z < 0 ||
+                current_position.x + size_on_x - 1 >= width || current_position.y + size_on_y - 1 >= depth || current_position.z + size_on_z - 1 >= height) {
+                continue;
+            }
+
+            AABB aabb {current_position, p_unit_size};
+            if (match_condition_on_one_of<revert_condition<T, condition>>(aabb)) {
+                continue;
+            }
+            connected_positions.append(current_position);
+
+            for (int i = 0; i < 4; ++i) {
+                Vector3 neighbor { current_position + Vector3(dx[i], dy[i], dz[i]) };
+
+                if (visited.has(neighbor)) {
+                    continue;
+                }
+
+                stack.push_back(neighbor);
+                visited.insert(neighbor);
+            }
+        }
+
+        return connected_positions;
     }
 
     template<class T, T default_value>
